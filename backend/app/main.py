@@ -1,5 +1,7 @@
 import os
 import sys
+import logging
+from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
@@ -15,11 +17,13 @@ from backend.app.core.config import settings
 from backend.app.core.logging import setup_logging
 from backend.app.db.database import get_db, init_db
 from backend.app.db.models import (
-    Meter, MeterReading, TestSuite, TestRun, TestResult, FailureRecord, KnowledgeItem
+    Meter, MeterReading, TestSuite, TestCase, TestRun, TestResult, FailureRecord, KnowledgeItem
 )
 from backend.app.schemas.schemas import (
     MeterCreate, MeterResponse, ReadingResponse, TestRunCreate,
-    RegressionCompareRequest, RecommendationRequest, AIChatRequest, KnowledgeItemCreate
+    RegressionCompareRequest, RecommendationRequest, AIChatRequest, KnowledgeItemCreate,
+    TestSuiteCreate, TestSuiteUpdate, TestSuiteResponse,
+    TestCaseCreate, TestCaseUpdate, TestCaseResponse,
 )
 from backend.app.services.meter_service import MeterService
 from backend.app.services.test_service import TestEngineService
@@ -29,7 +33,10 @@ from backend.app.services.regression_service import RegressionService
 from backend.app.services.recommendation_service import RecommendationService
 from backend.app.services.report_service import ReportGeneratorService
 from backend.app.services.ai_service import AIService
+from backend.app.services.azure_devops_service import AzureDevOpsService, AzureDevOpsError
 from meter.config import MeterConfig
+
+logger = logging.getLogger("smart_meter_api")
 
 setup_logging()
 init_db()
@@ -130,22 +137,207 @@ def disconnect_meter(meter_id: int, db: Session = Depends(get_db)):
     return {"status": "DISCONNECTED", "meter_id": meter_id}
 
 
+def get_azure_service() -> AzureDevOpsService:
+    """FastAPI dependency; overridden with a mock in tests."""
+    return AzureDevOpsService()
+
+
+def _suite_to_dict(suite: TestSuite) -> dict:
+    return {
+        "id": suite.id,
+        "name": suite.name,
+        "category": suite.category,
+        "description": suite.description,
+        "total_cases": len(suite.test_cases),
+        "azure_plan_id": suite.azure_plan_id,
+        "azure_suite_id": suite.azure_suite_id,
+        "azure_sync_status": suite.azure_sync_status,
+        "azure_sync_error": suite.azure_sync_error,
+        "azure_last_synced_at": suite.azure_last_synced_at,
+    }
+
+
+def _sync_test_case_to_azure(db: Session, test_case: TestCase, suite: TestSuite, azure: AzureDevOpsService) -> None:
+    """
+    Syncs a local TestCase (and its parent TestSuite, if needed) to Azure DevOps.
+    Never raises: on any Azure failure the local record is kept and marked FAILED
+    with the error message, so the caller can retry later via /sync-azure.
+    """
+    if not azure.is_configured:
+        if suite.azure_suite_id is None:
+            suite.azure_sync_status = "NOT_CONFIGURED"
+        test_case.azure_sync_status = "NOT_CONFIGURED"
+        test_case.azure_sync_error = None
+        db.commit()
+        return
+
+    try:
+        if suite.azure_suite_id is None:
+            azure_suite_id = azure.get_or_create_test_suite(suite.name)
+            suite.azure_suite_id = azure_suite_id
+            suite.azure_plan_id = int(azure.plan_id)
+            suite.azure_sync_status = "SYNCED"
+            suite.azure_sync_error = None
+            suite.azure_last_synced_at = datetime.utcnow()
+            db.commit()
+
+        if test_case.azure_test_case_id is None:
+            azure_case_id = azure.create_test_case(
+                name=test_case.name,
+                description=test_case.description or "",
+                test_steps=test_case.test_steps or [],
+            )
+            test_case.azure_test_case_id = azure_case_id
+        else:
+            azure.update_test_case(
+                test_case.azure_test_case_id,
+                name=test_case.name,
+                description=test_case.description or "",
+                test_steps=test_case.test_steps or [],
+            )
+
+        azure.add_test_case_to_suite(suite.azure_suite_id, test_case.azure_test_case_id)
+
+        test_case.azure_sync_status = "SYNCED"
+        test_case.azure_sync_error = None
+        test_case.azure_last_synced_at = datetime.utcnow()
+        logger.info(f"Test case {test_case.id} synced to Azure work item {test_case.azure_test_case_id}")
+    except AzureDevOpsError as exc:
+        test_case.azure_sync_status = "FAILED"
+        test_case.azure_sync_error = str(exc)[:1000]
+        logger.error(f"Azure sync failed for test case {test_case.id}: {exc}")
+
+    db.commit()
+    db.refresh(test_case)
+
+
 # TESTING ENDPOINTS
-@app.get("/api/test-suites")
+@app.get("/api/test-suites", response_model=List[TestSuiteResponse])
 def list_test_suites(db: Session = Depends(get_db)):
     engine = TestEngineService(db)
     engine.create_default_suites()
     suites = db.query(TestSuite).all()
-    return [
-        {
-            "id": s.id,
-            "name": s.name,
-            "category": s.category,
-            "description": s.description,
-            "total_cases": len(s.test_cases),
-        }
-        for s in suites
-    ]
+    return [_suite_to_dict(s) for s in suites]
+
+
+@app.post("/api/test-suites", response_model=TestSuiteResponse, status_code=201)
+def create_test_suite(data: TestSuiteCreate, db: Session = Depends(get_db)):
+    suite = TestSuite(**data.model_dump())
+    db.add(suite)
+    db.commit()
+    db.refresh(suite)
+    return _suite_to_dict(suite)
+
+
+@app.put("/api/test-suites/{suite_id}", response_model=TestSuiteResponse)
+def update_test_suite(suite_id: int, data: TestSuiteUpdate, db: Session = Depends(get_db)):
+    suite = db.query(TestSuite).filter(TestSuite.id == suite_id).first()
+    if not suite:
+        raise HTTPException(status_code=404, detail="Test suite not found")
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(suite, field, value)
+    db.commit()
+    db.refresh(suite)
+    return _suite_to_dict(suite)
+
+
+@app.delete("/api/test-suites/{suite_id}", status_code=204)
+def delete_test_suite(suite_id: int, db: Session = Depends(get_db)):
+    suite = db.query(TestSuite).filter(TestSuite.id == suite_id).first()
+    if not suite:
+        raise HTTPException(status_code=404, detail="Test suite not found")
+    db.delete(suite)
+    db.commit()
+    return None
+
+
+# TEST CASE ENDPOINTS (local CRUD + Azure DevOps Test Plans sync)
+@app.post("/api/test-cases", response_model=TestCaseResponse, status_code=201)
+def create_test_case(
+    data: TestCaseCreate,
+    db: Session = Depends(get_db),
+    azure: AzureDevOpsService = Depends(get_azure_service),
+):
+    suite = db.query(TestSuite).filter(TestSuite.id == data.suite_id).first()
+    if not suite:
+        raise HTTPException(status_code=404, detail="Test suite not found")
+
+    test_case = TestCase(**data.model_dump())
+    db.add(test_case)
+    db.commit()
+    db.refresh(test_case)
+
+    _sync_test_case_to_azure(db, test_case, suite, azure)
+    return test_case
+
+
+@app.get("/api/test-cases", response_model=List[TestCaseResponse])
+def list_test_cases(suite_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
+    query = db.query(TestCase)
+    if suite_id is not None:
+        query = query.filter(TestCase.suite_id == suite_id)
+    return query.order_by(TestCase.id.desc()).all()
+
+
+@app.get("/api/test-cases/{case_id}", response_model=TestCaseResponse)
+def get_test_case(case_id: int, db: Session = Depends(get_db)):
+    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    if not test_case:
+        raise HTTPException(status_code=404, detail="Test case not found")
+    return test_case
+
+
+@app.put("/api/test-cases/{case_id}", response_model=TestCaseResponse)
+def update_test_case(
+    case_id: int,
+    data: TestCaseUpdate,
+    db: Session = Depends(get_db),
+    azure: AzureDevOpsService = Depends(get_azure_service),
+):
+    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    if not test_case:
+        raise HTTPException(status_code=404, detail="Test case not found")
+
+    updates = data.model_dump(exclude_unset=True)
+    target_suite_id = updates.get("suite_id", test_case.suite_id)
+    suite = db.query(TestSuite).filter(TestSuite.id == target_suite_id).first()
+    if not suite:
+        raise HTTPException(status_code=404, detail="Test suite not found")
+
+    for field, value in updates.items():
+        setattr(test_case, field, value)
+    test_case.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(test_case)
+
+    _sync_test_case_to_azure(db, test_case, suite, azure)
+    return test_case
+
+
+@app.delete("/api/test-cases/{case_id}", status_code=204)
+def delete_test_case(case_id: int, db: Session = Depends(get_db)):
+    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    if not test_case:
+        raise HTTPException(status_code=404, detail="Test case not found")
+    db.delete(test_case)
+    db.commit()
+    return None
+
+
+@app.post("/api/test-cases/{case_id}/sync-azure", response_model=TestCaseResponse)
+def retry_sync_test_case(
+    case_id: int,
+    db: Session = Depends(get_db),
+    azure: AzureDevOpsService = Depends(get_azure_service),
+):
+    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    if not test_case:
+        raise HTTPException(status_code=404, detail="Test case not found")
+    suite = db.query(TestSuite).filter(TestSuite.id == test_case.suite_id).first()
+    if not suite:
+        raise HTTPException(status_code=404, detail="Parent test suite not found")
+    _sync_test_case_to_azure(db, test_case, suite, azure)
+    return test_case
 
 
 @app.post("/api/test-runs")

@@ -31,6 +31,49 @@ export interface TestSuite {
   category: string;
   description: string;
   total_cases: number;
+  azure_plan_id?: number | null;
+  azure_suite_id?: number | null;
+  azure_sync_status?: AzureSyncStatus;
+  azure_sync_error?: string | null;
+  azure_last_synced_at?: string | null;
+}
+
+export type AzureSyncStatus = 'NOT_SYNCED' | 'SYNCED' | 'FAILED' | 'NOT_CONFIGURED';
+
+export interface TestStep {
+  action: string;
+  expected: string;
+}
+
+export interface TestCaseDefinition {
+  id: number;
+  suite_id: number;
+  name: string;
+  description?: string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  obis_target: string;
+  action: string;
+  expected_value?: string | null;
+  timeout_ms: number;
+  test_steps: TestStep[];
+  is_active: boolean;
+  azure_test_case_id?: number | null;
+  azure_sync_status: AzureSyncStatus;
+  azure_sync_error?: string | null;
+  azure_last_synced_at?: string | null;
+}
+
+export interface TestCaseCreateInput {
+  suite_id: number;
+  name: string;
+  description?: string;
+  severity?: string;
+  obis_target?: string;
+  action?: string;
+  expected_value?: string;
+  timeout_ms?: number;
+  test_steps?: TestStep[];
+  is_active?: boolean;
 }
 
 export interface TestRun {

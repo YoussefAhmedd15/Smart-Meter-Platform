@@ -70,6 +70,13 @@ class TestSuite(Base):
     category = Column(String(64), default="Functional")  # Communication, OBIS, LoadProfile, Voltage, Current, Power
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # Azure DevOps Test Plans sync state
+    azure_plan_id = Column(Integer, nullable=True)
+    azure_suite_id = Column(Integer, nullable=True)
+    azure_sync_status = Column(String(16), default="NOT_SYNCED")  # NOT_SYNCED, SYNCED, FAILED, NOT_CONFIGURED
+    azure_sync_error = Column(Text, nullable=True)
+    azure_last_synced_at = Column(DateTime, nullable=True)
+
     test_cases = relationship("TestCase", back_populates="suite", cascade="all, delete-orphan")
 
 
@@ -82,8 +89,19 @@ class TestCase(Base):
     description = Column(Text)
     severity = Column(String(32), default="HIGH")  # CRITICAL, HIGH, MEDIUM, LOW
     obis_target = Column(String(32), default="1.0.1.8.0.255")
+    action = Column(String(32), default="READ_OBIS")  # READ_OBIS, WRITE_OBIS, EXECUTE_METHOD
     expected_value = Column(String(128), nullable=True)
     timeout_ms = Column(Integer, default=5000)
+    test_steps = Column(JSON, default=list)  # [{"action": "...", "expected": "..."}]
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Azure DevOps Test Plans sync state
+    azure_test_case_id = Column(Integer, nullable=True)
+    azure_sync_status = Column(String(16), default="NOT_SYNCED")  # NOT_SYNCED, SYNCED, FAILED, NOT_CONFIGURED
+    azure_sync_error = Column(Text, nullable=True)
+    azure_last_synced_at = Column(DateTime, nullable=True)
 
     suite = relationship("TestSuite", back_populates="test_cases")
 

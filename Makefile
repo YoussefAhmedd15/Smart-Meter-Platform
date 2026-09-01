@@ -19,6 +19,7 @@ seed:
 
 test:
 	python -m unittest meter/tests/test_meter.py
+	python -m unittest discover -s backend/tests -p "test_*.py"
 
 run-backend:
 	uvicorn backend.app.main:app --reload --port 8000

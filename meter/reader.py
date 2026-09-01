@@ -138,7 +138,7 @@ class DLMSMeterReader:
         except Exception:
             return default_port
 
-    def connect(( -> bool:
+    def connect(self) -> bool:
         """Connects to the smart meter (or mock engine)."""
         if self.config.app_mode == AppMode.DEMO:
             logger.info("Operating in DEMO mode — using Mock Meter Adapter.")
@@ -276,7 +276,7 @@ class DLMSMeterReader:
                 details={"obis": obis_code, "duration_ms": duration_ms},
             )
 
-    def read_all(() -> List[ReadResult]:
+    def read_all(self) -> List[ReadResult]:
         if self.config.app_mode == AppMode.DEMO or not self._reader:
             return self.mock_adapter.read_all()
 
@@ -293,7 +293,7 @@ class DLMSMeterReader:
             return self.mock_adapter.read_profile(obis_code, limit)
         return self.mock_adapter.read_profile(obis_code, limit)
 
-    def get_meter_information(() -> dict:
+    def get_meter_information(self) -> dict:
         if self.config.app_mode == AppMode.DEMO or not self._reader:
             return self.mock_adapter.get_meter_information()
         return {

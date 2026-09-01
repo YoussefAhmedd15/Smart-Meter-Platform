@@ -153,7 +153,7 @@ class MockMeterAdapter:
             status="PASS",
         )
 
-    def read_all(() -> List[ReadResult]:
+    def read_all(self) -> List[ReadResult]:
         results = []
         for obis_code in COMMON_OBIS_CODES.keys():
             results.append(self.read_obis(obis_code))
@@ -175,7 +175,7 @@ class MockMeterAdapter:
             })
         return records
 
-    def get_meter_information(() -> dict:
+    def get_meter_information(self) -> dict:
         return {
             "serial_number": self.serial_number,
             "manufacturer": self.manufacturer,

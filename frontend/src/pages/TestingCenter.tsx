@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, CheckCircle, XCircle, Clock, Terminal, Cpu } from 'lucide-react';
+import { Play, Square, CheckCircle, XCircle, Clock, Terminal, Cpu, Plus, RefreshCw } from 'lucide-react';
 import { apiService } from '../services/api';
-import { Meter, TestSuite, TestRun } from '../types';
+import { Meter, TestSuite, TestRun, TestCaseDefinition } from '../types';
 
 export const TestingCenter: React.FC = () => {
   const [meters, setMeters] = useState<Meter[]>([]);
@@ -13,10 +13,58 @@ export const TestingCenter: React.FC = () => {
   const [currentRun, setCurrentRun] = useState<TestRun | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
 
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [lastCreated, setLastCreated] = useState<TestCaseDefinition | null>(null);
+  const [retrying, setRetrying] = useState(false);
+  const [newCase, setNewCase] = useState({
+    suite_id: 1,
+    name: '',
+    description: '',
+    obis_target: '1.0.1.8.0.255',
+    action: 'READ_OBIS',
+    expected_value: '',
+    timeout_ms: 5000,
+  });
+
+  const refreshSuites = () => apiService.getTestSuites().then(setSuites).catch(console.error);
+
   useEffect(() => {
     apiService.getMeters().then(setMeters).catch(console.error);
-    apiService.getTestSuites().then(setSuites).catch(console.error);
+    refreshSuites();
   }, []);
+
+  const handleCreateTestCase = async () => {
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const created = await apiService.createTestCase({
+        ...newCase,
+        expected_value: newCase.expected_value || undefined,
+      });
+      setLastCreated(created);
+      setNewCase(prev => ({ ...prev, name: '', description: '', expected_value: '' }));
+      refreshSuites();
+    } catch (err: any) {
+      setCreateError(err?.message || 'Failed to create test case.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleRetrySync = async () => {
+    if (!lastCreated) return;
+    setRetrying(true);
+    try {
+      const updated = await apiService.retrySyncTestCase(lastCreated.id);
+      setLastCreated(updated);
+    } catch (err: any) {
+      setCreateError(err?.message || 'Retry failed.');
+    } finally {
+      setRetrying(false);
+    }
+  };
 
   const handleStartTest = async () => {
     setIsRunning(true);
@@ -45,10 +93,117 @@ export const TestingCenter: React.FC = () => {
 
   return (
     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Automated DLMS Testing Center</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Configure test suites, execute hardware association, and monitor real-time test execution.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Automated DLMS Testing Center</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Configure test suites, execute hardware association, and monitor real-time test execution.</p>
+        </div>
+        <button className="btn-cyan" onClick={() => setShowCreateForm(v => !v)}>
+          <Plus size={16} /> {showCreateForm ? 'CLOSE' : 'NEW TEST CASE'}
+        </button>
       </div>
+
+      {/* Create Test Case Panel */}
+      {showCreateForm && (
+        <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Create Test Case</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>TEST SUITE</label>
+              <select
+                value={newCase.suite_id}
+                onChange={(e) => setNewCase({ ...newCase, suite_id: Number(e.target.value) })}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}
+              >
+                {suites.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>ACTION</label>
+              <select
+                value={newCase.action}
+                onChange={(e) => setNewCase({ ...newCase, action: e.target.value })}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}
+              >
+                <option value="READ_OBIS">READ_OBIS</option>
+                <option value="WRITE_OBIS">WRITE_OBIS</option>
+                <option value="EXECUTE_METHOD">EXECUTE_METHOD</option>
+              </select>
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>NAME</label>
+              <input
+                value={newCase.name}
+                onChange={(e) => setNewCase({ ...newCase, name: e.target.value })}
+                placeholder="e.g. Phase L1 RMS Voltage Range Check"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}
+              />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>DESCRIPTION</label>
+              <input
+                value={newCase.description}
+                onChange={(e) => setNewCase({ ...newCase, description: e.target.value })}
+                placeholder="What does this test verify?"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>OBIS TARGET</label>
+              <input
+                value={newCase.obis_target}
+                onChange={(e) => setNewCase({ ...newCase, obis_target: e.target.value })}
+                className="mono"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>EXPECTED VALUE (optional)</label>
+              <input
+                value={newCase.expected_value}
+                onChange={(e) => setNewCase({ ...newCase, expected_value: e.target.value })}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}
+              />
+            </div>
+          </div>
+
+          <button className="btn-cyan" onClick={handleCreateTestCase} disabled={creating || !newCase.name}>
+            {creating ? 'CREATING...' : 'CREATE TEST CASE'}
+          </button>
+
+          {createError && (
+            <div style={{ color: 'var(--accent-red)', fontSize: '0.85rem' }}>Error: {createError}</div>
+          )}
+
+          {lastCreated && (
+            <div style={{ padding: '14px', borderRadius: '8px', background: 'rgba(17,23,38,0.5)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontWeight: 600, marginBottom: '8px' }}>Created Successfully</div>
+              <div className="mono" style={{ fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span>Local Test Case: #{lastCreated.id}</span>
+                <span>
+                  Azure Test Case: {lastCreated.azure_test_case_id ? `#${lastCreated.azure_test_case_id}` : '—'}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Azure Sync:{' '}
+                  <span className={`badge ${lastCreated.azure_sync_status === 'SYNCED' ? 'badge-pass' : lastCreated.azure_sync_status === 'FAILED' ? 'badge-fail' : ''}`}>
+                    {lastCreated.azure_sync_status}
+                  </span>
+                  {lastCreated.azure_sync_status === 'FAILED' && (
+                    <button className="btn-secondary" onClick={handleRetrySync} disabled={retrying} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <RefreshCw size={14} /> {retrying ? 'RETRYING...' : 'RETRY SYNC'}
+                    </button>
+                  )}
+                </span>
+                {lastCreated.azure_sync_status === 'FAILED' && lastCreated.azure_sync_error && (
+                  <span style={{ color: 'var(--accent-red)' }}>{lastCreated.azure_sync_error}</span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Control Panel Glass Card */}
       <div className="glass-card" style={{ padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '16px', alignItems: 'center' }}>

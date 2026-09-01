@@ -1,6 +1,7 @@
 import {
   Meter, MeterReading, TestSuite, TestRun, FailureRecord,
-  AnalyticsOverview, KnowledgeItem, RegressionComparison
+  AnalyticsOverview, KnowledgeItem, RegressionComparison,
+  TestCaseDefinition, TestCaseCreateInput
 } from '../types';
 
 const API_BASE = '/api';
@@ -84,6 +85,20 @@ export const apiService = {
       ];
     }
   },
+
+  getTestCases: (suiteId?: number): Promise<TestCaseDefinition[]> =>
+    fetchJson<TestCaseDefinition[]>(suiteId ? `/test-cases?suite_id=${suiteId}` : '/test-cases'),
+
+  createTestCase: (data: TestCaseCreateInput): Promise<TestCaseDefinition> =>
+    fetchJson<TestCaseDefinition>('/test-cases', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  retrySyncTestCase: (caseId: number): Promise<TestCaseDefinition> =>
+    fetchJson<TestCaseDefinition>(`/test-cases/${caseId}/sync-azure`, {
+      method: 'POST',
+    }),
 
   runTest: async (meterId: number, suiteId: number): Promise<TestRun> => {
     try {

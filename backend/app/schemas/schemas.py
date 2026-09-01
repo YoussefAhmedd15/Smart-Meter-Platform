@@ -48,6 +48,86 @@ class TestRunCreate(BaseModel):
     suite_id: int
 
 
+class TestStep(BaseModel):
+    action: str
+    expected: str = ""
+
+
+class TestSuiteCreate(BaseModel):
+    name: str
+    description: str = ""
+    category: str = "Functional"
+
+
+class TestSuiteUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+
+
+class TestSuiteResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    category: str
+    total_cases: int = 0
+    azure_plan_id: Optional[int] = None
+    azure_suite_id: Optional[int] = None
+    azure_sync_status: str = "NOT_SYNCED"
+    azure_sync_error: Optional[str] = None
+    azure_last_synced_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class TestCaseCreate(BaseModel):
+    suite_id: int
+    name: str
+    description: str = ""
+    severity: str = "HIGH"
+    obis_target: str = "1.0.1.8.0.255"
+    action: str = "READ_OBIS"
+    expected_value: Optional[str] = None
+    timeout_ms: int = 5000
+    test_steps: List[TestStep] = []
+    is_active: bool = True
+
+
+class TestCaseUpdate(BaseModel):
+    suite_id: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    severity: Optional[str] = None
+    obis_target: Optional[str] = None
+    action: Optional[str] = None
+    expected_value: Optional[str] = None
+    timeout_ms: Optional[int] = None
+    test_steps: Optional[List[TestStep]] = None
+    is_active: Optional[bool] = None
+
+
+class TestCaseResponse(BaseModel):
+    id: int
+    suite_id: int
+    name: str
+    description: Optional[str] = None
+    severity: str
+    obis_target: str
+    action: str
+    expected_value: Optional[str] = None
+    timeout_ms: int
+    test_steps: List[Any] = []
+    is_active: bool
+    azure_test_case_id: Optional[int] = None
+    azure_sync_status: str = "NOT_SYNCED"
+    azure_sync_error: Optional[str] = None
+    azure_last_synced_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 class RegressionCompareRequest(BaseModel):
     firmware_a: str = "v3.13.0"
     firmware_b: str = "v3.14.2"
