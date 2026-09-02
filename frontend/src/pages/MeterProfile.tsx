@@ -3,10 +3,10 @@ import { Cpu, ShieldCheck, Activity, AlertTriangle, FileText, CheckCircle2 } fro
 
 export const MeterProfile: React.FC = () => {
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
       <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Digital Meter Profile</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Unified hardware identity, testing history, quality score, and firmware intelligence.</p>
+        <h2 className="section-title">Digital Meter Profile</h2>
+        <p className="section-sub">Unified hardware identity, testing history, quality score, and firmware intelligence.</p>
       </div>
 
       {/* Identity Card */}

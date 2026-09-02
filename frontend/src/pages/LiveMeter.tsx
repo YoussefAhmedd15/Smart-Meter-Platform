@@ -48,11 +48,11 @@ export const LiveMeter: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Live Smart Meter Monitor</h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Real-time electrical telemetry streaming via DLMS/COSEM HDLC optical head probe.</p>
+          <h2 className="section-title">Live Smart Meter Monitor</h2>
+          <p className="section-sub">Real-time electrical telemetry streaming via DLMS/COSEM HDLC optical head probe.</p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '20px', background: 'rgba(0,242,254,0.1)', border: '1px solid var(--border-cyan)' }}>
@@ -101,28 +101,28 @@ export const LiveMeter: React.FC = () => {
       </div>
 
       {/* Communication Monitor Table */}
-      <div className="glass-card" style={{ padding: '20px' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '16px' }}>Communication Monitor Log</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+      <div className="glass-card" style={{ padding: '22px' }}>
+        <h3 style={{ fontFamily: 'var(--font-head)', fontSize: '1rem', fontWeight: 600, marginBottom: '16px' }}>Communication Monitor Log</h3>
+        <table className="data-table">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-              <th style={{ padding: '10px' }}>TIMESTAMP</th>
-              <th style={{ padding: '10px' }}>REQUEST OBIS</th>
-              <th style={{ padding: '10px' }}>PARAMETER NAME</th>
-              <th style={{ padding: '10px' }}>RESPONSE VALUE</th>
-              <th style={{ padding: '10px' }}>DURATION</th>
-              <th style={{ padding: '10px' }}>STATUS</th>
+            <tr>
+              <th>Timestamp</th>
+              <th>Request OBIS</th>
+              <th>Parameter Name</th>
+              <th>Response Value</th>
+              <th>Duration</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {commLogs.map((log, idx) => (
-              <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <td className="mono" style={{ padding: '10px', color: 'var(--text-muted)' }}>{log.time}</td>
-                <td className="mono" style={{ padding: '10px', color: 'var(--accent-cyan)' }}>{log.obis}</td>
-                <td style={{ padding: '10px' }}>{log.name}</td>
-                <td className="mono" style={{ padding: '10px', fontWeight: 600, color: 'var(--accent-green)' }}>{log.response}</td>
-                <td className="mono" style={{ padding: '10px', color: 'var(--text-muted)' }}>{log.duration}</td>
-                <td style={{ padding: '10px' }}><span className="badge badge-pass">PASS</span></td>
+              <tr key={idx}>
+                <td className="mono" style={{ color: 'var(--text-muted)' }}>{log.time}</td>
+                <td className="mono" style={{ color: 'var(--accent-cyan)' }}>{log.obis}</td>
+                <td>{log.name}</td>
+                <td className="mono" style={{ fontWeight: 600, color: 'var(--accent-green)' }}>{log.response}</td>
+                <td className="mono" style={{ color: 'var(--text-muted)' }}>{log.duration}</td>
+                <td><span className="badge badge-pass">PASS</span></td>
               </tr>
             ))}
           </tbody>
