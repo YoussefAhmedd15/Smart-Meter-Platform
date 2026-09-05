@@ -1,10 +1,6 @@
 import psycopg2
 
 
-# ==========================================================
-# STEP 6: LOAD METERS
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
@@ -12,9 +8,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
 
-# ----------------------------------------------------------
-# 1. Connect to PostgreSQL
-# ----------------------------------------------------------
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -29,9 +23,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 2. Clear existing meter records
-# ----------------------------------------------------------
+# Clear old meter records
 
 cursor.execute("""
     TRUNCATE TABLE meters
@@ -42,16 +34,7 @@ cursor.execute("""
 print("Previous meter records cleared.")
 
 
-# ----------------------------------------------------------
-# 3. Create unique meter profiles
-#
-# One meter_number = one record in meters
-#
-# We take the most recent available information for:
-# - meter_type
-# - district
-# - POS
-# ----------------------------------------------------------
+# Create meter profiles
 
 insert_query = """
 INSERT INTO meters (
@@ -77,18 +60,12 @@ DO UPDATE SET
 """
 
 
-# ----------------------------------------------------------
-# 4. Execute
-# ----------------------------------------------------------
-
 cursor.execute(insert_query)
 
 connection.commit()
 
 
-# ----------------------------------------------------------
-# 5. Validation
-# ----------------------------------------------------------
+# Validate meter data
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -109,17 +86,14 @@ unique_source_meters = cursor.fetchone()[0]
 
 
 print()
-print("==========================================")
 print("METERS LOAD COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Unique meters in SCDC:", unique_source_meters)
 print("Meters in database:", meter_count)
-print("==========================================")
+print("------------------------------------------")
 
 
-# ----------------------------------------------------------
-# 6. Close connection
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()

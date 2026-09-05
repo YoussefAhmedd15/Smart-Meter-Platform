@@ -1,10 +1,14 @@
 import psycopg2
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
+
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -21,13 +25,10 @@ print("Connected to the database successfully.")
 try:
 
     print()
-    print("=" * 60)
     print("STEP 3: DEV BUGS ANALYTICS DATA")
-    print("=" * 60)
 
-    # --------------------------------------------------
-    # 1. Create Dev Bugs Analytics View
-    # --------------------------------------------------
+
+    # Create dev bugs analytics view
 
     cursor.execute("""
         DROP VIEW IF EXISTS dev_bugs_analytics;
@@ -73,9 +74,8 @@ try:
     print()
     print("Dev bugs analytics view created successfully.")
 
-    # --------------------------------------------------
-    # 2. Total Bugs
-    # --------------------------------------------------
+
+    # Get total bugs
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -84,9 +84,8 @@ try:
 
     total_bugs = cursor.fetchone()[0]
 
-    # --------------------------------------------------
-    # 3. L1 Bugs
-    # --------------------------------------------------
+
+    # Get L1 bugs
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -96,9 +95,8 @@ try:
 
     l1_bugs = cursor.fetchone()[0]
 
-    # --------------------------------------------------
-    # 4. L2 Bugs
-    # --------------------------------------------------
+
+    # Get L2 bugs
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -108,9 +106,8 @@ try:
 
     l2_bugs = cursor.fetchone()[0]
 
-    # --------------------------------------------------
-    # 5. Resolved Bugs
-    # --------------------------------------------------
+
+    # Get resolved bugs
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -120,23 +117,19 @@ try:
 
     resolved_bugs = cursor.fetchone()[0]
 
-    # --------------------------------------------------
-    # 6. Validation Output
-    # --------------------------------------------------
+
+    # Show validation
 
     print()
-    print("=" * 60)
     print("DEV BUGS ANALYTICS VALIDATION")
-    print("=" * 60)
-
+    print("------------------------------------------")
     print("Total bugs available :", total_bugs)
     print("L1 bugs              :", l1_bugs)
     print("L2 bugs              :", l2_bugs)
     print("Resolved bugs        :", resolved_bugs)
 
-    # --------------------------------------------------
-    # 7. Sample Records
-    # --------------------------------------------------
+
+    # Show sample records
 
     cursor.execute("""
         SELECT
@@ -155,9 +148,7 @@ try:
     rows = cursor.fetchall()
 
     print()
-    print("=" * 60)
     print("SAMPLE DEV BUG ANALYTICS")
-    print("=" * 60)
 
     for row in rows:
 
@@ -170,19 +161,22 @@ try:
         print("Assigned To   :", row[5])
         print("Created Date  :", row[6])
 
-    # --------------------------------------------------
-    # 8. Final Validation
-    # --------------------------------------------------
+
+    # Final check
 
     if (
         total_bugs == 3507
         and l1_bugs + l2_bugs == total_bugs
     ):
+
         print()
         print("DEV BUGS ANALYTICS: READY")
+
     else:
+
         print()
         print("DEV BUGS ANALYTICS: CHECK")
+
 
 except Exception as e:
 
@@ -197,7 +191,5 @@ finally:
     connection.close()
 
     print()
-    print("=" * 60)
     print("DATABASE CONNECTION CLOSED")
-    print("=" * 60)
     print("Done.")

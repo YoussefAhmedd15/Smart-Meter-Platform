@@ -4,20 +4,12 @@ import secrets
 import hashlib
 
 
-# ==========================================================
-# DATABASE CONFIGURATION
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
-
-# ==========================================================
-# DATABASE CONNECTION
-# ==========================================================
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -32,9 +24,7 @@ cursor = connection.cursor()
 print("Connected to PostgreSQL successfully.")
 
 
-# ==========================================================
-# PASSWORD FUNCTIONS
-# ==========================================================
+# Password functions
 
 def hash_password(password):
     if not password:
@@ -56,9 +46,7 @@ def verify_password(password, password_hash):
     )
 
 
-# ==========================================================
-# TOKEN FUNCTIONS
-# ==========================================================
+# Token functions
 
 def generate_token():
     return secrets.token_urlsafe(32)
@@ -80,9 +68,7 @@ def verify_token(token, token_hash):
     return hash_token(token) == token_hash
 
 
-# ==========================================================
-# CREATE USER
-# ==========================================================
+# Create user
 
 def create_user(email, password, role):
 
@@ -104,7 +90,6 @@ def create_user(email, password, role):
     token_hash = hash_token(token)
 
     try:
-
         cursor.execute(
             """
             INSERT INTO users (
@@ -136,17 +121,11 @@ def create_user(email, password, role):
         }
 
     except psycopg2.errors.UniqueViolation:
-
         connection.rollback()
-
-        raise ValueError(
-            "A user with this email already exists."
-        )
+        raise ValueError("A user with this email already exists.")
 
 
-# ==========================================================
-# GET USER BY EMAIL
-# ==========================================================
+# Get user
 
 def get_user_by_email(email):
 
@@ -185,9 +164,7 @@ def get_user_by_email(email):
     }
 
 
-# ==========================================================
-# AUTHENTICATE USER
-# ==========================================================
+# Login
 
 def authenticate_user(email, password):
 
@@ -212,9 +189,7 @@ def authenticate_user(email, password):
     }
 
 
-# ==========================================================
-# VERIFY API TOKEN
-# ==========================================================
+# Check token
 
 def authenticate_token(token):
 
@@ -251,9 +226,7 @@ def authenticate_token(token):
     }
 
 
-# ==========================================================
-# DELETE USER
-# ==========================================================
+# Delete user
 
 def delete_user(user_id):
 
@@ -272,9 +245,7 @@ def delete_user(user_id):
     return deleted == 1
 
 
-# ==========================================================
-# TEST
-# ==========================================================
+# Test
 
 if __name__ == "__main__":
 
@@ -290,7 +261,6 @@ if __name__ == "__main__":
 
     try:
 
-        # Remove previous test user if it exists.
         existing_user = get_user_by_email(test_email)
 
         if existing_user:
@@ -366,5 +336,4 @@ if __name__ == "__main__":
         print()
         print("=" * 50)
         print("DATABASE CONNECTION CLOSED")
-        print("=" * 50)
         print("Done.")

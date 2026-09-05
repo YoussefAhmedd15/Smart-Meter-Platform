@@ -1,10 +1,14 @@
 import psycopg2
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
+
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -21,13 +25,10 @@ print("Connected to the database successfully.")
 try:
 
     print()
-    print("=" * 60)
     print("STEP 3: METER ANALYTICS DATA")
-    print("=" * 60)
 
-    # --------------------------------------------------
+
     # Create meter analytics view
-    # --------------------------------------------------
 
     cursor.execute("""
         DROP VIEW IF EXISTS meter_analytics;
@@ -90,9 +91,8 @@ try:
     print()
     print("Meter analytics view created successfully.")
 
-    # --------------------------------------------------
+
     # Validate view
-    # --------------------------------------------------
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -102,15 +102,12 @@ try:
     view_count = cursor.fetchone()[0]
 
     print()
-    print("=" * 60)
     print("METER ANALYTICS VALIDATION")
-    print("=" * 60)
-
+    print("------------------------------------------")
     print("Meters available in analytics view:", view_count)
 
-    # --------------------------------------------------
+
     # Show sample records
-    # --------------------------------------------------
 
     cursor.execute("""
         SELECT
@@ -132,11 +129,10 @@ try:
     rows = cursor.fetchall()
 
     print()
-    print("=" * 60)
     print("SAMPLE METER ANALYTICS")
-    print("=" * 60)
 
     for row in rows:
+
         print()
         print("Meter Number      :", row[0])
         print("Meter Type        :", row[1])
@@ -149,16 +145,19 @@ try:
         print("First Failure     :", row[8])
         print("Last Failure      :", row[9])
 
-    # --------------------------------------------------
-    # Final validation
-    # --------------------------------------------------
+
+    # Final check
 
     if view_count == 52912:
+
         print()
         print("METER ANALYTICS: READY")
+
     else:
+
         print()
         print("METER ANALYTICS: CHECK")
+
 
 except Exception as e:
 
@@ -173,7 +172,5 @@ finally:
     connection.close()
 
     print()
-    print("=" * 60)
     print("DATABASE CONNECTION CLOSED")
-    print("=" * 60)
     print("Done.")

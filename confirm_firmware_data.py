@@ -1,11 +1,14 @@
 import psycopg2
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -22,13 +25,10 @@ print("Connected to the database successfully.")
 try:
 
     print()
-    print("=" * 60)
     print("FIRMWARE DATA FINAL CONFIRMATION")
-    print("=" * 60)
 
-    # --------------------------------------------------
-    # 1. Check firmware table
-    # --------------------------------------------------
+
+    # Check firmware table
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -40,9 +40,8 @@ try:
     print()
     print("Firmware records currently stored:", firmware_count)
 
-    # --------------------------------------------------
-    # 2. Count SCDC records mentioning firmware
-    # --------------------------------------------------
+
+    # Count firmware mentions
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -57,9 +56,8 @@ try:
 
     print("SCDC records mentioning firmware:", firmware_mentions)
 
-    # --------------------------------------------------
-    # 3. Show examples
-    # --------------------------------------------------
+
+    # Show examples
 
     cursor.execute("""
         SELECT
@@ -79,9 +77,7 @@ try:
     examples = cursor.fetchall()
 
     print()
-    print("=" * 60)
     print("FIRMWARE MENTION EXAMPLES")
-    print("=" * 60)
 
     for row in examples:
 
@@ -98,9 +94,8 @@ try:
         print("Action:", action_taken)
         print("Comment:", comment)
 
-    # --------------------------------------------------
-    # 4. Confirm whether actual firmware versions exist
-    # --------------------------------------------------
+
+    # Check firmware versions
 
     cursor.execute("""
         SELECT version
@@ -111,9 +106,7 @@ try:
     firmware_versions = cursor.fetchall()
 
     print()
-    print("=" * 60)
     print("FIRMWARE VERSION CHECK")
-    print("=" * 60)
 
     if firmware_versions:
 
@@ -131,14 +124,11 @@ try:
         print()
         print("FIRMWARE DATA: NOT AVAILABLE IN CURRENT SOURCE")
 
-    # --------------------------------------------------
-    # 5. Final conclusion
-    # --------------------------------------------------
+
+    # Final firmware status
 
     print()
-    print("=" * 60)
     print("FINAL FIRMWARE STATUS")
-    print("=" * 60)
 
     if firmware_count == 0 and firmware_mentions > 0:
 
@@ -165,10 +155,10 @@ try:
         print("FIRMWARE STRUCTURE: READY")
         print("FIRMWARE SOURCE DATA: NOT AVAILABLE")
 
+
     print()
-    print("=" * 60)
     print("FIRMWARE CONFIRMATION COMPLETED")
-    print("=" * 60)
+
 
 except Exception as e:
 
@@ -183,7 +173,5 @@ finally:
     connection.close()
 
     print()
-    print("=" * 60)
     print("DATABASE CONNECTION CLOSED")
-    print("=" * 60)
     print("Done.")

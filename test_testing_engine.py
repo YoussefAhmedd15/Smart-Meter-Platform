@@ -2,11 +2,13 @@ import psycopg2
 import bcrypt
 from datetime import datetime
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
+
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -27,9 +29,8 @@ try:
     print("TESTING ENGINE STORAGE TEST")
     print("=" * 50)
 
-    # --------------------------------------------------
-    # 1. Get an existing meter
-    # --------------------------------------------------
+
+    # Get a meter
 
     cursor.execute("""
         SELECT meter_id, meter_number
@@ -48,9 +49,8 @@ try:
     print()
     print("Using meter:", meter_number)
 
-    # --------------------------------------------------
-    # 2. Create temporary test user
-    # --------------------------------------------------
+
+    # Create test user
 
     test_email = "testing.engine@example.com"
     test_password = "TestPassword123!"
@@ -79,9 +79,8 @@ try:
 
     print("Temporary test user created:", user_id)
 
-    # --------------------------------------------------
-    # 3. Create temporary test case
-    # --------------------------------------------------
+
+    # Create test case
 
     cursor.execute("""
         INSERT INTO test_cases (
@@ -113,9 +112,8 @@ try:
 
     print("Test case created:", test_case_id)
 
-    # --------------------------------------------------
-    # 4. Create test case step
-    # --------------------------------------------------
+
+    # Create test step
 
     cursor.execute("""
         INSERT INTO test_case_steps (
@@ -143,9 +141,8 @@ try:
 
     print("Test step created:", step_id)
 
-    # --------------------------------------------------
-    # 5. Create test execution
-    # --------------------------------------------------
+
+    # Create test execution
 
     started_at = datetime.now()
     completed_at = datetime.now()
@@ -176,9 +173,8 @@ try:
 
     print("Test execution created:", execution_id)
 
-    # --------------------------------------------------
-    # 6. Store step result
-    # --------------------------------------------------
+
+    # Store step result
 
     cursor.execute("""
         INSERT INTO test_step_results (
@@ -203,9 +199,8 @@ try:
 
     print("Test step result stored.")
 
-    # --------------------------------------------------
-    # 7. Store execution log
-    # --------------------------------------------------
+
+    # Store execution log
 
     cursor.execute("""
         INSERT INTO test_execution_logs (
@@ -230,9 +225,8 @@ try:
 
     connection.commit()
 
-    # --------------------------------------------------
-    # 8. Validate everything
-    # --------------------------------------------------
+
+    # Validation
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -276,6 +270,7 @@ try:
 
     log_count = cursor.fetchone()[0]
 
+
     print()
     print("=" * 50)
     print("TESTING ENGINE VALIDATION")
@@ -300,41 +295,34 @@ try:
         print()
         print("TESTING ENGINE STORAGE: CHECK")
 
-    # --------------------------------------------------
-    # 9. Remove temporary test data
-    # --------------------------------------------------
 
-    # Delete logs first
+    # Remove test data
+
     cursor.execute("""
         DELETE FROM test_execution_logs
         WHERE execution_id = %s
     """, (execution_id,))
 
-    # Delete step results
     cursor.execute("""
         DELETE FROM test_step_results
         WHERE execution_id = %s
     """, (execution_id,))
 
-    # Delete execution
     cursor.execute("""
         DELETE FROM test_executions
         WHERE execution_id = %s
     """, (execution_id,))
 
-    # Delete test step
     cursor.execute("""
         DELETE FROM test_case_steps
         WHERE step_id = %s
     """, (step_id,))
 
-    # Delete test case
     cursor.execute("""
         DELETE FROM test_cases
         WHERE test_case_id = %s
     """, (test_case_id,))
 
-    # Delete temporary test user
     cursor.execute("""
         DELETE FROM users
         WHERE user_id = %s
@@ -360,5 +348,4 @@ finally:
     print()
     print("=" * 50)
     print("DATABASE CONNECTION CLOSED")
-    print("=" * 50)
     print("Done.")

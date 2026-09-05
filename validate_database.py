@@ -1,10 +1,12 @@
 import psycopg2
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
+
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -23,9 +25,8 @@ print("=" * 50)
 print("DATABASE VALIDATION")
 print("=" * 50)
 
-# ----------------------------------------------------------
-# 1. Check record counts in the main tables
-# ----------------------------------------------------------
+
+# Check table row counts
 
 tables = [
     "raw_scdc_cases",
@@ -50,13 +51,10 @@ print("-" * 50)
 for table in tables:
     cursor.execute(f"SELECT COUNT(*) FROM {table}")
     count = cursor.fetchone()[0]
-
     print(f"{table:<30} -> {count}")
 
 
-# ----------------------------------------------------------
-# 2. Check raw vs normalized SCDC
-# ----------------------------------------------------------
+# Check SCDC data
 
 print()
 print("SCDC VALIDATION")
@@ -77,9 +75,7 @@ else:
     print("SCDC normalization   : CHECK")
 
 
-# ----------------------------------------------------------
-# 3. Check meters
-# ----------------------------------------------------------
+# Check meters
 
 print()
 print("METER VALIDATION")
@@ -101,9 +97,7 @@ print("Meters in database           :", meter_count)
 print("Matched SCDC meter records   :", matched_meter_records)
 
 
-# ----------------------------------------------------------
-# 4. Check failures
-# ----------------------------------------------------------
+# Check failures
 
 print()
 print("FAILURE VALIDATION")
@@ -133,9 +127,7 @@ print("Linked to meters      :", linked_failures)
 print("Without meter         :", unlinked_failures)
 
 
-# ----------------------------------------------------------
-# 5. Check fingerprints
-# ----------------------------------------------------------
+# Check fingerprints
 
 print()
 print("FINGERPRINT VALIDATION")
@@ -160,9 +152,7 @@ else:
     print("Fingerprint coverage       : CHECK")
 
 
-# ----------------------------------------------------------
-# 6. Check duplicate meters
-# ----------------------------------------------------------
+# Check duplicate meters
 
 print()
 print("DUPLICATE CHECK")
@@ -183,9 +173,7 @@ duplicate_meters = cursor.fetchone()[0]
 print("Duplicate meter numbers :", duplicate_meters)
 
 
-# ----------------------------------------------------------
-# 7. Check duplicate ADO bugs
-# ----------------------------------------------------------
+# Check duplicate bugs
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -202,9 +190,7 @@ duplicate_bugs = cursor.fetchone()[0]
 print("Duplicate ADO bugs      :", duplicate_bugs)
 
 
-# ----------------------------------------------------------
-# 8. Check users
-# ----------------------------------------------------------
+# Check users
 
 print()
 print("USER VALIDATION")
@@ -244,14 +230,12 @@ cursor.execute("""
 duplicate_users = cursor.fetchone()[0]
 
 print("Users in database       :", user_count)
-print("Users without email    :", users_without_email)
-print("Users without role     :", users_without_role)
-print("Duplicate user emails  :", duplicate_users)
+print("Users without email     :", users_without_email)
+print("Users without role      :", users_without_role)
+print("Duplicate user emails   :", duplicate_users)
 
 
-# ----------------------------------------------------------
-# 9. Check foreign-key integrity
-# ----------------------------------------------------------
+# Check foreign keys
 
 print()
 print("RELATIONSHIP VALIDATION")
@@ -268,7 +252,10 @@ cursor.execute("""
 
 broken_failure_meter_links = cursor.fetchone()[0]
 
-print("Broken failure -> meter links              :", broken_failure_meter_links)
+print(
+    "Broken failure -> meter links              :",
+    broken_failure_meter_links
+)
 
 
 cursor.execute("""
@@ -281,7 +268,10 @@ cursor.execute("""
 
 broken_fingerprint_links = cursor.fetchone()[0]
 
-print("Broken fingerprint -> failure links       :", broken_fingerprint_links)
+print(
+    "Broken fingerprint -> failure links       :",
+    broken_fingerprint_links
+)
 
 
 cursor.execute("""
@@ -295,7 +285,10 @@ cursor.execute("""
 
 broken_test_case_user_links = cursor.fetchone()[0]
 
-print("Broken test_case -> user links             :", broken_test_case_user_links)
+print(
+    "Broken test_case -> user links             :",
+    broken_test_case_user_links
+)
 
 
 cursor.execute("""
@@ -309,12 +302,13 @@ cursor.execute("""
 
 broken_test_execution_user_links = cursor.fetchone()[0]
 
-print("Broken test_execution -> user links       :", broken_test_execution_user_links)
+print(
+    "Broken test_execution -> user links       :",
+    broken_test_execution_user_links
+)
 
 
-# ----------------------------------------------------------
-# 10. Final result
-# ----------------------------------------------------------
+# Final result
 
 print()
 print("=" * 50)

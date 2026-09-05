@@ -1,10 +1,6 @@
 import psycopg2
 
 
-# ==========================================================
-# INSPECT FIRMWARE TEXT
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
@@ -12,9 +8,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
 
-# ----------------------------------------------------------
-# 1. Connect
-# ----------------------------------------------------------
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -29,9 +23,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 2. Get firmware-related records
-# ----------------------------------------------------------
+# Get firmware-related records
 
 query = """
     SELECT
@@ -54,15 +46,11 @@ cursor.execute(query)
 rows = cursor.fetchall()
 
 
-# ----------------------------------------------------------
-# 3. Display records
-# ----------------------------------------------------------
+# Show records
 
 print()
-print("==========================================")
 print("FIRMWARE TEXT INSPECTION")
-print("==========================================")
-
+print("------------------------------------------")
 print("Records displayed:", len(rows))
 
 for row in rows:
@@ -82,16 +70,13 @@ for row in rows:
     print("Comment:", comment)
 
 
-# ----------------------------------------------------------
-# 4. Close
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()
 
 print()
-print("==========================================")
 print("FIRMWARE TEXT INSPECTION COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Database connection closed.")
 print("Done.")

@@ -1,10 +1,14 @@
 import psycopg2
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
+
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -21,13 +25,10 @@ print("Connected to the database successfully.")
 try:
 
     print()
-    print("=" * 60)
     print("STEP 3: FAILURE ANALYTICS DATA")
-    print("=" * 60)
 
-    # --------------------------------------------------
-    # 1. Create failure analytics view
-    # --------------------------------------------------
+
+    # Create failure analytics view
 
     cursor.execute("""
         DROP VIEW IF EXISTS failure_analytics;
@@ -76,9 +77,8 @@ try:
     print()
     print("Failure analytics view created successfully.")
 
-    # --------------------------------------------------
-    # 2. Validate total records
-    # --------------------------------------------------
+
+    # Validate total records
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -87,16 +87,8 @@ try:
 
     failure_count = cursor.fetchone()[0]
 
-    print()
-    print("=" * 60)
-    print("FAILURE ANALYTICS VALIDATION")
-    print("=" * 60)
 
-    print("Failures available in analytics view:", failure_count)
-
-    # --------------------------------------------------
-    # 3. Validate fingerprints
-    # --------------------------------------------------
+    # Validate fingerprints
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -106,11 +98,8 @@ try:
 
     fingerprint_count = cursor.fetchone()[0]
 
-    print("Failures with fingerprints:", fingerprint_count)
 
-    # --------------------------------------------------
-    # 4. Validate meter links
-    # --------------------------------------------------
+    # Validate meter links
 
     cursor.execute("""
         SELECT COUNT(*)
@@ -120,11 +109,16 @@ try:
 
     linked_meter_count = cursor.fetchone()[0]
 
+
+    print()
+    print("FAILURE ANALYTICS VALIDATION")
+    print("------------------------------------------")
+    print("Failures available in analytics view:", failure_count)
+    print("Failures with fingerprints:", fingerprint_count)
     print("Failures linked to meters:", linked_meter_count)
 
-    # --------------------------------------------------
-    # 5. Show sample records
-    # --------------------------------------------------
+
+    # Show sample records
 
     cursor.execute("""
         SELECT
@@ -147,9 +141,7 @@ try:
     rows = cursor.fetchall()
 
     print()
-    print("=" * 60)
     print("SAMPLE FAILURE ANALYTICS")
-    print("=" * 60)
 
     for row in rows:
 
@@ -166,19 +158,22 @@ try:
         print("Resolved Date    :", row[9])
         print("Resolution Days  :", row[10])
 
-    # --------------------------------------------------
-    # 6. Final validation
-    # --------------------------------------------------
+
+    # Final check
 
     if (
         failure_count == 58341
         and fingerprint_count == 58341
     ):
+
         print()
         print("FAILURE ANALYTICS: READY")
+
     else:
+
         print()
         print("FAILURE ANALYTICS: CHECK")
+
 
 except Exception as e:
 
@@ -193,7 +188,5 @@ finally:
     connection.close()
 
     print()
-    print("=" * 60)
     print("DATABASE CONNECTION CLOSED")
-    print("=" * 60)
     print("Done.")

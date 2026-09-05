@@ -1,10 +1,6 @@
 import psycopg2
 
 
-# ==========================================================
-# NORMALIZE SCDC DATA
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
@@ -12,9 +8,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
 
-# ----------------------------------------------------------
-# 1. Connect to PostgreSQL
-# ----------------------------------------------------------
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -29,9 +23,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 2. Clear previous normalized data
-# ----------------------------------------------------------
+# Clear old normalized data
 
 cursor.execute("""
     TRUNCATE TABLE normalized_scdc_cases
@@ -42,15 +34,7 @@ cursor.execute("""
 print("Previous normalized data cleared.")
 
 
-# ----------------------------------------------------------
-# 3. Insert normalized data
-#
-# IMPORTANT:
-# PostgreSQL case_date is DATE.
-# raw_scdc_cases.case_date is TEXT.
-#
-# We convert the text date using PostgreSQL TO_DATE().
-# ----------------------------------------------------------
+# Normalize and insert SCDC data
 
 insert_query = """
 INSERT INTO normalized_scdc_cases (
@@ -118,18 +102,12 @@ FROM raw_scdc_cases;
 """
 
 
-# ----------------------------------------------------------
-# 4. Execute normalization
-# ----------------------------------------------------------
-
 cursor.execute(insert_query)
 
 connection.commit()
 
 
-# ----------------------------------------------------------
-# 5. Validation
-# ----------------------------------------------------------
+# Validate data
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -148,17 +126,14 @@ raw_count = cursor.fetchone()[0]
 
 
 print()
-print("==========================================")
 print("NORMALIZATION COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Raw SCDC rows:", raw_count)
 print("Normalized SCDC rows:", normalized_count)
-print("==========================================")
+print("------------------------------------------")
 
 
-# ----------------------------------------------------------
-# 6. Close connection
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()

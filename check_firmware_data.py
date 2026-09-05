@@ -1,16 +1,14 @@
 import psycopg2
 
 
-# ==========================================================
-# STEP 9: CHECK FIRMWARE DATA
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -25,17 +23,14 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 1. Check whether normalized SCDC contains firmware data
-# ----------------------------------------------------------
+# Check firmware data
 
 print()
-print("==========================================")
 print("FIRMWARE DATA CHECK")
-print("==========================================")
 
 
-# Check columns in normalized_scdc_cases
+# Get table columns
+
 cursor.execute("""
     SELECT column_name
     FROM information_schema.columns
@@ -46,13 +41,12 @@ cursor.execute("""
 columns = [row[0] for row in cursor.fetchall()]
 
 print("Columns in normalized_scdc_cases:")
+
 for column in columns:
     print("-", column)
 
 
-# ----------------------------------------------------------
-# 2. Check existing firmware records
-# ----------------------------------------------------------
+# Check firmware records
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -65,9 +59,7 @@ print()
 print("Existing firmware records:", firmware_count)
 
 
-# ----------------------------------------------------------
-# 3. Check whether meter data currently contains firmware
-# ----------------------------------------------------------
+# Check meters linked to firmware
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -80,9 +72,7 @@ meters_with_firmware = cursor.fetchone()[0]
 print("Meters linked to firmware:", meters_with_firmware)
 
 
-# ----------------------------------------------------------
-# 4. Check SCDC text fields for firmware-related values
-# ----------------------------------------------------------
+# Search firmware mentions
 
 search_query = """
 SELECT
@@ -103,9 +93,7 @@ firmware_mentions = cursor.fetchone()[0]
 print("SCDC records mentioning 'firmware':", firmware_mentions)
 
 
-# ----------------------------------------------------------
-# 5. Display some examples
-# ----------------------------------------------------------
+# Show examples
 
 cursor.execute("""
 SELECT
@@ -129,6 +117,7 @@ print("Examples:")
 print("------------------------------------------")
 
 for row in rows:
+
     print(
         "ID:", row[0],
         "| Meter:", row[1],
@@ -138,16 +127,13 @@ for row in rows:
     )
 
 
-# ----------------------------------------------------------
-# 6. Close connection
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()
 
 print()
-print("==========================================")
 print("FIRMWARE DATA CHECK COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Database connection closed.")
 print("Done.")

@@ -1,12 +1,7 @@
-
 import os
 import pandas as pd
 import psycopg2
 
-
-# ==========================================================
-# CONFIGURATION
-# ==========================================================
 
 DB_HOST = "localhost"
 DB_PORT = "5432"
@@ -16,10 +11,6 @@ DB_PASSWORD = "12345678"
 
 FOLDER_PATH = "C:/Users/lenovo/PycharmProjects/PythonProject4/"
 
-
-# ==========================================================
-# 1. DATABASE CONNECTION
-# ==========================================================
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -34,15 +25,9 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ==========================================================
-# 2. HELPER FUNCTIONS
-# ==========================================================
+# Clean text values
 
 def clean_value(value):
-    """
-    Convert empty / NaN values to None.
-    Remove unnecessary spaces.
-    """
 
     if value is None:
         return None
@@ -61,10 +46,9 @@ def clean_value(value):
     return value
 
 
+# Clean date values
+
 def clean_date(value):
-    """
-    Convert date values into Python datetime objects.
-    """
 
     if value is None:
         return None
@@ -88,19 +72,13 @@ def clean_date(value):
         return None
 
 
-# ==========================================================
-# STEP 4: LOAD AZURE DEVOPS BUGS
-# ==========================================================
+# Load Azure DevOps bugs
 
 print()
-print("==========================================")
 print("STEP 4: DEV_BUGS IMPORT")
-print("==========================================")
 
 
-# ----------------------------------------------------------
-# 4.1 Read L1 CSV
-# ----------------------------------------------------------
+# Read L1 CSV
 
 l1_df = pd.read_csv(
     os.path.join(FOLDER_PATH, "L1_Created.csv")
@@ -110,9 +88,7 @@ print("L1 CSV loaded successfully.")
 print("L1 rows:", len(l1_df))
 
 
-# ----------------------------------------------------------
-# 4.2 Read L2 CSV
-# ----------------------------------------------------------
+# Read L2 CSV
 
 l2_df = pd.read_csv(
     os.path.join(FOLDER_PATH, "L2_Soft.csv")
@@ -122,9 +98,7 @@ print("L2 CSV loaded successfully.")
 print("L2 rows:", len(l2_df))
 
 
-# ----------------------------------------------------------
-# 4.3 Get bugs already stored in database
-# ----------------------------------------------------------
+# Get existing bugs
 
 cursor.execute(
     "SELECT ado_id FROM dev_bugs"
@@ -136,9 +110,7 @@ existing_ids = {
 }
 
 
-# ----------------------------------------------------------
-# 4.4 Insert only NEW L1 bugs
-# ----------------------------------------------------------
+# Insert new L1 bugs
 
 insert_l1_query = """
     INSERT INTO dev_bugs (
@@ -161,7 +133,6 @@ insert_l1_query = """
         %s, %s, %s, %s, %s, %s
     )
 """
-
 
 l1_inserted = 0
 l1_skipped = 0
@@ -200,9 +171,7 @@ for index, row in l1_df.iterrows():
     l1_inserted += 1
 
 
-# ----------------------------------------------------------
-# 4.5 Update / Insert L2 bugs
-# ----------------------------------------------------------
+# Update or insert L2 bugs
 
 update_l2_query = """
     UPDATE dev_bugs
@@ -215,7 +184,6 @@ update_l2_query = """
         level = 'L2'
     WHERE ado_id = %s
 """
-
 
 insert_l2_query = """
     INSERT INTO dev_bugs (
@@ -233,7 +201,6 @@ insert_l2_query = """
         %s, %s, %s, %s
     )
 """
-
 
 l2_updated = 0
 l2_inserted = 0
@@ -285,7 +252,6 @@ for index, row in l2_df.iterrows():
 
 connection.commit()
 
-
 print()
 print("DEV_BUGS IMPORT COMPLETED")
 print("------------------------------------------")
@@ -296,46 +262,33 @@ print("New L2 bugs inserted:", l2_inserted)
 print("------------------------------------------")
 
 
-# ==========================================================
-# STEP 5: SCDC TRACKER CLEANING + INGESTION
-# ==========================================================
+# Load SCDC files
 
 print()
-print("==========================================")
 print("STEP 5: SCDC DATA IMPORT")
-print("==========================================")
 
-
-# ----------------------------------------------------------
-# 5.1 SCDC files and correct sheets
-# ----------------------------------------------------------
 
 scdc_files = [
-
     (
         "SCDC_Tracker_2020.xlsx",
         "Data Container",
         2020
     ),
-
     (
         "SCDC_Tracker_2021.xlsx",
         "Data Container",
         2021
     ),
-
     (
         "SCDC_Tracker_2022.xlsx",
         "2022",
         2022
     ),
-
     (
         "SCDC_Tracker_2023.xlsx",
         "2023",
         2023
     ),
-
     (
         "SCDC_Tracker_2024.xlsx",
         "Sheet1",
@@ -344,13 +297,10 @@ scdc_files = [
 ]
 
 
-# ----------------------------------------------------------
-# 5.2 Standardize columns
-# ----------------------------------------------------------
+# Standardize SCDC columns
 
 def standardize_scdc_columns(df):
 
-    # 2021 uses SCDC instead of Account
     if "SCDC" in df.columns:
         df = df.rename(
             columns={
@@ -358,7 +308,6 @@ def standardize_scdc_columns(df):
             }
         )
 
-    # Remove useless Excel columns
     useless_columns = [
         column
         for column in df.columns
@@ -373,23 +322,18 @@ def standardize_scdc_columns(df):
     return df
 
 
-# ----------------------------------------------------------
-# 5.3 Clean SCDC dataframe
-# ----------------------------------------------------------
+# Clean SCDC data
 
 def clean_scdc_dataframe(df):
 
-    # Standardize columns
     df = standardize_scdc_columns(df)
 
-    # Make optional columns available
     if "Categories" not in df.columns:
         df["Categories"] = None
 
     if "FM team member" not in df.columns:
         df["FM team member"] = None
 
-    # Clean text values
     for column in df.columns:
 
         if column == "Date":
@@ -399,7 +343,6 @@ def clean_scdc_dataframe(df):
             clean_value
         )
 
-    # Convert Date
     df["Date"] = pd.to_datetime(
         df["Date"],
         errors="coerce"
@@ -408,9 +351,7 @@ def clean_scdc_dataframe(df):
     return df
 
 
-# ----------------------------------------------------------
-# 5.4 Load and clean each year
-# ----------------------------------------------------------
+# Read and clean each year
 
 scdc_dataframes = []
 
@@ -437,7 +378,6 @@ for file_name, sheet_name, source_year in scdc_files:
 
         continue
 
-    # Read Excel
     df = pd.read_excel(
         file_path,
         sheet_name=sheet_name
@@ -448,10 +388,8 @@ for file_name, sheet_name, source_year in scdc_files:
         len(df)
     )
 
-    # Clean
     df = clean_scdc_dataframe(df)
 
-    # Remove exact duplicate rows
     before_duplicates = len(df)
 
     df = df.drop_duplicates(
@@ -472,16 +410,13 @@ for file_name, sheet_name, source_year in scdc_files:
         len(df)
     )
 
-    # Add source information
     df["source_file"] = file_name
     df["source_year"] = source_year
 
     scdc_dataframes.append(df)
 
 
-# ----------------------------------------------------------
-# 5.5 Combine all years
-# ----------------------------------------------------------
+# Combine all years
 
 if len(scdc_dataframes) == 0:
 
@@ -495,7 +430,6 @@ scdc_combined = pd.concat(
     ignore_index=True
 )
 
-
 print()
 print("------------------------------------------")
 print(
@@ -505,21 +439,11 @@ print(
 print("------------------------------------------")
 
 
-# ==========================================================
-# STEP 6: LOAD SCDC INTO raw_scdc_cases
-# ==========================================================
+# Load SCDC into database
 
 print()
-print("==========================================")
 print("STEP 6: LOAD raw_scdc_cases")
-print("==========================================")
 
-
-# ----------------------------------------------------------
-# 6.1 Remove previous import of the same source files
-#
-# This makes the script safe to run again.
-# ----------------------------------------------------------
 
 source_file_names = [
     file_name
@@ -528,8 +452,8 @@ source_file_names = [
 ]
 
 
-# Delete normalized records first because they reference raw_scdc_cases
-# through the foreign key normalized_scdc_cases.raw_id.
+# Delete old normalized data
+
 delete_normalized_query = """
     DELETE FROM normalized_scdc_cases
     WHERE raw_id IN (
@@ -539,11 +463,14 @@ delete_normalized_query = """
     )
 """
 
-# Delete the old raw records after their normalized records are removed.
+
+# Delete old raw data
+
 delete_raw_query = """
     DELETE FROM raw_scdc_cases
     WHERE source_file = %s
 """
+
 
 for source_file in source_file_names:
 
@@ -561,9 +488,7 @@ for source_file in source_file_names:
 connection.commit()
 
 
-# ----------------------------------------------------------
-# 6.2 Insert query
-# ----------------------------------------------------------
+# Insert SCDC data
 
 insert_scdc_query = """
     INSERT INTO raw_scdc_cases (
@@ -595,97 +520,36 @@ insert_scdc_query = """
     )
 """
 
-
 scdc_inserted = 0
 
-
-# ----------------------------------------------------------
-# 6.3 Insert cleaned rows
-# ----------------------------------------------------------
 
 for index, row in scdc_combined.iterrows():
 
     case_date = None
 
     if pd.notna(row["Date"]):
-
         case_date = row["Date"].date()
 
     values = (
-
-        clean_value(
-            row["source_file"]
-        ),
-
-        int(
-            row["source_year"]
-        ),
-
-        clean_value(
-            row["Account"]
-        ),
-
-        clean_value(
-            row["District"]
-        ),
-
-        clean_value(
-            row["POS"]
-        ),
-
-        clean_value(
-            row["Case Type"]
-        ),
-
+        clean_value(row["source_file"]),
+        int(row["source_year"]),
+        clean_value(row["Account"]),
+        clean_value(row["District"]),
+        clean_value(row["POS"]),
+        clean_value(row["Case Type"]),
         case_date,
-
-        clean_value(
-            row["Meter Number / Customer Number"]
-        ),
-
-        clean_value(
-            row["Meter Type"]
-        ),
-
-        clean_value(
-            row["Case Details"]
-        ),
-
-        clean_value(
-            row["Action Taken"]
-        ),
-
-        clean_value(
-            row["Error Code"]
-        ),
-
-        clean_value(
-            row["Categories"]
-        ),
-
-        clean_value(
-            row["Case Category"]
-        ),
-
-        clean_value(
-            row["Case Severity"]
-        ),
-
-        clean_value(
-            row["Status"]
-        ),
-
-        clean_value(
-            row["Action Owner"]
-        ),
-
-        clean_value(
-            row["Comment"]
-        ),
-
-        clean_value(
-            row["FM team member"]
-        )
+        clean_value(row["Meter Number / Customer Number"]),
+        clean_value(row["Meter Type"]),
+        clean_value(row["Case Details"]),
+        clean_value(row["Action Taken"]),
+        clean_value(row["Error Code"]),
+        clean_value(row["Categories"]),
+        clean_value(row["Case Category"]),
+        clean_value(row["Case Severity"]),
+        clean_value(row["Status"]),
+        clean_value(row["Action Owner"]),
+        clean_value(row["Comment"]),
+        clean_value(row["FM team member"])
     )
 
     cursor.execute(
@@ -696,24 +560,15 @@ for index, row in scdc_combined.iterrows():
     scdc_inserted += 1
 
 
-# ----------------------------------------------------------
-# 6.4 Commit SCDC data
-# ----------------------------------------------------------
-
 connection.commit()
 
 
-# ==========================================================
-# STEP 7: VALIDATION
-# ==========================================================
+# Validate imported data
 
 print()
-print("==========================================")
 print("IMPORT VALIDATION")
-print("==========================================")
 
 
-# Count SCDC records
 cursor.execute(
     "SELECT COUNT(*) FROM raw_scdc_cases"
 )
@@ -721,7 +576,6 @@ cursor.execute(
 database_scdc_count = cursor.fetchone()[0]
 
 
-# Count dev bugs
 cursor.execute(
     "SELECT COUNT(*) FROM dev_bugs"
 )
@@ -746,6 +600,7 @@ print(
 
 
 # SCDC count by year
+
 cursor.execute("""
     SELECT
         source_year,
@@ -756,7 +611,6 @@ cursor.execute("""
 """)
 
 year_counts = cursor.fetchall()
-
 
 print()
 print("SCDC rows by year:")
@@ -770,22 +624,11 @@ for year, count in year_counts:
     )
 
 
-# ==========================================================
-# STEP 8: CLOSE DATABASE CONNECTION
-# ==========================================================
-# ==========================================================
-# STEP 9: INSPECT SCDC DATA FOR NORMALIZATION
-# ==========================================================
+# Check SCDC data
 
 print()
-print("==========================================")
 print("STEP 9: SCDC NORMALIZATION INSPECTION")
-print("==========================================")
 
-
-# ----------------------------------------------------------
-# 1. Check distinct values in important columns
-# ----------------------------------------------------------
 
 columns_to_check = [
     "account_or_scdc",
@@ -832,17 +675,13 @@ for column in columns_to_check:
         )
 
 
-# ----------------------------------------------------------
-# 2. Check NULL values
-# ----------------------------------------------------------
+# Check NULL values
 
 print()
-print("------------------------------------------")
 print("NULL VALUE CHECK")
-print("------------------------------------------")
+
 
 null_checks = [
-
     "account_or_scdc",
     "district",
     "pos",
@@ -878,14 +717,10 @@ for column in null_checks:
     )
 
 
-# ----------------------------------------------------------
-# 3. Check possible case/space inconsistencies
-# ----------------------------------------------------------
+# Check text differences
 
 print()
-print("------------------------------------------")
 print("CASE / SPACE INCONSISTENCY CHECK")
-print("------------------------------------------")
 
 
 for column in [
@@ -935,14 +770,11 @@ for column in [
             )
 
 
-# ----------------------------------------------------------
-# 4. Check duplicate meter numbers
-# ----------------------------------------------------------
+# Check duplicate meter numbers
 
 print()
-print("------------------------------------------")
 print("METER NUMBER DUPLICATE CHECK")
-print("------------------------------------------")
+
 
 cursor.execute("""
     SELECT
@@ -967,21 +799,13 @@ for meter_number, count in results:
     )
 
 
-# ----------------------------------------------------------
-# 5. Summary
-# ----------------------------------------------------------
-
 print()
-print("==========================================")
 print("NORMALIZATION INSPECTION COMPLETED")
-print("==========================================")
+
 
 cursor.close()
 connection.close()
 
-
 print()
-print("==========================================")
 print("DATABASE CONNECTION CLOSED")
-print("==========================================")
 print("Done.")

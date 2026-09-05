@@ -1,10 +1,6 @@
 import psycopg2
 
 
-# ==========================================================
-# STEP 7: LOAD FAILURE RECORDS
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
@@ -12,9 +8,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
 
-# ----------------------------------------------------------
-# 1. Connect to PostgreSQL
-# ----------------------------------------------------------
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -29,9 +23,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 2. Clear previous failure records
-# ----------------------------------------------------------
+# Clear old failure records
 
 cursor.execute("""
     TRUNCATE TABLE failures
@@ -42,14 +34,7 @@ cursor.execute("""
 print("Previous failure records cleared.")
 
 
-# ----------------------------------------------------------
-# 3. Load SCDC cases into failures
-#
-# Every normalized SCDC case is treated as a failure record
-# because the SCDC tracker contains reported technical cases.
-#
-# Meter information is linked through meter_number.
-# ----------------------------------------------------------
+# Load SCDC cases into failures
 
 insert_query = """
 INSERT INTO failures (
@@ -93,18 +78,12 @@ WHERE n.case_details IS NOT NULL
 """
 
 
-# ----------------------------------------------------------
-# 4. Execute
-# ----------------------------------------------------------
-
 cursor.execute(insert_query)
 
 connection.commit()
 
 
-# ----------------------------------------------------------
-# 5. Validation
-# ----------------------------------------------------------
+# Validate failure data
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -142,19 +121,16 @@ unlinked_meter_count = cursor.fetchone()[0]
 
 
 print()
-print("==========================================")
 print("FAILURE LOAD COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Total failure records:", failure_count)
 print("SCDC failure records:", scdc_failure_count)
 print("Failures linked to meters:", linked_meter_count)
 print("Failures without meter:", unlinked_meter_count)
-print("==========================================")
+print("------------------------------------------")
 
 
-# ----------------------------------------------------------
-# 6. Close connection
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()

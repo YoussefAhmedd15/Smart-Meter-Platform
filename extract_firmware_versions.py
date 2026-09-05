@@ -3,10 +3,6 @@ import psycopg2
 from collections import Counter
 
 
-# ==========================================================
-# FIRMWARE VERSION EXTRACTION
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
@@ -14,9 +10,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
 
-# ----------------------------------------------------------
-# 1. Connect to database
-# ----------------------------------------------------------
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -31,9 +25,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 2. Get SCDC records that mention firmware
-# ----------------------------------------------------------
+# Get records that mention firmware
 
 query = """
     SELECT
@@ -54,25 +46,12 @@ cursor.execute(query)
 rows = cursor.fetchall()
 
 print()
-print("==========================================")
 print("FIRMWARE VERSION EXTRACTION")
-print("==========================================")
+print("------------------------------------------")
 print("Records mentioning firmware:", len(rows))
 
 
-# ----------------------------------------------------------
-# 3. Search for firmware versions
-# ----------------------------------------------------------
-
-# Examples that this pattern can detect:
-# V3.12
-# V3.1
-# v3.12
-# Version 3.12
-# Firmware 3.12
-#
-# We are ONLY extracting values that actually exist
-# in the database. We are NOT creating any values ourselves.
+# Find firmware versions
 
 version_pattern = re.compile(
     r'\b(?:firmware\s*(?:version)?|version|ver\.?)?\s*'
@@ -85,9 +64,7 @@ versions = Counter()
 examples = []
 
 
-# ----------------------------------------------------------
-# 4. Process records
-# ----------------------------------------------------------
+# Process records
 
 for row in rows:
 
@@ -107,7 +84,6 @@ for row in rows:
 
     for version in matches:
 
-        # Store normalized representation
         clean_version = "V" + version
 
         versions[clean_version] += 1
@@ -123,14 +99,11 @@ for row in rows:
             )
 
 
-# ----------------------------------------------------------
-# 5. Display extracted versions
-# ----------------------------------------------------------
+# Show extracted versions
 
 print()
-print("==========================================")
 print("EXTRACTED FIRMWARE VERSIONS")
-print("==========================================")
+print("------------------------------------------")
 
 if not versions:
 
@@ -148,14 +121,11 @@ else:
         )
 
 
-# ----------------------------------------------------------
-# 6. Display examples
-# ----------------------------------------------------------
+# Show examples
 
 print()
-print("==========================================")
 print("EXAMPLES")
-print("==========================================")
+print("------------------------------------------")
 
 if not examples:
 
@@ -172,16 +142,13 @@ else:
         print("Text:", text[:300])
 
 
-# ----------------------------------------------------------
-# 7. Close connection
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()
 
 print()
-print("==========================================")
 print("FIRMWARE EXTRACTION COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Database connection closed.")
 print("Done.")

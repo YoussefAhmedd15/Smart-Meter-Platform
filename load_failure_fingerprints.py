@@ -2,10 +2,6 @@ import psycopg2
 import re
 
 
-# ==========================================================
-# LOAD FAILURE FINGERPRINTS
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
@@ -13,9 +9,7 @@ DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
 
-# ----------------------------------------------------------
-# 1. Connect to database
-# ----------------------------------------------------------
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -30,9 +24,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# 2. Clear previous fingerprints
-# ----------------------------------------------------------
+# Clear old fingerprints
 
 cursor.execute("""
     TRUNCATE TABLE failure_fingerprints
@@ -42,9 +34,7 @@ cursor.execute("""
 print("Previous fingerprint records cleared.")
 
 
-# ----------------------------------------------------------
-# 3. Get failures
-# ----------------------------------------------------------
+# Get failures
 
 query = """
     SELECT
@@ -70,25 +60,14 @@ cursor.execute(query)
 rows = cursor.fetchall()
 
 print()
-print("==========================================")
 print("FAILURE FINGERPRINT LOAD")
-print("==========================================")
+print("------------------------------------------")
 print("Failures processed:", len(rows))
 
 
-# ----------------------------------------------------------
-# 4. Helper function
-# ----------------------------------------------------------
+# Normalize text
 
 def normalize_text(value):
-    """
-    Normalize text for fingerprint generation.
-
-    - Convert NULL to empty text
-    - Convert to lowercase
-    - Remove extra spaces
-    - Replace non-alphanumeric characters with spaces
-    """
 
     if value is None:
         return ""
@@ -102,9 +81,7 @@ def normalize_text(value):
     return value.strip()
 
 
-# ----------------------------------------------------------
-# 5. Insert fingerprints
-# ----------------------------------------------------------
+# Insert fingerprints
 
 insert_query = """
     INSERT INTO failure_fingerprints (
@@ -119,6 +96,7 @@ insert_query = """
 """
 
 inserted = 0
+
 
 for row in rows:
 
@@ -136,10 +114,6 @@ for row in rows:
         hardware_revision
     ) = row
 
-    # ------------------------------------------------------
-    # Build normalized signature
-    # ------------------------------------------------------
-
     signature_parts = [
         normalize_text(case_type),
         normalize_text(case_category),
@@ -153,16 +127,12 @@ for row in rows:
         part for part in signature_parts if part
     )
 
-    # ------------------------------------------------------
-    # Insert
-    # ------------------------------------------------------
-
     cursor.execute(
         insert_query,
         (
             failure_id,
             meter_type,
-            None,  # firmware version not available in current SCDC data
+            None,
             hardware_revision,
             normalize_text(error_code) or None,
             normalized_signature
@@ -172,16 +142,12 @@ for row in rows:
     inserted += 1
 
 
-# ----------------------------------------------------------
-# 6. Commit
-# ----------------------------------------------------------
+# Save changes
 
 connection.commit()
 
 
-# ----------------------------------------------------------
-# 7. Validation
-# ----------------------------------------------------------
+# Validate fingerprints
 
 cursor.execute("""
     SELECT COUNT(*)
@@ -201,27 +167,19 @@ cursor.execute("""
 signature_count = cursor.fetchone()[0]
 
 
-# ----------------------------------------------------------
-# 8. Display results
-# ----------------------------------------------------------
-
 print()
-print("==========================================")
 print("FAILURE FINGERPRINT LOAD COMPLETED")
-print("==========================================")
+print("------------------------------------------")
 print("Fingerprints inserted:", inserted)
 print("Fingerprints in database:", fingerprint_count)
 print("Records with normalized signature:", signature_count)
 
 
-# ----------------------------------------------------------
-# 9. Show examples
-# ----------------------------------------------------------
+# Show examples
 
 print()
-print("==========================================")
 print("FINGERPRINT EXAMPLES")
-print("==========================================")
+
 
 cursor.execute("""
     SELECT
@@ -247,15 +205,11 @@ for row in examples:
     print("Signature:", row[4])
 
 
-# ----------------------------------------------------------
-# 10. Close connection
-# ----------------------------------------------------------
+# Close connection
 
 cursor.close()
 connection.close()
 
 print()
-print("==========================================")
 print("DATABASE CONNECTION CLOSED")
-print("==========================================")
 print("Done.")

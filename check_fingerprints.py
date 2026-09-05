@@ -1,10 +1,14 @@
 import psycopg2
 
+
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
+
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -18,12 +22,13 @@ cursor = connection.cursor()
 
 print("Connected to the database successfully.")
 
-print()
-print("==========================================")
-print("FAILURE FINGERPRINT VALIDATION")
-print("==========================================")
 
-# 1. Count fingerprints
+print()
+print("FAILURE FINGERPRINT VALIDATION")
+
+
+# Count fingerprints
+
 cursor.execute("""
     SELECT COUNT(*)
     FROM failure_fingerprints
@@ -31,7 +36,9 @@ cursor.execute("""
 
 fingerprint_count = cursor.fetchone()[0]
 
-# 2. Count failures
+
+# Count failures
+
 cursor.execute("""
     SELECT COUNT(*)
     FROM failures
@@ -39,7 +46,9 @@ cursor.execute("""
 
 failure_count = cursor.fetchone()[0]
 
-# 3. Check fingerprints linked to failures
+
+# Check linked fingerprints
+
 cursor.execute("""
     SELECT COUNT(*)
     FROM failure_fingerprints ff
@@ -49,7 +58,9 @@ cursor.execute("""
 
 linked_count = cursor.fetchone()[0]
 
-# 4. Check missing fingerprints
+
+# Check missing fingerprints
+
 cursor.execute("""
     SELECT COUNT(*)
     FROM failures f
@@ -60,15 +71,17 @@ cursor.execute("""
 
 missing_count = cursor.fetchone()[0]
 
+
 print("Failures in database:", failure_count)
 print("Fingerprints in database:", fingerprint_count)
 print("Fingerprints linked to failures:", linked_count)
 print("Failures without fingerprint:", missing_count)
 
+
+# Show sample fingerprints
+
 print()
-print("==========================================")
 print("SAMPLE FINGERPRINTS")
-print("==========================================")
 
 cursor.execute("""
     SELECT
@@ -87,6 +100,7 @@ cursor.execute("""
 rows = cursor.fetchall()
 
 for row in rows:
+
     print("------------------------------------------")
     print("Fingerprint ID:", row[0])
     print("Failure ID:", row[1])
@@ -96,10 +110,12 @@ for row in rows:
     print("Error Code:", row[5])
     print("Signature:", row[6])
 
+
 print()
-print("==========================================")
 print("FINGERPRINT VALIDATION COMPLETED")
-print("==========================================")
+
+
+# Close connection
 
 cursor.close()
 connection.close()

@@ -1,16 +1,14 @@
 import psycopg2
 
 
-# ==========================================================
-# STEP 8: CHECK UNMATCHED SCDC METERS
-# ==========================================================
-
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -25,9 +23,7 @@ cursor = connection.cursor()
 print("Connected to the database successfully.")
 
 
-# ----------------------------------------------------------
-# Find SCDC cases that have no matching meter
-# ----------------------------------------------------------
+# Find unmatched SCDC meters
 
 query = """
 SELECT
@@ -53,19 +49,17 @@ cursor.execute(query)
 rows = cursor.fetchall()
 
 
-# ----------------------------------------------------------
-# Display results
-# ----------------------------------------------------------
+# Show results
 
 print()
-print("==========================================")
 print("UNMATCHED METER CHECK")
-print("==========================================")
+print("------------------------------------------")
 print("Unmatched records:", len(rows))
-print("==========================================")
+print("------------------------------------------")
 
 
 for row in rows:
+
     print(
         "normalized_id:", row[0],
         "| raw_id:", row[1],
@@ -78,9 +72,7 @@ for row in rows:
     )
 
 
-# ----------------------------------------------------------
 # Close connection
-# ----------------------------------------------------------
 
 cursor.close()
 connection.close()
