@@ -1,4 +1,5 @@
 import psycopg2
+import bcrypt
 from datetime import datetime
 
 DB_HOST = "localhost"
@@ -48,7 +49,38 @@ try:
     print("Using meter:", meter_number)
 
     # --------------------------------------------------
-    # 2. Create temporary test case
+    # 2. Create temporary test user
+    # --------------------------------------------------
+
+    test_email = "testing.engine@example.com"
+    test_password = "TestPassword123!"
+    test_role = "tester"
+
+    password_hash = bcrypt.hashpw(
+        test_password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
+
+    cursor.execute("""
+        INSERT INTO users (
+            email,
+            password_hash,
+            role
+        )
+        VALUES (%s, %s, %s)
+        RETURNING user_id
+    """, (
+        test_email,
+        password_hash,
+        test_role
+    ))
+
+    user_id = cursor.fetchone()[0]
+
+    print("Temporary test user created:", user_id)
+
+    # --------------------------------------------------
+    # 3. Create temporary test case
     # --------------------------------------------------
 
     cursor.execute("""
@@ -60,9 +92,10 @@ try:
             priority,
             version,
             expected_result,
+            created_by,
             is_active
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         RETURNING test_case_id
     """, (
         "Database Storage Test",
@@ -72,6 +105,7 @@ try:
         "High",
         1,
         "Testing Engine data should be stored successfully.",
+        user_id,
         True
     ))
 
@@ -80,7 +114,7 @@ try:
     print("Test case created:", test_case_id)
 
     # --------------------------------------------------
-    # 3. Create test case step
+    # 4. Create test case step
     # --------------------------------------------------
 
     cursor.execute("""
@@ -110,7 +144,7 @@ try:
     print("Test step created:", step_id)
 
     # --------------------------------------------------
-    # 4. Create test execution
+    # 5. Create test execution
     # --------------------------------------------------
 
     started_at = datetime.now()
@@ -135,7 +169,7 @@ try:
         started_at,
         completed_at,
         250,
-        1
+        user_id
     ))
 
     execution_id = cursor.fetchone()[0]
@@ -143,7 +177,7 @@ try:
     print("Test execution created:", execution_id)
 
     # --------------------------------------------------
-    # 5. Store step result
+    # 6. Store step result
     # --------------------------------------------------
 
     cursor.execute("""
@@ -170,7 +204,7 @@ try:
     print("Test step result stored.")
 
     # --------------------------------------------------
-    # 6. Store execution log
+    # 7. Store execution log
     # --------------------------------------------------
 
     cursor.execute("""
@@ -197,14 +231,15 @@ try:
     connection.commit()
 
     # --------------------------------------------------
-    # 7. Validate everything
+    # 8. Validate everything
     # --------------------------------------------------
 
     cursor.execute("""
         SELECT COUNT(*)
         FROM test_cases
         WHERE test_case_id = %s
-    """, (test_case_id,))
+          AND created_by = %s
+    """, (test_case_id, user_id))
 
     test_case_count = cursor.fetchone()[0]
 
@@ -220,7 +255,8 @@ try:
         SELECT COUNT(*)
         FROM test_executions
         WHERE execution_id = %s
-    """, (execution_id,))
+          AND executed_by = %s
+    """, (execution_id, user_id))
 
     execution_count = cursor.fetchone()[0]
 
@@ -265,7 +301,7 @@ try:
         print("TESTING ENGINE STORAGE: CHECK")
 
     # --------------------------------------------------
-    # 8. Remove temporary test data
+    # 9. Remove temporary test data
     # --------------------------------------------------
 
     # Delete logs first
@@ -297,6 +333,12 @@ try:
         DELETE FROM test_cases
         WHERE test_case_id = %s
     """, (test_case_id,))
+
+    # Delete temporary test user
+    cursor.execute("""
+        DELETE FROM users
+        WHERE user_id = %s
+    """, (user_id,))
 
     connection.commit()
 

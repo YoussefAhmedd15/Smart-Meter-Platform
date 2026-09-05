@@ -24,7 +24,7 @@ print("DATABASE VALIDATION")
 print("=" * 50)
 
 # ----------------------------------------------------------
-# 1. Count records in the main tables
+# 1. Check record counts in the main tables
 # ----------------------------------------------------------
 
 tables = [
@@ -35,6 +35,7 @@ tables = [
     "failures",
     "failure_fingerprints",
     "dev_bugs",
+    "users",
     "test_cases",
     "test_case_steps",
     "test_executions",
@@ -202,7 +203,54 @@ print("Duplicate ADO bugs      :", duplicate_bugs)
 
 
 # ----------------------------------------------------------
-# 8. Check foreign-key integrity
+# 8. Check users
+# ----------------------------------------------------------
+
+print()
+print("USER VALIDATION")
+print("-" * 50)
+
+cursor.execute("SELECT COUNT(*) FROM users")
+user_count = cursor.fetchone()[0]
+
+cursor.execute("""
+    SELECT COUNT(*)
+    FROM users
+    WHERE email IS NULL
+       OR TRIM(email) = ''
+""")
+
+users_without_email = cursor.fetchone()[0]
+
+cursor.execute("""
+    SELECT COUNT(*)
+    FROM users
+    WHERE role IS NULL
+       OR TRIM(role) = ''
+""")
+
+users_without_role = cursor.fetchone()[0]
+
+cursor.execute("""
+    SELECT COUNT(*)
+    FROM (
+        SELECT LOWER(TRIM(email))
+        FROM users
+        GROUP BY LOWER(TRIM(email))
+        HAVING COUNT(*) > 1
+    ) duplicates
+""")
+
+duplicate_users = cursor.fetchone()[0]
+
+print("Users in database       :", user_count)
+print("Users without email    :", users_without_email)
+print("Users without role     :", users_without_role)
+print("Duplicate user emails  :", duplicate_users)
+
+
+# ----------------------------------------------------------
+# 9. Check foreign-key integrity
 # ----------------------------------------------------------
 
 print()
@@ -220,7 +268,7 @@ cursor.execute("""
 
 broken_failure_meter_links = cursor.fetchone()[0]
 
-print("Broken failure -> meter links :", broken_failure_meter_links)
+print("Broken failure -> meter links              :", broken_failure_meter_links)
 
 
 cursor.execute("""
@@ -233,11 +281,39 @@ cursor.execute("""
 
 broken_fingerprint_links = cursor.fetchone()[0]
 
-print("Broken fingerprint -> failure links :", broken_fingerprint_links)
+print("Broken fingerprint -> failure links       :", broken_fingerprint_links)
+
+
+cursor.execute("""
+    SELECT COUNT(*)
+    FROM test_cases tc
+    LEFT JOIN users u
+        ON tc.created_by = u.user_id
+    WHERE tc.created_by IS NOT NULL
+      AND u.user_id IS NULL
+""")
+
+broken_test_case_user_links = cursor.fetchone()[0]
+
+print("Broken test_case -> user links             :", broken_test_case_user_links)
+
+
+cursor.execute("""
+    SELECT COUNT(*)
+    FROM test_executions te
+    LEFT JOIN users u
+        ON te.executed_by = u.user_id
+    WHERE te.executed_by IS NOT NULL
+      AND u.user_id IS NULL
+""")
+
+broken_test_execution_user_links = cursor.fetchone()[0]
+
+print("Broken test_execution -> user links       :", broken_test_execution_user_links)
 
 
 # ----------------------------------------------------------
-# 9. Final result
+# 10. Final result
 # ----------------------------------------------------------
 
 print()
@@ -250,8 +326,13 @@ if (
     and unlinked_failures == 99
     and duplicate_meters == 0
     and duplicate_bugs == 0
+    and duplicate_users == 0
+    and users_without_email == 0
+    and users_without_role == 0
     and broken_failure_meter_links == 0
     and broken_fingerprint_links == 0
+    and broken_test_case_user_links == 0
+    and broken_test_execution_user_links == 0
     and failure_count == fingerprint_count
 ):
     print("DATABASE STATUS: READY")
