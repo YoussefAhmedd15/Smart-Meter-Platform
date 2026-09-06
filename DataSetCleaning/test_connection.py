@@ -9,7 +9,7 @@ DB_NAME = "scdc_intelligence"
 DB_USER = "postgres"
 DB_PASSWORD = "12345678"
 
-FOLDER_PATH = "C:/Users/lenovo/PycharmProjects/PythonProject4/"
+FOLDER_PATH = "//"
 
 
 connection = psycopg2.connect(
@@ -81,7 +81,7 @@ print("STEP 4: DEV_BUGS IMPORT")
 # Read L1 CSV
 
 l1_df = pd.read_csv(
-    os.path.join(FOLDER_PATH, "L1_Created.csv")
+    os.path.join(FOLDER_PATH, "../DataSet/L1_Created.csv")
 )
 
 print("L1 CSV loaded successfully.")
@@ -91,7 +91,7 @@ print("L1 rows:", len(l1_df))
 # Read L2 CSV
 
 l2_df = pd.read_csv(
-    os.path.join(FOLDER_PATH, "L2_Soft.csv")
+    os.path.join(FOLDER_PATH, "../DataSet/L2_Soft.csv")
 )
 
 print("L2 CSV loaded successfully.")
