@@ -1,6 +1,6 @@
 export interface Meter {
   id: number;
-  serial_number: str;
+  serial_number: string;
   manufacturer: string;
   model: string;
   firmware_version: string;
@@ -159,4 +159,23 @@ export interface RegressionComparison {
     fixed_issues_list: string[];
     new_failures_list: string[];
   };
+}
+
+export type AzureSyncStatus = 'NOT_SYNCED' | 'SYNCED' | 'FAILED';
+
+export interface TestCase {
+  id: number;
+  suite_id: number;
+  name: string;
+  description?: string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  obis_target: string;
+  expected_value?: string;
+  timeout_ms: number;
+  azure_sync_status: AzureSyncStatus;
+  azure_test_case_id?: number;
+  azure_suite_id?: number;
+  azure_plan_id?: number;
+  azure_synced_at?: string;
+  azure_url?: string;
 }

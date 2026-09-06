@@ -18,34 +18,34 @@ export const RegressionCenter: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Firmware Regression Comparison Center</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Compare testing pass rates, fixed defects, and new regressions between firmware releases.</p>
+        <h2 className="section-title">Firmware Regression Comparison Center</h2>
+        <p className="section-sub">Compare testing pass rates, fixed defects, and new regressions between firmware releases.</p>
       </div>
 
       {/* Selectors */}
-      <div className="glass-card" style={{ padding: '20px', display: 'grid', gridTemplateColumns: '1fr auto 1fr auto', gap: '16px', alignItems: 'center' }}>
+      <div className="glass-card" style={{ padding: '22px', display: 'grid', gridTemplateColumns: '1fr auto 1fr auto', gap: '16px', alignItems: 'end' }}>
         <div>
-          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>BASELINE FIRMWARE (A)</label>
-          <select value={fwA} onChange={e => setFwA(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}>
+          <label className="form-label">Baseline Firmware (A)</label>
+          <select className="form-select" value={fwA} onChange={e => setFwA(e.target.value)}>
             <option value="v3.12.1">v3.12.1</option>
             <option value="v3.13.0">v3.13.0</option>
           </select>
         </div>
 
-        <ArrowRight size={24} color="var(--accent-cyan)" style={{ marginTop: '18px' }} />
+        <ArrowRight size={24} color="var(--accent-cyan)" />
 
         <div>
-          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>TARGET FIRMWARE (B)</label>
-          <select value={fwB} onChange={e => setFwB(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#111726', color: '#fff', border: '1px solid var(--border-color)' }}>
+          <label className="form-label">Target Firmware (B)</label>
+          <select className="form-select" value={fwB} onChange={e => setFwB(e.target.value)}>
             <option value="v3.14.2">v3.14.2</option>
             <option value="v3.15.0-RC1">v3.15.0-RC1</option>
           </select>
         </div>
 
-        <button className="btn-cyan" onClick={handleCompare} style={{ marginTop: '18px' }}>
-          <GitCompare size={16} /> COMPARE FIRMWARE BUILD
+        <button className="btn-cyan" onClick={handleCompare}>
+          <GitCompare size={16} /> Run Regression Comparison
         </button>
       </div>
 

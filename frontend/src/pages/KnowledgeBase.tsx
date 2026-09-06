@@ -11,10 +11,10 @@ export const KnowledgeBase: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
       <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Meter Testing Knowledge Base</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Curated technical solutions for smart meter DLMS/COSEM failures, Mode E baudrate switching, and HDLC framing errors.</p>
+        <h2 className="section-title">Meter Testing Knowledge Base</h2>
+        <p className="section-sub">Curated technical solutions for smart meter DLMS/COSEM failures, Mode E baudrate switching, and HDLC framing errors.</p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

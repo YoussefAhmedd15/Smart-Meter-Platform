@@ -1,50 +1,92 @@
-import React from 'react';
-import { FileText, Download, CheckCircle, FileSpreadsheet } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Download, CheckCircle2, FileSpreadsheet, Info } from 'lucide-react';
 
 export const TestReports: React.FC = () => {
+  const [downloadStatus, setDownloadStatus] = useState<string | null>(null);
+
+  const handleDownload = (type: string) => {
+    // Backend report generation endpoint exists at POST /api/reports/test-run/{run_id}
+    // For now the feature is UI-ready; the backend team will wire up actual file generation.
+    setDownloadStatus(`${type} export requested — check backend /api/reports endpoint.`);
+    setTimeout(() => setDownloadStatus(null), 4000);
+  };
+
+  const reportData = [
+    { runId: 104, meter: 'ISK-2026-984210', model: 'Iskraemeco AM550-TD1', firmware: 'v3.14.2', totalCases: 6, passedCases: 6, duration: '4.12s', accuracy: 'Class 0.2S', status: 'PASSED' },
+    { runId: 103, meter: 'ISK-2026-984211', model: 'Iskraemeco MT880-D2',  firmware: 'v3.13.0', totalCases: 9, passedCases: 7, duration: '6.34s', accuracy: 'Class 0.5',  status: 'FAILED' },
+    { runId: 102, meter: 'ISK-2026-984210', model: 'Iskraemeco AM550-TD1', firmware: 'v3.13.0', totalCases: 6, passedCases: 5, duration: '5.01s', accuracy: 'Class 1',    status: 'FAILED' },
+  ];
+
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
       <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Smart Meter Test Certificate & Reports</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Generate and export official PDF testing certificates and Excel/JSON data logs.</p>
+        <h2 className="section-title">Smart Meter Test Certificates &amp; Reports</h2>
+        <p className="section-sub">Generate and export official testing certificates and data logs.</p>
       </div>
 
-      <div className="glass-card" style={{ padding: '24px', borderLeft: '4px solid var(--accent-cyan)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Test Run Certificate #104</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Target Meter: ISK-2026-984210 • Iskraemeco AM550-TD1 (v3.14.2)</p>
-          </div>
-          <span className="badge badge-pass">PASSED & CERTIFIED</span>
+      {downloadStatus && (
+        <div className="alert-banner info">
+          <Info size={18} style={{ flexShrink: 0 }} />
+          <span>{downloadStatus}</span>
         </div>
+      )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', margin: '16px 0', padding: '16px', borderRadius: '8px', background: 'rgba(17,23,38,0.6)' }}>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>TOTAL TEST CASES</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>6 / 6</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>EXECUTION DURATION</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>4.12s</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>METROLOGY ACCURACY</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-green)' }}>Class 0.2S</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>FIRMWARE STATUS</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-green)' }}>COMPLIANT</div>
-          </div>
-        </div>
+      {/* Reports List */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {reportData.map(r => (
+          <div
+            key={r.runId}
+            className="glass-card"
+            style={{
+              padding: '22px',
+              borderLeft: `4px solid ${r.status === 'PASSED' ? 'var(--accent-green)' : 'var(--accent-red)'}`,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-head)', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
+                  Test Run Certificate #{r.runId}
+                </h3>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '3px' }}>
+                  Meter: <span style={{ color: 'var(--accent-cyan)' }}>{r.meter}</span> · {r.model} ({r.firmware})
+                </p>
+              </div>
+              <span className={`badge ${r.status === 'PASSED' ? 'badge-pass' : 'badge-fail'}`}>
+                {r.status === 'PASSED' ? <CheckCircle2 size={12} /> : null}
+                {r.status} &amp; CERTIFIED
+              </span>
+            </div>
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-          <button className="btn-cyan" onClick={() => alert('PDF Certificate Report downloaded!')}>
-            <Download size={16} /> DOWNLOAD PDF REPORT
-          </button>
-          <button className="btn-secondary" onClick={() => alert('Excel JSON logs exported!')}>
-            <FileSpreadsheet size={16} /> EXPORT EXCEL / JSON
-          </button>
-        </div>
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px',
+              padding: '14px', borderRadius: '9px',
+              background: 'rgba(10,15,26,0.6)', marginBottom: '16px',
+            }}>
+              {[
+                { label: 'Total Test Cases', value: `${r.passedCases} / ${r.totalCases}`, color: 'var(--text-main)' },
+                { label: 'Execution Duration', value: r.duration, color: 'var(--accent-cyan)' },
+                { label: 'Metrology Accuracy', value: r.accuracy, color: 'var(--accent-green)' },
+                { label: 'Firmware Status', value: r.status === 'PASSED' ? 'COMPLIANT' : 'REVIEW', color: r.status === 'PASSED' ? 'var(--accent-green)' : 'var(--accent-red)' },
+              ].map(s => (
+                <div key={s.label}>
+                  <div className="label">{s.label}</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: s.color, fontFamily: 'var(--font-head)', marginTop: '4px' }}>
+                    {s.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="btn-cyan" onClick={() => handleDownload('PDF')}>
+                <Download size={15} /> Download PDF Report
+              </button>
+              <button className="btn-secondary" onClick={() => handleDownload('Excel/JSON')}>
+                <FileSpreadsheet size={15} /> Export Excel / JSON
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
