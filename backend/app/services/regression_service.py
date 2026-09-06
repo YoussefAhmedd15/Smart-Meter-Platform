@@ -1,91 +1,80 @@
-from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-from ..db.models import TestRun, TestResult, RegressionRun
-
+from sqlalchemy import text
+from typing import Dict, Any, List
+from backend.app.schemas.schemas import FirmwareComparisonResponse, RegressionDetail
 
 class RegressionService:
-
     def __init__(self, db: Session):
         self.db = db
 
-    def compare_firmware_versions(self, firmware_a: str, firmware_b: str) -> dict:
+    def compare_firmwares(self, version_a: str, version_b: str) -> FirmwareComparisonResponse:
         """
-        Compares testing results between Firmware A and Firmware B using database records.
+        مقارنة نسختين فيرموير وحساب الـ Pass Rate واكتشاف الـ Regression
         """
-        runs_a = self.db.query(TestRun).filter(TestRun.firmware_version == firmware_a).all()
-        runs_b = self.db.query(TestRun).filter(TestRun.firmware_version == firmware_b).all()
+        # 1. حساب نسب النجاح للنسختين
+        rate_query = text("""
+            SELECT 
+                f.version,
+                COUNT(*) AS total,
+                COALESCE(SUM(CASE WHEN te.status = 'PASS' THEN 1 ELSE 0 END), 0) AS passed
+            FROM test_executions te
+            JOIN firmwares f ON te.firmware_id = f.firmware_id
+            WHERE f.version IN (:va, :vb)
+            GROUP BY f.version;
+        """)
+        rows = self.db.execute(rate_query, {"va": version_a, "vb": version_b}).mappings().all()
+        rates = {r["version"]: (r["passed"] / r["total"] * 100.0) if r["total"] > 0 else 0.0 for r in rows}
+        
+        pass_a = rates.get(version_a, 0.0)
+        pass_b = rates.get(version_b, 0.0)
 
-        total_a = sum(r.total_tests for r in runs_a) or 1
-        passed_a = sum(r.passed_tests for r in runs_a)
-        failed_a = sum(r.failed_tests for r in runs_a)
-        pass_rate_a = round((passed_a / total_a) * 100, 1)
+        # 2. كشف الاختبارات المنحدرة (كانت PASS في A وبقت FAIL في B)
+        regression_query = text("""
+            WITH passed_a AS (
+                SELECT DISTINCT te.test_case_id, tc.name
+                FROM test_executions te
+                JOIN test_cases tc ON te.test_case_id = tc.test_case_id
+                JOIN firmwares f ON te.firmware_id = f.firmware_id
+                WHERE f.version = :va AND te.status = 'PASS'
+            ),
+            failed_b AS (
+                SELECT DISTINCT te.test_case_id
+                FROM test_executions te
+                JOIN firmwares f ON te.firmware_id = f.firmware_id
+                WHERE f.version = :vb AND te.status = 'FAIL'
+            )
+            SELECT p.test_case_id, p.name
+            FROM passed_a p
+            JOIN failed_b f ON p.test_case_id = f.test_case_id;
+        """)
+        reg_rows = self.db.execute(regression_query, {"va": version_a, "vb": version_b}).mappings().all()
+        
+        regressed_tests = [
+            RegressionDetail(
+                test_case_id=r["test_case_id"],
+                test_name=r["name"],
+                status_firmware_a="PASS",
+                status_firmware_b="FAIL"
+            )
+            for r in reg_rows
+        ]
 
-        total_b = sum(r.total_tests for r in runs_b) or 1
-        passed_b = sum(r.passed_tests for r in runs_b)
-        failed_b = sum(r.failed_tests for r in runs_b)
-        pass_rate_b = round((passed_b / total_b) * 100, 1)
-
-        pass_rate_delta = round(pass_rate_b - pass_rate_a, 1)
-
-        # Mock / calc specific test cases comparison
-        results_a = (
-            self.db.query(TestResult)
-            .join(TestRun)
-            .filter(TestRun.firmware_version == firmware_a)
-            .all()
-        )
-        results_b = (
-            self.db.query(TestResult)
-            .join(TestRun)
-            .filter(TestRun.firmware_version == firmware_b)
-            .all()
-        )
-
-        failed_cases_a = {r.test_name for r in results_a if r.status == "FAIL"}
-        failed_cases_b = {r.test_name for r in results_b if r.status == "FAIL"}
-
-        fixed_issues = list(failed_cases_a - failed_cases_b)
-        new_failures = list(failed_cases_b - failed_cases_a)
-        unchanged_failures = list(failed_cases_a & failed_cases_b)
-
-        reg_run = RegressionRun(
-            firmware_a=firmware_a,
-            firmware_b=firmware_b,
-            total_tests=total_b,
-            fixed_issues=len(fixed_issues),
-            new_failures=len(new_failures),
-            unchanged_failures=len(unchanged_failures),
-            pass_rate_change=pass_rate_delta,
-            details={
-                "fixed_cases": fixed_issues,
-                "new_cases": new_failures,
-                "unchanged_cases": unchanged_failures,
-            }
-        )
-        self.db.add(reg_run)
-        self.db.commit()
-        self.db.refresh(reg_run)
-
-        return {
-            "id": reg_run.id,
-            "firmware_a": {
-                "version": firmware_a,
-                "pass_rate": pass_rate_a,
-                "total_tests": total_a,
-                "failures": failed_a,
-            },
-            "firmware_b": {
-                "version": firmware_b,
-                "pass_rate": pass_rate_b,
-                "total_tests": total_b,
-                "failures": failed_b,
-            },
-            "comparison": {
-                "pass_rate_improvement": f"{'+' if pass_rate_delta >= 0 else ''}{pass_rate_delta}%",
-                "fixed_issues_count": len(fixed_issues),
-                "new_failures_count": len(new_failures),
-                "unchanged_failures_count": len(unchanged_failures),
-                "fixed_issues_list": fixed_issues,
-                "new_failures_list": new_failures,
-            }
+        # 3. تجهيز تسليم البيانات لـ Member 5
+        handoff_payload = {
+            "source": "regression_engine",
+            "base_version": version_a,
+            "target_version": version_b,
+            "regression_count": len(regressed_tests),
+            "affected_tests": [t.test_name for t in regressed_tests]
         }
+
+        return FirmwareComparisonResponse(
+            firmware_a=version_a,
+            firmware_b=version_b,
+            pass_rate_a=round(pass_a, 2),
+            pass_rate_b=round(pass_b, 2),
+            pass_rate_delta=round(pass_b - pass_a, 2),
+            regressions_detected=len(regressed_tests),
+            regressed_tests=regressed_tests,
+            handoff_payload=handoff_payload
+        )

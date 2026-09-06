@@ -1,75 +1,168 @@
-from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from ..db.models import Meter, TestRun, TestResult, FailureRecord, FirmwareVersion
+from sqlalchemy import text
+from backend.app.schemas.schemas import KPISummaryResponse, TrendsResponse, DailyTrendPoint, FirmwareComparisonResponse, RegressionDetail
 
+MT514_CRITICAL_CODES = {
+    "-03", "E-SEQUEN", "-09", "droP-U-I", "-10", "rEUErSE", 
+    "-12", "E-rELAY", "-23", "Drop-U-2", "-24", "Drop-U-3", 
+    "Err-73", "Err-96", "RTC_FAULT", "MEMORY_FAULT"
+}
 
 class AnalyticsService:
-
     def __init__(self, db: Session):
         self.db = db
 
-    def get_overview_kpis(self) -> dict:
-        total_meters = self.db.query(Meter).count()
-        total_runs = self.db.query(TestRun).count()
+    def calculate_quality_score(self, pass_rate: float, execution_rate: float, critical_failures: int) -> float:
+        base_score = (pass_rate * 0.6) + (execution_rate * 0.2)
+        penalty = min(critical_failures * 5.0, 20.0)
+        return round(max(0.0, min(100.0, base_score + (20.0 - penalty))), 2)
 
-        total_tests = self.db.query(func.sum(TestRun.total_tests)).scalar() or 0
-        passed_tests = self.db.query(func.sum(TestRun.passed_tests)).scalar() or 0
-        failed_tests = self.db.query(func.sum(TestRun.failed_tests)).scalar() or 0
+    def get_overview_kpis(self) -> KPISummaryResponse:
+        query = text("""
+            SELECT 
+                COUNT(*) AS total_executions,
+                COUNT(DISTINCT meter_id) AS total_meters,
+                COALESCE(SUM(CASE WHEN status = 'PASS' THEN 1 ELSE 0 END), 0) AS passed_tests,
+                COALESCE(SUM(CASE WHEN status = 'FAIL' THEN 1 ELSE 0 END), 0) AS failed_tests,
+                COALESCE(SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END), 0) AS pending_tests,
+                COALESCE(AVG(duration_ms) / 1000.0, 0.0) AS avg_duration_seconds
+            FROM test_executions;
+        """)
+        row = self.db.execute(query).mappings().first()
 
-        pass_rate = round((passed_tests / total_tests * 100), 1) if total_tests > 0 else 96.8
-        avg_duration = self.db.query(func.avg(TestRun.duration_seconds)).scalar() or 4.2
+        total = row["total_executions"] or 0
+        passed = row["passed_tests"] or 0
+        failed = row["failed_tests"] or 0
+        pending = row["pending_tests"] or 0
+        pass_rate = (passed / total * 100.0) if total > 0 else 0.0
 
-        open_failures = self.db.query(FailureRecord).filter(FailureRecord.resolved_at.is_(None)).count()
-        critical_failures = self.db.query(FailureRecord).filter(FailureRecord.severity == "CRITICAL").count()
+        crit_query = text("""
+            SELECT COUNT(*) AS count
+            FROM failures
+            WHERE error_code = ANY(:codes);
+        """)
+        crit_count = self.db.execute(crit_query, {"codes": list(MT514_CRITICAL_CODES)}).scalar() or 0
 
-        quality_score = round(min(100.0, max(0.0, pass_rate - (critical_failures * 1.5))), 1)
+        quality_score = self.calculate_quality_score(
+            pass_rate=pass_rate,
+            execution_rate=100.0 if total > 0 else 0.0,
+            critical_failures=crit_count
+        )
 
-        return {
-            "overall_quality_score": quality_score,
-            "pass_rate_percentage": pass_rate,
-            "total_meters_tested": total_meters or 12,
-            "total_test_runs": total_runs or 148,
-            "total_tests_executed": total_tests or 1840,
-            "passed_tests": passed_tests or 1781,
-            "failed_tests": failed_tests or 59,
-            "average_duration_seconds": round(avg_duration, 2),
-            "open_failures": open_failures or 5,
-            "critical_failures": critical_failures or 2,
-            "firmware_stability": "STABLE" if pass_rate >= 95 else "DEGRADED",
+        return KPISummaryResponse(
+            total_test_executions=total,
+            total_meters_tested=row["total_meters"] or 0,
+            overall_pass_rate=round(pass_rate, 2),
+            quality_score=quality_score,
+            passed_tests=passed,
+            failed_tests=failed,
+            pending_tests=pending,
+            avg_duration_seconds=round(float(row["avg_duration_seconds"]), 2)
+        )
+
+    def get_failure_trends(self, limit_days: int = 7) -> TrendsResponse:
+        trends_query = text("""
+            SELECT 
+                TO_CHAR(started_at, 'YYYY-MM-DD') AS test_date,
+                COUNT(*) AS total_runs,
+                COALESCE(SUM(CASE WHEN status = 'PASS' THEN 1 ELSE 0 END), 0) AS passed,
+                COALESCE(SUM(CASE WHEN status = 'FAIL' THEN 1 ELSE 0 END), 0) AS failed
+            FROM test_executions
+            WHERE started_at IS NOT NULL
+            GROUP BY TO_CHAR(started_at, 'YYYY-MM-DD')
+            ORDER BY test_date DESC
+            LIMIT :limit;
+        """)
+        rows = self.db.execute(trends_query, {"limit": limit_days}).mappings().all()
+
+        daily_trends = []
+        for r in rows:
+            t_total = r["total_runs"] or 0
+            t_pass = r["passed"] or 0
+            rate = (t_pass / t_total * 100.0) if t_total > 0 else 0.0
+            daily_trends.append(DailyTrendPoint(
+                date=r["test_date"],
+                total_runs=t_total,
+                passed=t_pass,
+                failed=r["failed"] or 0,
+                pass_rate=round(rate, 2)
+            ))
+
+        top_failing_query = text("""
+            SELECT tc.name AS test_name, COUNT(*) AS failure_count
+            FROM test_executions te
+            JOIN test_cases tc ON te.test_case_id = tc.test_case_id
+            WHERE te.status = 'FAIL'
+            GROUP BY tc.name
+            ORDER BY failure_count DESC
+            LIMIT 5;
+        """)
+        top_tests = [dict(r) for r in self.db.execute(top_failing_query).mappings().all()]
+
+        return TrendsResponse(trends=daily_trends, top_failing_tests=top_tests)
+
+    def compare_firmwares(self, version_a: str, version_b: str) -> FirmwareComparisonResponse:
+        rate_query = text("""
+            SELECT 
+                f.version,
+                COUNT(*) AS total,
+                COALESCE(SUM(CASE WHEN te.status = 'PASS' THEN 1 ELSE 0 END), 0) AS passed
+            FROM test_executions te
+            JOIN firmwares f ON te.firmware_id = f.firmware_id
+            WHERE f.version IN (:va, :vb)
+            GROUP BY f.version;
+        """)
+        rows = self.db.execute(rate_query, {"va": version_a, "vb": version_b}).mappings().all()
+        rates = {r["version"]: (r["passed"] / r["total"] * 100.0) if r["total"] > 0 else 0.0 for r in rows}
+        
+        pass_a = rates.get(version_a, 0.0)
+        pass_b = rates.get(version_b, 0.0)
+
+        regression_query = text("""
+            WITH passed_a AS (
+                SELECT DISTINCT te.test_case_id, tc.name
+                FROM test_executions te
+                JOIN test_cases tc ON te.test_case_id = tc.test_case_id
+                JOIN firmwares f ON te.firmware_id = f.firmware_id
+                WHERE f.version = :va AND te.status = 'PASS'
+            ),
+            failed_b AS (
+                SELECT DISTINCT te.test_case_id
+                FROM test_executions te
+                JOIN firmwares f ON te.firmware_id = f.firmware_id
+                WHERE f.version = :vb AND te.status = 'FAIL'
+            )
+            SELECT p.test_case_id, p.name
+            FROM passed_a p
+            JOIN failed_b f ON p.test_case_id = f.test_case_id;
+        """)
+        reg_rows = self.db.execute(regression_query, {"va": version_a, "vb": version_b}).mappings().all()
+        
+        regressed_tests = [
+            RegressionDetail(
+                test_case_id=r["test_case_id"],
+                test_name=r["name"],
+                status_firmware_a="PASS",
+                status_firmware_b="FAIL"
+            )
+            for r in reg_rows
+        ]
+
+        handoff_payload = {
+            "source": "regression_engine",
+            "base_version": version_a,
+            "target_version": version_b,
+            "regression_count": len(regressed_tests),
+            "affected_tests": [t.test_name for t in regressed_tests]
         }
 
-    def get_failures_by_firmware(self) -> List[dict]:
-        results = (
-            self.db.query(
-                FailureRecord.firmware_version,
-                func.count(FailureRecord.id).label("failure_count")
-            )
-            .group_by(FailureRecord.firmware_version)
-            .all()
+        return FirmwareComparisonResponse(
+            firmware_a=version_a,
+            firmware_b=version_b,
+            pass_rate_a=round(pass_a, 2),
+            pass_rate_b=round(pass_b, 2),
+            pass_rate_delta=round(pass_b - pass_a, 2),
+            regressions_detected=len(regressed_tests),
+            regressed_tests=regressed_tests,
+            handoff_payload=handoff_payload
         )
-        if not results:
-            return [
-                {"firmware_version": "v3.12.1", "failure_count": 18, "pass_rate": 91.2},
-                {"firmware_version": "v3.13.0", "failure_count": 12, "pass_rate": 94.5},
-                {"firmware_version": "v3.14.2", "failure_count": 4, "pass_rate": 98.1},
-            ]
-        return [{"firmware_version": r[0], "failure_count": r[1]} for r in results]
-
-    def get_failures_by_model(self) -> List[dict]:
-        return [
-            {"model": "AM550-TD1", "failures": 14, "pass_rate": 96.8},
-            {"model": "MT880-D2", "failures": 8, "pass_rate": 97.4},
-            {"model": "MT382-T1", "failures": 22, "pass_rate": 92.1},
-        ]
-
-    def get_test_trends(self) -> List[dict]:
-        return [
-            {"date": "Mon", "passed": 240, "failed": 8, "duration": 4.1},
-            {"date": "Tue", "passed": 280, "failed": 5, "duration": 3.9},
-            {"date": "Wed", "passed": 310, "failed": 12, "duration": 4.5},
-            {"date": "Thu", "passed": 290, "failed": 4, "duration": 4.0},
-            {"date": "Fri", "passed": 350, "failed": 6, "duration": 3.8},
-            {"date": "Sat", "passed": 180, "failed": 2, "duration": 3.7},
-            {"date": "Sun", "passed": 130, "failed": 1, "duration": 3.6},
-        ]

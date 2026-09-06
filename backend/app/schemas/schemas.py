@@ -152,3 +152,42 @@ class KnowledgeItemCreate(BaseModel):
     fixed_version: str = "v3.15.0"
     severity: str = "HIGH"
     tags: str = "HDLC, Mode E"
+    
+    
+    
+class KPISummaryResponse(BaseModel):
+    total_test_executions: int
+    total_meters_tested: int
+    overall_pass_rate: float
+    quality_score: float
+    passed_tests: int
+    failed_tests: int
+    pending_tests: int
+    avg_duration_seconds: float
+
+class DailyTrendPoint(BaseModel):
+    date: str
+    total_runs: int
+    passed: int
+    failed: int
+    pass_rate: float
+
+class TrendsResponse(BaseModel):
+    trends: List[DailyTrendPoint]
+    top_failing_tests: List[Any]
+
+class RegressionDetail(BaseModel):
+    test_case_id: int
+    test_name: str
+    status_firmware_a: str
+    status_firmware_b: str
+
+class FirmwareComparisonResponse(BaseModel):
+    firmware_a: str
+    firmware_b: str
+    pass_rate_a: float
+    pass_rate_b: float
+    pass_rate_delta: float
+    regressions_detected: int
+    regressed_tests: List[RegressionDetail]
+    handoff_payload: Any
