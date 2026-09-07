@@ -3,10 +3,47 @@ from typing import List, Optional, Any
 from datetime import datetime
 
 
+class UserRegisterRequest(BaseModel):
+    # Plain str, not EmailStr — EmailStr needs the optional email-validator
+    # package, which isn't a dependency here. Matches users.py's own
+    # validation (non-empty, case-normalized), not stricter than it.
+    #
+    # No `role` field, deliberately. Public self-registration must never let
+    # a caller choose their own role (e.g. {"role": "admin"}) — the endpoint
+    # that uses this schema hardcodes the non-privileged default instead.
+    # Elevated-role account creation belongs behind an authenticated
+    # admin-only endpoint, not here.
+    email: str
+    password: str
+
+
+class UserLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class UserPublicResponse(BaseModel):
+    """A User's public fields — never password_hash or api_token_hash."""
+    user_id: int
+    email: str
+    role: str
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
 class MeterBase(BaseModel):
-    serial_number: str
+    meter_number: str
+    meter_type: Optional[str] = None
+    meter_model: str = "AM550-TD1"
     manufacturer: str = "Iskraemeco"
-    model: str = "AM550-TD1"
     firmware_version: str = "v3.14.2"
     hardware_revision: str = "HW-2.1"
     communication_interface: str = "HDLC_WITH_MODE_E"
@@ -16,8 +53,15 @@ class MeterCreate(MeterBase):
     pass
 
 
-class MeterResponse(MeterBase):
-    id: int
+class MeterResponse(BaseModel):
+    meter_id: int
+    meter_number: str
+    meter_type: Optional[str] = None
+    meter_model: str
+    manufacturer: str
+    firmware_version: Optional[str] = None
+    hardware_revision: str
+    communication_interface: str
     status: str
     first_seen: datetime
     last_seen: datetime
@@ -27,7 +71,7 @@ class MeterResponse(MeterBase):
 
 
 class ReadingResponse(BaseModel):
-    id: int
+    meter_reading_id: int
     meter_id: int
     obis: str
     attribute_index: int
@@ -66,7 +110,7 @@ class TestSuiteUpdate(BaseModel):
 
 
 class TestSuiteResponse(BaseModel):
-    id: int
+    suite_id: int
     name: str
     description: Optional[str] = None
     category: str
@@ -82,13 +126,13 @@ class TestSuiteResponse(BaseModel):
 
 
 class TestCaseCreate(BaseModel):
-    suite_id: int
+    suite_id: Optional[int] = None
     name: str
     description: str = ""
-    severity: str = "HIGH"
+    priority: str = "HIGH"
     obis_target: str = "1.0.1.8.0.255"
     action: str = "READ_OBIS"
-    expected_value: Optional[str] = None
+    expected_result: Optional[str] = None
     timeout_ms: int = 5000
     test_steps: List[TestStep] = []
     is_active: bool = True
@@ -98,29 +142,29 @@ class TestCaseUpdate(BaseModel):
     suite_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
-    severity: Optional[str] = None
+    priority: Optional[str] = None
     obis_target: Optional[str] = None
     action: Optional[str] = None
-    expected_value: Optional[str] = None
+    expected_result: Optional[str] = None
     timeout_ms: Optional[int] = None
     test_steps: Optional[List[TestStep]] = None
     is_active: Optional[bool] = None
 
 
 class TestCaseResponse(BaseModel):
-    id: int
-    suite_id: int
+    test_case_id: int
+    suite_id: Optional[int] = None
     name: str
     description: Optional[str] = None
-    severity: str
-    obis_target: str
+    priority: str
+    obis_target: Optional[str] = None
     action: str
-    expected_value: Optional[str] = None
+    expected_result: Optional[str] = None
     timeout_ms: int
     test_steps: List[Any] = []
     is_active: bool
     azure_test_case_id: Optional[int] = None
-    azure_sync_status: str = "NOT_SYNCED"
+    azure_sync_status: str = "PENDING"
     azure_sync_error: Optional[str] = None
     azure_last_synced_at: Optional[datetime] = None
 

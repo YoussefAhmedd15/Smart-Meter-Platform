@@ -1,13 +1,25 @@
 import os
 from pydantic import BaseModel
 
+# This exact string was the old hardcoded fallback below. It no longer
+# authenticates anything (see the check after Settings is instantiated) —
+# kept as a named constant purely so that check has something to compare
+# against without repeating the literal.
+_INSECURE_DEFAULT_SECRET_KEY = "super-secret-smart-meter-key-2026"
+
 
 class Settings(BaseModel):
     PROJECT_NAME: str = "Smart Meter Intelligence Platform"
     API_V1_STR: str = "/api"
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-smart-meter-key-2026")
+    # No secure default on purpose — the check below refuses to start the
+    # app if this is unset or still the old hardcoded literal.
+    SECRET_KEY: str = os.getenv("SECRET_KEY", _INSECURE_DEFAULT_SECRET_KEY)
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))  # 24h
     APP_MODE: str = os.getenv("APP_MODE", "hardware")
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./smart_meter_intelligence.db")
+    # No default here on purpose — backend/app/db/database.py fails loudly at
+    # import time if DATABASE_URL isn't set or isn't a postgresql:// URL. This
+    # field exists for informational/API use; it isn't what actually connects.
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
     CORS_ORIGINS: list = ["*"]
 
     # Azure DevOps Test Plans integration
@@ -28,3 +40,12 @@ class Settings(BaseModel):
 
 
 settings = Settings()
+
+if not settings.SECRET_KEY or settings.SECRET_KEY == _INSECURE_DEFAULT_SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not set (or is still the old hardcoded default). This "
+        "signs auth tokens — the app refuses to start with it unset or with "
+        "that default. Set a real random SECRET_KEY in your environment "
+        "(see .env.example), e.g.: python -c \"import secrets; "
+        "print(secrets.token_urlsafe(48))\""
+    )

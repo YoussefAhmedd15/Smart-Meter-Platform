@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from ..db.models import Meter, TestRun, TestResult, FailureRecord, FirmwareVersion
+from ..db.models import Meter, TestRun, TestResult, FailureRecord, Firmware
 
 
 class AnalyticsService:
@@ -20,8 +20,8 @@ class AnalyticsService:
         pass_rate = round((passed_tests / total_tests * 100), 1) if total_tests > 0 else 96.8
         avg_duration = self.db.query(func.avg(TestRun.duration_seconds)).scalar() or 4.2
 
-        open_failures = self.db.query(FailureRecord).filter(FailureRecord.resolved_at.is_(None)).count()
-        critical_failures = self.db.query(FailureRecord).filter(FailureRecord.severity == "CRITICAL").count()
+        open_failures = self.db.query(FailureRecord).filter(FailureRecord.resolved_date.is_(None)).count()
+        critical_failures = self.db.query(FailureRecord).filter(FailureRecord.case_severity == "CRITICAL").count()
 
         quality_score = round(min(100.0, max(0.0, pass_rate - (critical_failures * 1.5))), 1)
 
@@ -42,10 +42,11 @@ class AnalyticsService:
     def get_failures_by_firmware(self) -> List[dict]:
         results = (
             self.db.query(
-                FailureRecord.firmware_version,
-                func.count(FailureRecord.id).label("failure_count")
+                Firmware.version,
+                func.count(FailureRecord.failure_id).label("failure_count")
             )
-            .group_by(FailureRecord.firmware_version)
+            .join(FailureRecord, FailureRecord.firmware_id == Firmware.firmware_id)
+            .group_by(Firmware.version)
             .all()
         )
         if not results:

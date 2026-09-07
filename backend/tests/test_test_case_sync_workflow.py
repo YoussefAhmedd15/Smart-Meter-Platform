@@ -2,15 +2,19 @@
 Integration tests for the Create Test Case -> Azure DevOps sync workflow
 (backend.app.main._sync_test_case_to_azure and the CRUD it backs).
 
-Uses a throwaway on-disk SQLite database (set via DATABASE_URL before the
-`backend.app` package is imported) and a mocked AzureDevOpsService injected
-the same way FastAPI would inject it via `get_azure_service` — no network
-calls, no real Azure DevOps account required.
+Runs against a real PostgreSQL database (the app has no SQLite fallback) and a
+mocked AzureDevOpsService injected the same way FastAPI would inject it via
+`get_azure_service` — no network calls, no real Azure DevOps account required.
+
+Point TEST_DATABASE_URL (falls back to DATABASE_URL) at a throwaway/test
+Postgres database before running this file — e.g. the one docker-compose.yml
+brings up: postgresql://postgres:<password>@localhost:5432/smart_meter_db.
+Tables are created via init_db(); this suite does not drop them afterward, so
+point it at a database you don't mind accumulating test rows in.
 """
 import itertools
 import os
 import sys
-import tempfile
 import unittest
 from unittest.mock import MagicMock
 
@@ -20,9 +24,13 @@ GRANDPARENT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."
 if GRANDPARENT not in sys.path:
     sys.path.insert(0, GRANDPARENT)
 
-_TMP_DB_FD, _TMP_DB_PATH = tempfile.mkstemp(suffix=".db", prefix="smart_meter_test_")
-os.close(_TMP_DB_FD)
-os.environ["DATABASE_URL"] = f"sqlite:///{_TMP_DB_PATH}"
+_TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
+if not _TEST_DB_URL:
+    raise RuntimeError(
+        "Set TEST_DATABASE_URL (or DATABASE_URL) to a PostgreSQL connection "
+        "string before running this test file — there is no SQLite fallback."
+    )
+os.environ["DATABASE_URL"] = _TEST_DB_URL
 os.environ["APP_MODE"] = "demo"
 
 from backend.app.main import _sync_test_case_to_azure  # noqa: E402
@@ -62,7 +70,7 @@ class SyncWorkflowTestCase(unittest.TestCase):
         self.db.refresh(self.suite)
 
         self.case = TestCase(
-            suite_id=self.suite.id,
+            suite_id=self.suite.suite_id,
             name="Voltage L1 Range Check",
             description="Validates 207V-253V",
             obis_target="1.0.32.7.0.255",
@@ -76,8 +84,8 @@ class SyncWorkflowTestCase(unittest.TestCase):
 
     # 1. Local test case creation
     def test_local_test_case_created(self):
-        self.assertIsNotNone(self.case.id)
-        self.assertEqual(self.case.azure_sync_status, "NOT_SYNCED")
+        self.assertIsNotNone(self.case.test_case_id)
+        self.assertEqual(self.case.azure_sync_status, "PENDING")
 
     # 2 & 3. Azure test case creation + successful synchronization
     def test_successful_sync_creates_suite_and_case_and_adds_to_suite(self):
@@ -103,7 +111,7 @@ class SyncWorkflowTestCase(unittest.TestCase):
         _sync_test_case_to_azure(self.db, self.case, self.suite, azure)
 
         # Local record must survive.
-        reloaded = self.db.query(TestCase).filter(TestCase.id == self.case.id).first()
+        reloaded = self.db.query(TestCase).filter(TestCase.test_case_id == self.case.test_case_id).first()
         self.assertIsNotNone(reloaded)
         self.assertEqual(reloaded.azure_sync_status, "FAILED")
         self.assertIn("simulated outage", reloaded.azure_sync_error)
@@ -128,7 +136,7 @@ class SyncWorkflowTestCase(unittest.TestCase):
 
         azure_id = azure.create_test_case.return_value
         reloaded = self.db.query(TestCase).filter(TestCase.azure_test_case_id == azure_id).first()
-        self.assertEqual(reloaded.id, self.case.id)
+        self.assertEqual(reloaded.test_case_id, self.case.test_case_id)
 
     # 7. Adding the test case to the correct suite
     def test_add_test_case_uses_the_case_parent_suite(self):
@@ -142,7 +150,7 @@ class SyncWorkflowTestCase(unittest.TestCase):
 
         # Suite passed explicitly is the one used — never a different suite.
         azure.get_or_create_test_suite.assert_called_once_with(self.suite.name)
-        self.assertNotEqual(self.suite.id, other_suite.id)
+        self.assertNotEqual(self.suite.suite_id, other_suite.suite_id)
 
     # Not-configured short-circuit: no network calls, no crash
     def test_not_configured_marks_status_without_calling_azure(self):

@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-from ..db.models import TestRun, TestResult, RegressionRun
+from ..db.models import TestRun, TestResult, RegressionRun, Firmware
 
 
 class RegressionService:
@@ -8,12 +8,18 @@ class RegressionService:
     def __init__(self, db: Session):
         self.db = db
 
+    def _runs_for_firmware(self, version: str) -> List[TestRun]:
+        firmware = self.db.query(Firmware).filter(Firmware.version == version).first()
+        if not firmware:
+            return []
+        return self.db.query(TestRun).filter(TestRun.firmware_id == firmware.firmware_id).all()
+
     def compare_firmware_versions(self, firmware_a: str, firmware_b: str) -> dict:
         """
         Compares testing results between Firmware A and Firmware B using database records.
         """
-        runs_a = self.db.query(TestRun).filter(TestRun.firmware_version == firmware_a).all()
-        runs_b = self.db.query(TestRun).filter(TestRun.firmware_version == firmware_b).all()
+        runs_a = self._runs_for_firmware(firmware_a)
+        runs_b = self._runs_for_firmware(firmware_b)
 
         total_a = sum(r.total_tests for r in runs_a) or 1
         passed_a = sum(r.passed_tests for r in runs_a)
@@ -27,18 +33,16 @@ class RegressionService:
 
         pass_rate_delta = round(pass_rate_b - pass_rate_a, 1)
 
-        # Mock / calc specific test cases comparison
+        run_ids_a = [r.test_run_id for r in runs_a]
+        run_ids_b = [r.test_run_id for r in runs_b]
+
         results_a = (
-            self.db.query(TestResult)
-            .join(TestRun)
-            .filter(TestRun.firmware_version == firmware_a)
-            .all()
+            self.db.query(TestResult).filter(TestResult.test_run_id.in_(run_ids_a)).all()
+            if run_ids_a else []
         )
         results_b = (
-            self.db.query(TestResult)
-            .join(TestRun)
-            .filter(TestRun.firmware_version == firmware_b)
-            .all()
+            self.db.query(TestResult).filter(TestResult.test_run_id.in_(run_ids_b)).all()
+            if run_ids_b else []
         )
 
         failed_cases_a = {r.test_name for r in results_a if r.status == "FAIL"}
@@ -67,7 +71,7 @@ class RegressionService:
         self.db.refresh(reg_run)
 
         return {
-            "id": reg_run.id,
+            "id": reg_run.regression_run_id,
             "firmware_a": {
                 "version": firmware_a,
                 "pass_rate": pass_rate_a,

@@ -14,21 +14,21 @@ class ReportGeneratorService:
         os.makedirs(self.output_dir, exist_ok=True)
 
     def generate_test_run_report(self, test_run_id: int, format_type: str = "pdf") -> dict:
-        run = self.db.query(TestRun).filter(TestRun.id == test_run_id).first()
+        run = self.db.query(TestRun).filter(TestRun.test_run_id == test_run_id).first()
         if not run:
             raise ValueError(f"Test run #{test_run_id} not found")
 
-        meter = self.db.query(Meter).filter(Meter.id == run.meter_id).first()
-        results = self.db.query(TestResult).filter(TestResult.test_run_id == run.id).all()
-        logs = self.db.query(TestLog).filter(TestLog.test_run_id == run.id).all()
+        meter = self.db.query(Meter).filter(Meter.meter_id == run.meter_id).first()
+        results = self.db.query(TestResult).filter(TestResult.test_run_id == run.test_run_id).all()
+        logs = self.db.query(TestLog).filter(TestLog.test_run_id == run.test_run_id).all()
 
         report_data = {
-            "title": f"Smart Meter Testing Certificate - Test Run #{run.id}",
+            "title": f"Smart Meter Testing Certificate - Test Run #{run.test_run_id}",
             "generated_at": datetime.utcnow().isoformat(),
             "meter": {
-                "serial_number": meter.serial_number if meter else "UNKNOWN",
+                "meter_number": meter.meter_number if meter else "UNKNOWN",
                 "manufacturer": meter.manufacturer if meter else "Iskraemeco",
-                "model": meter.model if meter else "AM550",
+                "meter_model": meter.meter_model if meter else "AM550",
                 "firmware_version": run.firmware_version,
             },
             "summary": {
@@ -56,14 +56,14 @@ class ReportGeneratorService:
             "recommendation": "Passed all DLMS electrical parameters. Firmware is certified for production deployment." if run.status == "COMPLETED" else "Firmware failed test cases. Refer to Failure Intelligence analysis."
         }
 
-        filename = f"report_test_run_{run.id}_{format_type}.json"
+        filename = f"report_test_run_{run.test_run_id}_{format_type}.json"
         filepath = os.path.join(self.output_dir, filename)
 
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(report_data, f, indent=2)
 
         return {
-            "test_run_id": run.id,
+            "test_run_id": run.test_run_id,
             "format": format_type,
             "filename": filename,
             "filepath": filepath,

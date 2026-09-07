@@ -16,23 +16,23 @@ class FailureIntelligenceService:
         return round(difflib.SequenceMatcher(None, text1.lower(), text2.lower()).ratio(), 4)
 
     def find_similar_failures(self, failure_id: int, top_k: int = 5) -> List[dict]:
-        target = self.db.query(FailureRecord).filter(FailureRecord.id == failure_id).first()
+        target = self.db.query(FailureRecord).filter(FailureRecord.failure_id == failure_id).first()
         if not target:
             return []
 
         all_failures = (
             self.db.query(FailureRecord)
-            .filter(FailureRecord.id != failure_id)
+            .filter(FailureRecord.failure_id != failure_id)
             .all()
         )
 
         similar_results = []
         for past in all_failures:
             # Deterministic scoring components
-            type_match = 1.0 if past.error_type == target.error_type else 0.2
-            case_match = 1.0 if past.test_case == target.test_case else 0.4
-            fw_match = 1.0 if past.firmware_version == target.firmware_version else 0.6
-            text_sim = self.calculate_text_similarity(past.error_message, target.error_message)
+            type_match = 1.0 if past.error_code == target.error_code else 0.2
+            case_match = 1.0 if past.test_case_id is not None and past.test_case_id == target.test_case_id else 0.4
+            fw_match = 1.0 if past.firmware_id is not None and past.firmware_id == target.firmware_id else 0.6
+            text_sim = self.calculate_text_similarity(past.case_details, target.case_details)
 
             # Combined weighted score
             similarity = round(
@@ -49,13 +49,13 @@ class FailureIntelligenceService:
                 confidence = "LOW"
 
             similar_results.append({
-                "failure_id": past.id,
+                "failure_id": past.failure_id,
                 "similarity_score": round(similarity * 100, 1),
                 "confidence": confidence,
                 "firmware_version": past.firmware_version,
-                "test_case": past.test_case,
-                "error_type": past.error_type,
-                "error_message": past.error_message,
+                "test_case": past.test_case_name,
+                "error_type": past.error_code,
+                "error_message": past.case_details,
                 "root_cause": past.root_cause or "Communication handshake timeout under high optical baudrate.",
                 "solution": past.solution or "Verify optical probe alignment, reset parity to EVEN, or decrease initial baud rate to 300.",
                 "created_at": past.created_at.isoformat() if past.created_at else None,
@@ -66,29 +66,29 @@ class FailureIntelligenceService:
         return similar_results[:top_k]
 
     def analyze_failure(self, failure_id: int) -> dict:
-        target = self.db.query(FailureRecord).filter(FailureRecord.id == failure_id).first()
+        target = self.db.query(FailureRecord).filter(FailureRecord.failure_id == failure_id).first()
         if not target:
             return {"error": "Failure record not found"}
 
         similar = self.find_similar_failures(failure_id, top_k=3)
-        
+
         best_match = similar[0] if similar else None
-        
+
         return {
             "target_failure": {
-                "id": target.id,
+                "id": target.failure_id,
                 "meter_id": target.meter_id,
                 "firmware_version": target.firmware_version,
-                "test_case": target.test_case,
-                "error_type": target.error_type,
-                "error_message": target.error_message,
-                "severity": target.severity,
+                "test_case": target.test_case_name,
+                "error_type": target.error_code,
+                "error_message": target.case_details,
+                "severity": target.case_severity,
                 "timestamp": target.created_at.isoformat() if target.created_at else None,
             },
             "best_match": best_match,
             "similar_failures": similar,
             "ai_summary": (
-                f"Failure '{target.test_case}' ({target.error_type}) evaluated against database history. "
+                f"Failure '{target.test_case_name}' ({target.error_code}) evaluated against database history. "
                 + (f"Matched prior incident #{best_match['failure_id']} with {best_match['similarity_score']}% similarity." if best_match else "No prior identical failure detected.")
             )
         }

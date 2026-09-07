@@ -1,13 +1,22 @@
+import os
 import re
 import psycopg2
 from collections import Counter
 
 
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "scdc_intelligence"
-DB_USER = "postgres"
-DB_PASSWORD = "12345678"
+# Data-engineering pipeline DB connection. PIPELINE_DB_PASSWORD is required
+# (no hardcoded default) — see .env.example. The other values default to
+# this pipeline's existing local settings but can be overridden the same way.
+DB_HOST = os.getenv("PIPELINE_DB_HOST", "localhost")
+DB_PORT = os.getenv("PIPELINE_DB_PORT", "5432")
+DB_NAME = os.getenv("PIPELINE_DB_NAME", "scdc_intelligence")
+DB_USER = os.getenv("PIPELINE_DB_USER", "postgres")
+DB_PASSWORD = os.getenv("PIPELINE_DB_PASSWORD")
+if not DB_PASSWORD:
+    raise RuntimeError(
+        "PIPELINE_DB_PASSWORD is not set. Set it before running this script "
+        "(see .env.example) — there is no hardcoded default."
+    )
 
 
 # Connect to database

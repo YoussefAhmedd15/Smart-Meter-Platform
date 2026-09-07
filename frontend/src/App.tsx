@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { LoginPage } from './pages/LoginPage';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ExecutiveDashboard } from './pages/ExecutiveDashboard';
@@ -13,39 +17,41 @@ import { KnowledgeBase } from './pages/KnowledgeBase';
 import { TestReports } from './pages/TestReports';
 import { SettingsPage } from './pages/SettingsPage';
 
-export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [pageKey, setPageKey] = useState(0);
+// The old tab-state ids <-> the new URL paths. Sidebar.tsx is untouched and
+// still speaks entirely in these ids (activeTab / setActiveTab(tab: string))
+// — this table is the only place that translates between that and routing,
+// so Sidebar's props contract, and everything it renders, is unchanged.
+const TAB_PATHS: Record<string, string> = {
+  dashboard: '/',
+  analytics: '/analytics',
+  'live-meter': '/live-meter',
+  'meter-profile': '/meter-profile',
+  testing: '/testing',
+  failures: '/failures',
+  regression: '/regression',
+  'ai-agent': '/ai-agent',
+  knowledge: '/knowledge',
+  reports: '/reports',
+  settings: '/settings',
+};
+const PATH_TABS: Record<string, string> = Object.fromEntries(
+  Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab]),
+);
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setPageKey(k => k + 1); // forces re-mount → triggers fade-in animation
-  };
+const AppShell: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':    return <ExecutiveDashboard />;
-      case 'testing':      return <TestingCenter />;
-      case 'live-meter':   return <LiveMeter />;
-      case 'meter-profile':return <MeterProfile />;
-      case 'failures':     return <FailureIntelligence />;
-      case 'analytics':    return <Analytics />;
-      case 'regression':   return <RegressionCenter />;
-      case 'ai-agent':     return <AIAgent />;
-      case 'knowledge':    return <KnowledgeBase />;
-      case 'reports':      return <TestReports />;
-      case 'settings':     return <SettingsPage />;
-      default:             return <ExecutiveDashboard />;
-    }
-  };
+  const activeTab = PATH_TABS[location.pathname] ?? 'dashboard';
+  const setActiveTab = (tab: string) => navigate(TAB_PATHS[tab] ?? '/');
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
       <Header appMode="hardware" />
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-        <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <main
-          key={pageKey}
+          key={location.pathname}
           className="page-enter"
           style={{
             flex: 1,
@@ -54,9 +60,42 @@ export const App: React.FC = () => {
             minWidth: 0,
           }}
         >
-          {renderContent()}
+          <Routes>
+            <Route path="/" element={<ExecutiveDashboard />} />
+            <Route path="/testing" element={<TestingCenter />} />
+            <Route path="/live-meter" element={<LiveMeter />} />
+            <Route path="/meter-profile" element={<MeterProfile />} />
+            <Route path="/failures" element={<FailureIntelligence />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/regression" element={<RegressionCenter />} />
+            <Route path="/ai-agent" element={<AIAgent />} />
+            <Route path="/knowledge" element={<KnowledgeBase />} />
+            <Route path="/reports" element={<TestReports />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
       </div>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <AppShell />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };

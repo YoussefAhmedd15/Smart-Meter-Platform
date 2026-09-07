@@ -3,13 +3,18 @@ import {
   AnalyticsOverview, KnowledgeItem, RegressionComparison,
   TestCaseDefinition, TestCaseCreateInput
 } from '../types';
+import { getAuthToken } from './authToken';
 
 const API_BASE = '/api';
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   try {
+    const token = getAuthToken();
     const res = await fetch(`${API_BASE}${url}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       ...options,
     });
     if (!res.ok) {
@@ -20,6 +25,40 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     console.warn(`API call to ${url} failed, using local mock state:`, err);
     throw err;
   }
+}
+
+/**
+ * For auth calls specifically (register/login/logout/me) — unlike fetchJson,
+ * this never falls back to mock data on failure. A 401 here is real
+ * information the UI must show (e.g. "wrong password"), not something to
+ * paper over with a fake success. Parses the backend's actual error `detail`
+ * so the UI can display it verbatim rather than a generic message.
+ */
+async function authFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}${url}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const body = await res.json().catch(() => ({} as any));
+  if (!res.ok) {
+    const detail = body && typeof body === 'object' ? (body as any).detail : undefined;
+    const message = typeof detail === 'string' ? detail : `HTTP ${res.status}: ${res.statusText}`;
+    throw new Error(message);
+  }
+  return body as T;
+}
+
+export interface AuthUser {
+  user_id: number;
+  email: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
 }
 
 export const apiService = {
@@ -224,5 +263,27 @@ export const apiService = {
         }
       ];
     }
-  }
+  },
+
+  // --- Auth: real calls only, no mock fallback (see authFetch above) ---
+
+  register: (email: string, password: string): Promise<AuthUser> =>
+    authFetch<AuthUser>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+
+  login: (email: string, password: string): Promise<TokenResponse> =>
+    authFetch<TokenResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+
+  logout: (): Promise<{ detail: string }> =>
+    authFetch<{ detail: string }>('/auth/logout', { method: 'POST' }),
+
+  getMe: (token: string): Promise<AuthUser> =>
+    authFetch<AuthUser>('/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };

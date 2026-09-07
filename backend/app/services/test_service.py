@@ -16,7 +16,16 @@ class TestEngineService:
         self.reader = DLMSMeterReader(MeterConfig())
 
     def create_default_suites(self):
-        """Seeds default DLMS verification test suites if none exist."""
+        """Seeds default DLMS verification test suites if none exist.
+
+        TODO(schema-reconciliation): this still seeds from hardcoded Python
+        literals instead of reading the real `test_cases` catalog the Data &
+        Analytics pipeline populates in Postgres. Now that `test_cases` has a
+        `suite_id` FK and matches the canonical schema, this should be rewired
+        to read existing suites/cases from the database instead of creating
+        its own fixed set. Deliberately left alone here — that's a follow-up
+        owned by the Testing Engine work, not part of the schema reconciliation.
+        """
         if self.db.query(TestSuite).count() == 0:
             suites_data = [
                 {
@@ -24,9 +33,9 @@ class TestEngineService:
                     "category": "Communication",
                     "description": "Verifies physical media, Mode E baudrate switching, SNRM, UA, and AARQ association.",
                     "cases": [
-                        {"name": "Mode E Identification", "severity": "CRITICAL", "target": "0.0.96.1.1.255"},
-                        {"name": "SNRM / UA Negotiation", "severity": "CRITICAL", "target": "0.0.1.0.0.255"},
-                        {"name": "AARQ Association", "severity": "HIGH", "target": "0.0.96.1.0.255"},
+                        {"name": "Mode E Identification", "priority": "CRITICAL", "target": "0.0.96.1.1.255"},
+                        {"name": "SNRM / UA Negotiation", "priority": "CRITICAL", "target": "0.0.1.0.0.255"},
+                        {"name": "AARQ Association", "priority": "HIGH", "target": "0.0.96.1.0.255"},
                     ]
                 },
                 {
@@ -34,10 +43,10 @@ class TestEngineService:
                     "category": "Voltage & Power",
                     "description": "Validates single & 3-phase RMS voltage, current, frequency, active power, and power factor.",
                     "cases": [
-                        {"name": "Voltage L1 Range Check (207V - 253V)", "severity": "HIGH", "target": "1.0.32.7.0.255"},
-                        {"name": "Current L1 Range Check (0A - 100A)", "severity": "HIGH", "target": "1.0.31.7.0.255"},
-                        {"name": "Grid Frequency Stability (49.5Hz - 50.5Hz)", "severity": "HIGH", "target": "1.0.14.7.0.255"},
-                        {"name": "Active Power Instantaneous", "severity": "MEDIUM", "target": "1.0.1.7.0.255"},
+                        {"name": "Voltage L1 Range Check (207V - 253V)", "priority": "HIGH", "target": "1.0.32.7.0.255"},
+                        {"name": "Current L1 Range Check (0A - 100A)", "priority": "HIGH", "target": "1.0.31.7.0.255"},
+                        {"name": "Grid Frequency Stability (49.5Hz - 50.5Hz)", "priority": "HIGH", "target": "1.0.14.7.0.255"},
+                        {"name": "Active Power Instantaneous", "priority": "MEDIUM", "target": "1.0.1.7.0.255"},
                     ]
                 },
                 {
@@ -45,8 +54,8 @@ class TestEngineService:
                     "category": "LoadProfile",
                     "description": "Verifies RTC accuracy, 15-min profile generic register structure, and buffer integrity.",
                     "cases": [
-                        {"name": "Real-Time Clock Read", "severity": "MEDIUM", "target": "0.0.1.0.0.255"},
-                        {"name": "Load Profile 1 Buffer Reading", "severity": "HIGH", "target": "1.0.99.1.0.255"},
+                        {"name": "Real-Time Clock Read", "priority": "MEDIUM", "target": "0.0.1.0.0.255"},
+                        {"name": "Load Profile 1 Buffer Reading", "priority": "HIGH", "target": "1.0.99.1.0.255"},
                     ]
                 }
             ]
@@ -62,9 +71,9 @@ class TestEngineService:
 
                 for c_info in s_info["cases"]:
                     tc = TestCase(
-                        suite_id=suite.id,
+                        suite_id=suite.suite_id,
                         name=c_info["name"],
-                        severity=c_info["severity"],
+                        priority=c_info["priority"],
                         obis_target=c_info["target"],
                     )
                     self.db.add(tc)
@@ -72,16 +81,16 @@ class TestEngineService:
 
     def execute_test_run(self, meter_id: int, suite_id: int) -> TestRun:
         self.create_default_suites()
-        meter = self.db.query(Meter).filter(Meter.id == meter_id).first()
-        suite = self.db.query(TestSuite).filter(TestSuite.id == suite_id).first()
+        meter = self.db.query(Meter).filter(Meter.meter_id == meter_id).first()
+        suite = self.db.query(TestSuite).filter(TestSuite.suite_id == suite_id).first()
 
         if not meter or not suite:
             raise ValueError("Invalid meter or test suite ID")
 
         test_run = TestRun(
-            meter_id=meter.id,
-            firmware_version=meter.firmware_version,
-            suite_id=suite.id,
+            meter_id=meter.meter_id,
+            firmware_id=meter.firmware_id,
+            suite_id=suite.suite_id,
             status="RUNNING",
             started_at=datetime.utcnow(),
             total_tests=len(suite.test_cases),
@@ -92,9 +101,9 @@ class TestEngineService:
 
         # Log start
         log_start = TestLog(
-            test_run_id=test_run.id,
+            test_run_id=test_run.test_run_id,
             level="INFO",
-            message=f"Started execution of suite '{suite.name}' on meter {meter.serial_number} ({meter.firmware_version}).",
+            message=f"Started execution of suite '{suite.name}' on meter {meter.meter_number} ({meter.firmware_version}).",
         )
         self.db.add(log_start)
 
@@ -112,8 +121,8 @@ class TestEngineService:
                 t_duration = round((time.time() - t_start) * 1000, 2)
 
                 t_result = TestResult(
-                    test_run_id=test_run.id,
-                    test_case_id=case.id,
+                    test_run_id=test_run.test_run_id,
+                    test_case_id=case.test_case_id,
                     test_name=case.name,
                     status="PASS",
                     duration_ms=t_duration,
@@ -125,7 +134,7 @@ class TestEngineService:
                 passed += 1
 
                 log_entry = TestLog(
-                    test_run_id=test_run.id,
+                    test_run_id=test_run.test_run_id,
                     level="INFO",
                     message=f"[PASS] {case.name}: Received {res.value} {res.unit} ({t_duration} ms)",
                 )
@@ -134,8 +143,8 @@ class TestEngineService:
             except Exception as e:
                 t_duration = round((time.time() - t_start) * 1000, 2)
                 t_result = TestResult(
-                    test_run_id=test_run.id,
-                    test_case_id=case.id,
+                    test_run_id=test_run.test_run_id,
+                    test_case_id=case.test_case_id,
                     test_name=case.name,
                     status="FAIL",
                     duration_ms=t_duration,
@@ -150,21 +159,23 @@ class TestEngineService:
                 self.db.refresh(t_result)
                 failed += 1
 
-                # Record failure intelligence entry
+                # Record failure intelligence entry — source='test_engine' distinguishes
+                # this from failures imported from the SCDC tracker or Azure DevOps bugs.
                 failure = FailureRecord(
-                    test_result_id=t_result.id,
-                    meter_id=meter.id,
-                    firmware_version=meter.firmware_version,
-                    test_case=case.name,
-                    error_type="READ_FAILED",
-                    error_message=str(e),
-                    severity=case.severity,
+                    test_result_id=t_result.test_result_id,
+                    meter_id=meter.meter_id,
+                    firmware_id=meter.firmware_id,
+                    test_case_id=case.test_case_id,
+                    case_severity=case.priority,
+                    error_code="READ_FAILED",
+                    case_details=str(e),
+                    source="test_engine",
                     created_at=datetime.utcnow(),
                 )
                 self.db.add(failure)
 
                 log_entry = TestLog(
-                    test_run_id=test_run.id,
+                    test_run_id=test_run.test_run_id,
                     level="ERROR",
                     message=f"[FAIL] {case.name}: {str(e)} ({t_duration} ms)",
                 )

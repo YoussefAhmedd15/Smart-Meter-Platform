@@ -67,7 +67,7 @@ class RecommendationService:
         self.db.refresh(rec)
 
         return {
-            "id": rec.id,
+            "id": rec.recommendation_id,
             "change_summary": change_description,
             "summary": {
                 "total_candidate_tests": total_pool,

@@ -3,18 +3,25 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from typing import Generator
 
-# SQLite fallback for seamless out-of-the-box local operation, PostgreSQL URL when DB is active
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./smart_meter_intelligence.db"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# SQLite setup requires check_same_thread=False
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL is not set. This app requires PostgreSQL — there is no SQLite "
+        "fallback. Set DATABASE_URL to a postgresql:// connection string, e.g.\n"
+        "  postgresql://postgres:<password>@localhost:5432/smart_meter_db\n"
+        "See .env.example, or docker-compose.yml if you're running via Docker."
+    )
+
+if not (DATABASE_URL.startswith("postgresql://") or DATABASE_URL.startswith("postgresql+")):
+    raise RuntimeError(
+        f"DATABASE_URL must be a PostgreSQL connection string (postgresql://...). "
+        f"Got: {DATABASE_URL.split('://')[0]}://... — SQLite and other engines are "
+        f"not supported by this app."
+    )
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args=connect_args,
     echo=False,
     pool_pre_ping=True,
 )
@@ -34,6 +41,11 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db():
-    """Initializes database tables if they do not exist."""
+    """Initializes database tables if they do not exist.
+
+    Note: this only creates tables that don't already exist — it does not alter
+    existing ones. Once Alembic migrations are in place (see alembic/), schema
+    changes should go through a migration, not a change to models.py alone.
+    """
     from . import models  # Ensure all models are loaded
     Base.metadata.create_all(bind=engine)

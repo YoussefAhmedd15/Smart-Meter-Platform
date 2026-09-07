@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from meter.config import MeterConfig, AppMode
 from meter.reader import DLMSMeterReader
 from meter.obis import lookup_obis, COMMON_OBIS_CODES
-from ..db.models import Meter, MeterReading, MeterObject
+from ..db.models import Meter, MeterReading, MeterObject, Firmware
 
 
 class MeterService:
@@ -14,15 +14,28 @@ class MeterService:
         self.config = config or MeterConfig()
         self.reader = DLMSMeterReader(self.config)
 
-    def get_or_create_meter(self, serial_number: str = "ISK-2026-984210") -> Meter:
-        meter = self.db.query(Meter).filter(Meter.serial_number == serial_number).first()
+    def _resolve_firmware(self, version_string: str) -> Firmware:
+        """Gets-or-creates the `firmwares` row for a version string. Meters store a
+        firmware_id FK, not a raw version string, so every write path that only has
+        a version string (e.g. from the meter/reader layer) goes through this."""
+        firmware = self.db.query(Firmware).filter(Firmware.version == version_string).first()
+        if not firmware:
+            firmware = Firmware(version=version_string, status="RELEASED")
+            self.db.add(firmware)
+            self.db.commit()
+            self.db.refresh(firmware)
+        return firmware
+
+    def get_or_create_meter(self, meter_number: str = "ISK-2026-984210") -> Meter:
+        meter = self.db.query(Meter).filter(Meter.meter_number == meter_number).first()
         if not meter:
             info = self.reader.get_meter_information()
+            firmware = self._resolve_firmware(info["firmware_version"])
             meter = Meter(
-                serial_number=info["serial_number"],
+                meter_number=info["serial_number"],
                 manufacturer=info["manufacturer"],
-                model=info["model"],
-                firmware_version=info["firmware_version"],
+                meter_model=info["model"],
+                firmware_id=firmware.firmware_id,
                 hardware_revision=info["hardware_revision"],
                 communication_interface=info["communication_interface"],
                 status="ONLINE",
@@ -40,8 +53,8 @@ class MeterService:
         meter.status = "ONLINE" if connected else "ERROR"
         self.db.commit()
         return {
-            "meter_id": meter.id,
-            "serial_number": meter.serial_number,
+            "meter_id": meter.meter_id,
+            "meter_number": meter.meter_number,
             "connected": connected,
             "handshake": init_res,
         }
@@ -55,12 +68,12 @@ class MeterService:
         for obj in assoc.objects:
             existing = (
                 self.db.query(MeterObject)
-                .filter(MeterObject.meter_id == meter.id, MeterObject.obis == obj.obis)
+                .filter(MeterObject.meter_id == meter.meter_id, MeterObject.obis == obj.obis)
                 .first()
             )
             if not existing:
                 existing = MeterObject(
-                    meter_id=meter.id,
+                    meter_id=meter.meter_id,
                     obis=obj.obis,
                     class_id=obj.class_id,
                     name=obj.name,
@@ -78,7 +91,7 @@ class MeterService:
         result = self.reader.read_obis(obis_code, attribute_index)
 
         reading = MeterReading(
-            meter_id=meter.id,
+            meter_id=meter.meter_id,
             obis=result.obis,
             attribute_index=result.attribute_index,
             value=str(result.value),
@@ -101,7 +114,7 @@ class MeterService:
         readings = []
         for res in results:
             reading = MeterReading(
-                meter_id=meter.id,
+                meter_id=meter.meter_id,
                 obis=res.obis,
                 attribute_index=res.attribute_index,
                 value=str(res.value),

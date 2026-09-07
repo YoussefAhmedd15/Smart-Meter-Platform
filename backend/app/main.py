@@ -17,7 +17,8 @@ from backend.app.core.config import settings
 from backend.app.core.logging import setup_logging
 from backend.app.db.database import get_db, init_db
 from backend.app.db.models import (
-    Meter, MeterReading, TestSuite, TestCase, TestRun, TestResult, FailureRecord, KnowledgeItem
+    Meter, MeterReading, TestSuite, TestCase, TestCaseStep, TestRun, TestResult,
+    FailureRecord, KnowledgeItem, Firmware
 )
 from backend.app.schemas.schemas import (
     MeterCreate, MeterResponse, ReadingResponse, TestRunCreate,
@@ -34,6 +35,8 @@ from backend.app.services.recommendation_service import RecommendationService
 from backend.app.services.report_service import ReportGeneratorService
 from backend.app.services.ai_service import AIService
 from backend.app.services.azure_devops_service import AzureDevOpsService, AzureDevOpsError
+from backend.app.api.auth import router as auth_router
+from backend.app.core.dependencies import get_current_user
 from meter.config import MeterConfig
 
 logger = logging.getLogger("smart_meter_api")
@@ -54,6 +57,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
 
 
 @app.exception_handler(Exception)
@@ -82,6 +87,16 @@ def health_check(db: Session = Depends(get_db)):
     }
 
 
+def _get_or_create_firmware(db: Session, version_string: str) -> Firmware:
+    firmware = db.query(Firmware).filter(Firmware.version == version_string).first()
+    if not firmware:
+        firmware = Firmware(version=version_string, status="RELEASED")
+        db.add(firmware)
+        db.commit()
+        db.refresh(firmware)
+    return firmware
+
+
 # METERS ENDPOINTS
 @app.get("/api/meters", response_model=List[MeterResponse])
 def list_meters(db: Session = Depends(get_db)):
@@ -92,9 +107,12 @@ def list_meters(db: Session = Depends(get_db)):
     return meters
 
 
-@app.post("/api/meters", response_model=MeterResponse)
+@app.post("/api/meters", response_model=MeterResponse, dependencies=[Depends(get_current_user)])
 def create_meter(data: MeterCreate, db: Session = Depends(get_db)):
-    meter = Meter(**data.model_dump())
+    payload = data.model_dump()
+    firmware_version = payload.pop("firmware_version")
+    firmware = _get_or_create_firmware(db, firmware_version)
+    meter = Meter(firmware_id=firmware.firmware_id, **payload)
     db.add(meter)
     db.commit()
     db.refresh(meter)
@@ -103,7 +121,7 @@ def create_meter(data: MeterCreate, db: Session = Depends(get_db)):
 
 @app.get("/api/meters/{meter_id}", response_model=MeterResponse)
 def get_meter(meter_id: int, db: Session = Depends(get_db)):
-    meter = db.query(Meter).filter(Meter.id == meter_id).first()
+    meter = db.query(Meter).filter(Meter.meter_id == meter_id).first()
     if not meter:
         raise HTTPException(status_code=404, detail="Meter not found")
     return meter
@@ -124,13 +142,13 @@ def get_meter_readings(meter_id: int, db: Session = Depends(get_db)):
     return readings
 
 
-@app.post("/api/meters/{meter_id}/connect")
+@app.post("/api/meters/{meter_id}/connect", dependencies=[Depends(get_current_user)])
 def connect_meter(meter_id: int, db: Session = Depends(get_db)):
     service = MeterService(db)
     return service.connect_meter()
 
 
-@app.post("/api/meters/{meter_id}/disconnect")
+@app.post("/api/meters/{meter_id}/disconnect", dependencies=[Depends(get_current_user)])
 def disconnect_meter(meter_id: int, db: Session = Depends(get_db)):
     service = MeterService(db)
     service.reader.disconnect()
@@ -144,7 +162,7 @@ def get_azure_service() -> AzureDevOpsService:
 
 def _suite_to_dict(suite: TestSuite) -> dict:
     return {
-        "id": suite.id,
+        "suite_id": suite.suite_id,
         "name": suite.name,
         "category": suite.category,
         "description": suite.description,
@@ -157,6 +175,21 @@ def _suite_to_dict(suite: TestSuite) -> dict:
     }
 
 
+def _set_test_case_steps(db: Session, test_case: TestCase, steps: List[dict]) -> None:
+    """Replaces a test case's normalized `test_case_steps` rows from the API's
+    [{action, expected}, ...] shape."""
+    for existing in list(test_case.steps):
+        db.delete(existing)
+    db.flush()
+    for i, step in enumerate(steps or []):
+        db.add(TestCaseStep(
+            test_case_id=test_case.test_case_id,
+            step_number=i + 1,
+            action=step.get("action", "") if isinstance(step, dict) else step.action,
+            expected_result=step.get("expected", "") if isinstance(step, dict) else step.expected,
+        ))
+
+
 def _sync_test_case_to_azure(db: Session, test_case: TestCase, suite: TestSuite, azure: AzureDevOpsService) -> None:
     """
     Syncs a local TestCase (and its parent TestSuite, if needed) to Azure DevOps.
@@ -164,7 +197,7 @@ def _sync_test_case_to_azure(db: Session, test_case: TestCase, suite: TestSuite,
     with the error message, so the caller can retry later via /sync-azure.
     """
     if not azure.is_configured:
-        if suite.azure_suite_id is None:
+        if suite is not None and suite.azure_suite_id is None:
             suite.azure_sync_status = "NOT_CONFIGURED"
         test_case.azure_sync_status = "NOT_CONFIGURED"
         test_case.azure_sync_error = None
@@ -201,11 +234,11 @@ def _sync_test_case_to_azure(db: Session, test_case: TestCase, suite: TestSuite,
         test_case.azure_sync_status = "SYNCED"
         test_case.azure_sync_error = None
         test_case.azure_last_synced_at = datetime.utcnow()
-        logger.info(f"Test case {test_case.id} synced to Azure work item {test_case.azure_test_case_id}")
+        logger.info(f"Test case {test_case.test_case_id} synced to Azure work item {test_case.azure_test_case_id}")
     except AzureDevOpsError as exc:
         test_case.azure_sync_status = "FAILED"
         test_case.azure_sync_error = str(exc)[:1000]
-        logger.error(f"Azure sync failed for test case {test_case.id}: {exc}")
+        logger.error(f"Azure sync failed for test case {test_case.test_case_id}: {exc}")
 
     db.commit()
     db.refresh(test_case)
@@ -220,7 +253,7 @@ def list_test_suites(db: Session = Depends(get_db)):
     return [_suite_to_dict(s) for s in suites]
 
 
-@app.post("/api/test-suites", response_model=TestSuiteResponse, status_code=201)
+@app.post("/api/test-suites", response_model=TestSuiteResponse, status_code=201, dependencies=[Depends(get_current_user)])
 def create_test_suite(data: TestSuiteCreate, db: Session = Depends(get_db)):
     suite = TestSuite(**data.model_dump())
     db.add(suite)
@@ -229,9 +262,9 @@ def create_test_suite(data: TestSuiteCreate, db: Session = Depends(get_db)):
     return _suite_to_dict(suite)
 
 
-@app.put("/api/test-suites/{suite_id}", response_model=TestSuiteResponse)
+@app.put("/api/test-suites/{suite_id}", response_model=TestSuiteResponse, dependencies=[Depends(get_current_user)])
 def update_test_suite(suite_id: int, data: TestSuiteUpdate, db: Session = Depends(get_db)):
-    suite = db.query(TestSuite).filter(TestSuite.id == suite_id).first()
+    suite = db.query(TestSuite).filter(TestSuite.suite_id == suite_id).first()
     if not suite:
         raise HTTPException(status_code=404, detail="Test suite not found")
     for field, value in data.model_dump(exclude_unset=True).items():
@@ -241,9 +274,9 @@ def update_test_suite(suite_id: int, data: TestSuiteUpdate, db: Session = Depend
     return _suite_to_dict(suite)
 
 
-@app.delete("/api/test-suites/{suite_id}", status_code=204)
+@app.delete("/api/test-suites/{suite_id}", status_code=204, dependencies=[Depends(get_current_user)])
 def delete_test_suite(suite_id: int, db: Session = Depends(get_db)):
-    suite = db.query(TestSuite).filter(TestSuite.id == suite_id).first()
+    suite = db.query(TestSuite).filter(TestSuite.suite_id == suite_id).first()
     if not suite:
         raise HTTPException(status_code=404, detail="Test suite not found")
     db.delete(suite)
@@ -252,22 +285,31 @@ def delete_test_suite(suite_id: int, db: Session = Depends(get_db)):
 
 
 # TEST CASE ENDPOINTS (local CRUD + Azure DevOps Test Plans sync)
-@app.post("/api/test-cases", response_model=TestCaseResponse, status_code=201)
+@app.post("/api/test-cases", response_model=TestCaseResponse, status_code=201, dependencies=[Depends(get_current_user)])
 def create_test_case(
     data: TestCaseCreate,
     db: Session = Depends(get_db),
     azure: AzureDevOpsService = Depends(get_azure_service),
 ):
-    suite = db.query(TestSuite).filter(TestSuite.id == data.suite_id).first()
-    if not suite:
-        raise HTTPException(status_code=404, detail="Test suite not found")
+    suite = None
+    if data.suite_id is not None:
+        suite = db.query(TestSuite).filter(TestSuite.suite_id == data.suite_id).first()
+        if not suite:
+            raise HTTPException(status_code=404, detail="Test suite not found")
 
-    test_case = TestCase(**data.model_dump())
+    payload = data.model_dump()
+    steps = payload.pop("test_steps", [])
+    test_case = TestCase(**payload)
     db.add(test_case)
     db.commit()
     db.refresh(test_case)
 
-    _sync_test_case_to_azure(db, test_case, suite, azure)
+    _set_test_case_steps(db, test_case, steps)
+    db.commit()
+    db.refresh(test_case)
+
+    if suite is not None:
+        _sync_test_case_to_azure(db, test_case, suite, azure)
     return test_case
 
 
@@ -276,33 +318,37 @@ def list_test_cases(suite_id: Optional[int] = Query(None), db: Session = Depends
     query = db.query(TestCase)
     if suite_id is not None:
         query = query.filter(TestCase.suite_id == suite_id)
-    return query.order_by(TestCase.id.desc()).all()
+    return query.order_by(TestCase.test_case_id.desc()).all()
 
 
 @app.get("/api/test-cases/{case_id}", response_model=TestCaseResponse)
 def get_test_case(case_id: int, db: Session = Depends(get_db)):
-    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    test_case = db.query(TestCase).filter(TestCase.test_case_id == case_id).first()
     if not test_case:
         raise HTTPException(status_code=404, detail="Test case not found")
     return test_case
 
 
-@app.put("/api/test-cases/{case_id}", response_model=TestCaseResponse)
+@app.put("/api/test-cases/{case_id}", response_model=TestCaseResponse, dependencies=[Depends(get_current_user)])
 def update_test_case(
     case_id: int,
     data: TestCaseUpdate,
     db: Session = Depends(get_db),
     azure: AzureDevOpsService = Depends(get_azure_service),
 ):
-    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    test_case = db.query(TestCase).filter(TestCase.test_case_id == case_id).first()
     if not test_case:
         raise HTTPException(status_code=404, detail="Test case not found")
 
     updates = data.model_dump(exclude_unset=True)
+    steps = updates.pop("test_steps", None)
+
     target_suite_id = updates.get("suite_id", test_case.suite_id)
-    suite = db.query(TestSuite).filter(TestSuite.id == target_suite_id).first()
-    if not suite:
-        raise HTTPException(status_code=404, detail="Test suite not found")
+    suite = None
+    if target_suite_id is not None:
+        suite = db.query(TestSuite).filter(TestSuite.suite_id == target_suite_id).first()
+        if not suite:
+            raise HTTPException(status_code=404, detail="Test suite not found")
 
     for field, value in updates.items():
         setattr(test_case, field, value)
@@ -310,13 +356,19 @@ def update_test_case(
     db.commit()
     db.refresh(test_case)
 
-    _sync_test_case_to_azure(db, test_case, suite, azure)
+    if steps is not None:
+        _set_test_case_steps(db, test_case, steps)
+        db.commit()
+        db.refresh(test_case)
+
+    if suite is not None:
+        _sync_test_case_to_azure(db, test_case, suite, azure)
     return test_case
 
 
-@app.delete("/api/test-cases/{case_id}", status_code=204)
+@app.delete("/api/test-cases/{case_id}", status_code=204, dependencies=[Depends(get_current_user)])
 def delete_test_case(case_id: int, db: Session = Depends(get_db)):
-    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    test_case = db.query(TestCase).filter(TestCase.test_case_id == case_id).first()
     if not test_case:
         raise HTTPException(status_code=404, detail="Test case not found")
     db.delete(test_case)
@@ -324,28 +376,28 @@ def delete_test_case(case_id: int, db: Session = Depends(get_db)):
     return None
 
 
-@app.post("/api/test-cases/{case_id}/sync-azure", response_model=TestCaseResponse)
+@app.post("/api/test-cases/{case_id}/sync-azure", response_model=TestCaseResponse, dependencies=[Depends(get_current_user)])
 def retry_sync_test_case(
     case_id: int,
     db: Session = Depends(get_db),
     azure: AzureDevOpsService = Depends(get_azure_service),
 ):
-    test_case = db.query(TestCase).filter(TestCase.id == case_id).first()
+    test_case = db.query(TestCase).filter(TestCase.test_case_id == case_id).first()
     if not test_case:
         raise HTTPException(status_code=404, detail="Test case not found")
-    suite = db.query(TestSuite).filter(TestSuite.id == test_case.suite_id).first()
+    suite = db.query(TestSuite).filter(TestSuite.suite_id == test_case.suite_id).first()
     if not suite:
         raise HTTPException(status_code=404, detail="Parent test suite not found")
     _sync_test_case_to_azure(db, test_case, suite, azure)
     return test_case
 
 
-@app.post("/api/test-runs")
+@app.post("/api/test-runs", dependencies=[Depends(get_current_user)])
 def start_test_run(data: TestRunCreate, db: Session = Depends(get_db)):
     engine = TestEngineService(db)
     run = engine.execute_test_run(data.meter_id, data.suite_id)
     return {
-        "id": run.id,
+        "id": run.test_run_id,
         "status": run.status,
         "duration_seconds": run.duration_seconds,
         "total_tests": run.total_tests,
@@ -356,10 +408,10 @@ def start_test_run(data: TestRunCreate, db: Session = Depends(get_db)):
 
 @app.get("/api/test-runs")
 def list_test_runs(db: Session = Depends(get_db)):
-    runs = db.query(TestRun).order_by(TestRun.id.desc()).all()
+    runs = db.query(TestRun).order_by(TestRun.test_run_id.desc()).all()
     return [
         {
-            "id": r.id,
+            "id": r.test_run_id,
             "meter_id": r.meter_id,
             "firmware_version": r.firmware_version,
             "status": r.status,
@@ -375,12 +427,12 @@ def list_test_runs(db: Session = Depends(get_db)):
 
 @app.get("/api/test-runs/{run_id}")
 def get_test_run_details(run_id: int, db: Session = Depends(get_db)):
-    run = db.query(TestRun).filter(TestRun.id == run_id).first()
+    run = db.query(TestRun).filter(TestRun.test_run_id == run_id).first()
     if not run:
         raise HTTPException(status_code=404, detail="Test run not found")
-    results = db.query(TestResult).filter(TestResult.test_run_id == run.id).all()
+    results = db.query(TestResult).filter(TestResult.test_run_id == run.test_run_id).all()
     return {
-        "id": run.id,
+        "id": run.test_run_id,
         "status": run.status,
         "firmware_version": run.firmware_version,
         "duration_seconds": run.duration_seconds,
@@ -389,7 +441,7 @@ def get_test_run_details(run_id: int, db: Session = Depends(get_db)):
         "failed_tests": run.failed_tests,
         "results": [
             {
-                "id": r.id,
+                "id": r.test_result_id,
                 "test_name": r.test_name,
                 "status": r.status,
                 "duration_ms": r.duration_ms,
@@ -404,16 +456,16 @@ def get_test_run_details(run_id: int, db: Session = Depends(get_db)):
 # FAILURES ENDPOINTS
 @app.get("/api/failures")
 def list_failures(db: Session = Depends(get_db)):
-    failures = db.query(FailureRecord).order_by(FailureRecord.id.desc()).all()
+    failures = db.query(FailureRecord).order_by(FailureRecord.failure_id.desc()).all()
     return [
         {
-            "id": f.id,
+            "id": f.failure_id,
             "meter_id": f.meter_id,
             "firmware_version": f.firmware_version,
-            "test_case": f.test_case,
-            "error_type": f.error_type,
-            "error_message": f.error_message,
-            "severity": f.severity,
+            "test_case": f.test_case_name,
+            "error_type": f.error_code,
+            "error_message": f.case_details,
+            "severity": f.case_severity,
             "created_at": f.created_at.isoformat() if f.created_at else None,
         }
         for f in failures
@@ -494,7 +546,7 @@ def list_knowledge_items(db: Session = Depends(get_db)):
     items = db.query(KnowledgeItem).all()
     return [
         {
-            "id": k.id,
+            "id": k.knowledge_item_id,
             "title": k.title,
             "problem": k.problem,
             "symptoms": k.symptoms,
@@ -510,7 +562,7 @@ def list_knowledge_items(db: Session = Depends(get_db)):
     ]
 
 
-@app.post("/api/knowledge")
+@app.post("/api/knowledge", dependencies=[Depends(get_current_user)])
 def create_knowledge_item(data: KnowledgeItemCreate, db: Session = Depends(get_db)):
     item = KnowledgeItem(**data.model_dump())
     db.add(item)

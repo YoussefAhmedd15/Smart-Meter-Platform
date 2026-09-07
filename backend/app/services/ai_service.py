@@ -128,7 +128,7 @@ class AIService:
         meters = self.db.query(Meter).all()
         if meters:
             for m in meters[:3]:
-                facts.append(f"Meter {m.serial_number} ({m.model}): Firmware {m.firmware_version}, Status {m.status}.")
+                facts.append(f"Meter {m.meter_number} ({m.meter_model}): Firmware {m.firmware_version}, Status {m.status}.")
 
         recent_readings = self.db.query(MeterReading).order_by(MeterReading.timestamp.desc()).limit(3).all()
         for r in recent_readings:
@@ -143,10 +143,10 @@ class AIService:
                 .all()
             )
             for f in recent_failures:
-                facts.append(f"Recorded Failure in '{f.test_case}' ({f.error_type}): {f.error_message}")
+                facts.append(f"Recorded Failure in '{f.test_case_name}' ({f.error_code}): {f.case_details}")
                 similar_failures.append({
-                    "test_case": f.test_case,
-                    "error_type": f.error_type,
+                    "test_case": f.test_case_name,
+                    "error_type": f.error_code,
                     "firmware_version": f.firmware_version,
                     "similarity_score": 94.2,
                 })

@@ -18,6 +18,7 @@ seed:
 	python scripts/seed_demo.py
 
 test:
+	@echo "backend/tests requires TEST_DATABASE_URL or DATABASE_URL to point at Postgres (no SQLite fallback)."
 	python -m unittest meter/tests/test_meter.py
 	python -m unittest discover -s backend/tests -p "test_*.py"
 
