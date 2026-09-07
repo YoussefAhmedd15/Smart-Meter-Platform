@@ -1,11 +1,15 @@
-from typing import Dict, Any, List
+from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from ..db.models import Meter, TestRun, TestResult, FailureRecord, Firmware
 
+MT514_CRITICAL_CODES = {
+    "-03", "E-SEQUEN", "-09", "droP-U-I", "-10", "rEUErSE", 
+    "-12", "E-rELAY", "-23", "Drop-U-2", "-24", "Drop-U-3", 
+    "Err-73", "Err-96", "RTC_FAULT", "MEMORY_FAULT"
+}
 
 class AnalyticsService:
-
     def __init__(self, db: Session):
         self.db = db
 
@@ -40,12 +44,16 @@ class AnalyticsService:
         }
 
     def get_failures_by_firmware(self) -> List[dict]:
+        # FailureRecord.firmware_version is a computed Python @property (reads
+        # through the firmware_id FK to Firmware.version) — not a mapped
+        # column, so it can't be used in a query/group_by. Join Firmware and
+        # group on Firmware.version directly instead.
         results = (
             self.db.query(
                 Firmware.version,
                 func.count(FailureRecord.failure_id).label("failure_count")
             )
-            .join(FailureRecord, FailureRecord.firmware_id == Firmware.firmware_id)
+            .join(Firmware, FailureRecord.firmware_id == Firmware.firmware_id)
             .group_by(Firmware.version)
             .all()
         )

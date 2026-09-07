@@ -174,7 +174,7 @@ try:
     # Final check
 
     if (
-        total_bugs == 3507
+        total_bugs == 4446
         and l1_bugs + l2_bugs == total_bugs
     ):
 

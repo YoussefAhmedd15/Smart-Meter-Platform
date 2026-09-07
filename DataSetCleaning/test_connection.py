@@ -17,8 +17,10 @@ if not DB_PASSWORD:
         "(see .env.example) — there is no hardcoded default."
     )
 
-FOLDER_PATH = "C:/Users/lenovo/PycharmProjects/PythonProject4/"
+FOLDER_PATH = "C:/Users/lenovo/PycharmProjects/PythonProject4/DataSet"
 
+
+# Connect to database
 
 connection = psycopg2.connect(
     host=DB_HOST,
@@ -86,10 +88,10 @@ print()
 print("STEP 4: DEV_BUGS IMPORT")
 
 
-# Read L1 CSV
+# Read new L1 CSV
 
 l1_df = pd.read_csv(
-    os.path.join(FOLDER_PATH, "L1_Created.csv")
+    os.path.join(FOLDER_PATH, "L1 Created 2131.csv")
 )
 
 print("L1 CSV loaded successfully.")
@@ -163,13 +165,12 @@ for index, row in l1_df.iterrows():
         clean_value(row["State"]),
         clean_value(row["Tags"]),
         clean_value(row["Resolved By"]),
-        clean_value(row["Closed By"]),
-        clean_date(row["Resolved Date"]),
-        clean_date(row["Closed Date"]),
+        None,
+        None,
+        None,
         clean_date(row["Created Date"]),
         "L1"
     )
-
     cursor.execute(
         insert_l1_query,
         values

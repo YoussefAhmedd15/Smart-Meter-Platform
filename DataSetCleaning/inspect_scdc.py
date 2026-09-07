@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 
-FOLDER_PATH = "C:/Users/lenovo/PycharmProjects/PythonProject4/"
+FOLDER_PATH = "//"
 
 files = [
     "SCDC_Tracker_2020.xlsx",
