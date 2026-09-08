@@ -8,11 +8,11 @@ python scripts/seed_demo.py
 
 Write-Host ""
 Write-Host "2. Starting FastAPI Backend on http://localhost:8000 ..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "uvicorn backend.app.main:app --reload --port 8000"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "python -m uvicorn backend.app.main:app --reload --port 8000"
 
 Write-Host ""
 Write-Host "3. Starting React Frontend Dashboard on http://localhost:3000 ..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd frontend; npm run dev"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd frontend; npm.cmd run dev"
 
 Start-Sleep -Seconds 3
 

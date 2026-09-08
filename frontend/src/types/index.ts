@@ -47,13 +47,16 @@ export interface TestStep {
 
 export interface TestCaseDefinition {
   id: number;
+  test_case_id?: number;   // backend primary key (alias for id)
   suite_id: number;
   name: string;
   description?: string;
-  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  priority?: string;        // backend field name
+  severity?: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; // legacy alias
   obis_target: string;
   action: string;
-  expected_value?: string | null;
+  expected_result?: string | null;
+  expected_value?: string | null;  // legacy alias
   timeout_ms: number;
   test_steps: TestStep[];
   is_active: boolean;
@@ -67,10 +70,12 @@ export interface TestCaseCreateInput {
   suite_id: number;
   name: string;
   description?: string;
-  severity?: string;
+  priority?: string;        // backend field name
+  severity?: string;        // legacy alias
   obis_target?: string;
   action?: string;
-  expected_value?: string;
+  expected_result?: string; // backend field name
+  expected_value?: string;  // legacy alias
   timeout_ms?: number;
   test_steps?: TestStep[];
   is_active?: boolean;
@@ -161,7 +166,6 @@ export interface RegressionComparison {
   };
 }
 
-export type AzureSyncStatus = 'NOT_SYNCED' | 'SYNCED' | 'FAILED';
 
 export interface TestCase {
   id: number;

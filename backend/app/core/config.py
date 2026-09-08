@@ -1,5 +1,8 @@
 import os
+from dotenv import load_dotenv
 from pydantic import BaseModel
+
+load_dotenv()
 
 # This exact string was the old hardcoded fallback below. It no longer
 # authenticates anything (see the check after Settings is instantiated) —
@@ -41,11 +44,18 @@ class Settings(BaseModel):
 
 settings = Settings()
 
+_is_testing = os.getenv("TESTING", "0") == "1"
+
 if not settings.SECRET_KEY or settings.SECRET_KEY == _INSECURE_DEFAULT_SECRET_KEY:
-    raise RuntimeError(
-        "SECRET_KEY is not set (or is still the old hardcoded default). This "
-        "signs auth tokens — the app refuses to start with it unset or with "
-        "that default. Set a real random SECRET_KEY in your environment "
-        "(see .env.example), e.g.: python -c \"import secrets; "
-        "print(secrets.token_urlsafe(48))\""
-    )
+    if _is_testing:
+        import secrets
+        os.environ["SECRET_KEY"] = secrets.token_urlsafe(48)
+        settings = Settings()  # re-read with new key
+    else:
+        raise RuntimeError(
+            "SECRET_KEY is not set (or is still the old hardcoded default). This "
+            "signs auth tokens — the app refuses to start with it unset or with "
+            "that default. Set a real random SECRET_KEY in your environment "
+            "(see .env.example), e.g.: python -c \"import secrets; "
+            "print(secrets.token_urlsafe(48))\""
+        )

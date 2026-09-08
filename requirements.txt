@@ -6,6 +6,7 @@ pydantic>=2.0,<3.0
 psycopg2-binary>=2.9,<3.0
 pyserial>=3.5,<4.0
 requests>=2.31,<3.0
+python-dotenv>=1.0,<2.0
 
 # Used by users.py and the data-engineering pipeline scripts (load_*.py,
 # create_*_analytics.py, normalize_scdc.py, etc.) — previously imported but

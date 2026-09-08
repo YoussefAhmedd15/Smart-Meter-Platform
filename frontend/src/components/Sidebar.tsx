@@ -2,7 +2,7 @@ import React from 'react';
 import {
   LayoutDashboard, PlaySquare, Activity, UserCheck,
   ShieldAlert, BarChart3, GitCompare, Bot, BookOpen,
-  FileText, Settings, ChevronRight,
+  FileText, Settings, ChevronRight, ClipboardList,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -41,9 +41,10 @@ const navSections: NavSection[] = [
   {
     title: 'Testing & Quality',
     items: [
-      { id: 'testing',    label: 'Testing Center',  icon: PlaySquare },
-      { id: 'failures',   label: 'Failure Intelligence', icon: ShieldAlert },
-      { id: 'regression', label: 'Regression Center',   icon: GitCompare },
+      { id: 'testing',           label: 'Testing Center',        icon: PlaySquare },
+      { id: 'test-case-manager', label: 'Test Case Manager',     icon: ClipboardList, badge: 'ADO', badgeColor: 'var(--accent-purple)' },
+      { id: 'failures',          label: 'Failure Intelligence',  icon: ShieldAlert },
+      { id: 'regression',        label: 'Regression Center',     icon: GitCompare },
     ],
   },
   {

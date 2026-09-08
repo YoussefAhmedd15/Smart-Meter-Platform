@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ExecutiveDashboard } from './pages/ExecutiveDashboard';
 import { TestingCenter } from './pages/TestingCenter';
+import { TestCaseManager } from './pages/TestCaseManager';
 import { LiveMeter } from './pages/LiveMeter';
 import { MeterProfile } from './pages/MeterProfile';
 import { FailureIntelligence } from './pages/FailureIntelligence';
@@ -22,17 +23,18 @@ import { SettingsPage } from './pages/SettingsPage';
 // — this table is the only place that translates between that and routing,
 // so Sidebar's props contract, and everything it renders, is unchanged.
 const TAB_PATHS: Record<string, string> = {
-  dashboard: '/',
-  analytics: '/analytics',
-  'live-meter': '/live-meter',
-  'meter-profile': '/meter-profile',
-  testing: '/testing',
-  failures: '/failures',
-  regression: '/regression',
-  'ai-agent': '/ai-agent',
-  knowledge: '/knowledge',
-  reports: '/reports',
-  settings: '/settings',
+  dashboard:           '/',
+  analytics:           '/analytics',
+  'live-meter':        '/live-meter',
+  'meter-profile':     '/meter-profile',
+  testing:             '/testing',
+  'test-case-manager': '/test-case-manager',
+  failures:            '/failures',
+  regression:          '/regression',
+  'ai-agent':          '/ai-agent',
+  knowledge:           '/knowledge',
+  reports:             '/reports',
+  settings:            '/settings',
 };
 const PATH_TABS: Record<string, string> = Object.fromEntries(
   Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab]),
@@ -63,6 +65,7 @@ const AppShell: React.FC = () => {
           <Routes>
             <Route path="/" element={<ExecutiveDashboard />} />
             <Route path="/testing" element={<TestingCenter />} />
+            <Route path="/test-case-manager" element={<TestCaseManager />} />
             <Route path="/live-meter" element={<LiveMeter />} />
             <Route path="/meter-profile" element={<MeterProfile />} />
             <Route path="/failures" element={<FailureIntelligence />} />

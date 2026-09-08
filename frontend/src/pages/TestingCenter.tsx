@@ -1,17 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Square, CheckCircle, XCircle, Clock, Terminal, Cpu } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Square, XCircle, Terminal, Cpu, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { apiService } from '../services/api';
-import { Meter, TestSuite, TestRun } from '../types';
+import { Meter, TestSuite, TestRun, TestResult } from '../types';
 
 export const TestingCenter: React.FC = () => {
   const [meters, setMeters]               = useState<Meter[]>([]);
   const [suites, setSuites]               = useState<TestSuite[]>([]);
   const [selectedMeter, setSelectedMeter] = useState<number>(1);
   const [selectedSuite, setSelectedSuite] = useState<number>(1);
-  const [isRunning, setIsRunning] = useState<bool>(false);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [currentRun, setCurrentRun] = useState<TestRun | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
+  const [results, setResults] = useState<TestResult[]>([]);
+  const [showResults, setShowResults] = useState<boolean>(true);
+  const logRef = useRef<HTMLDivElement>(null);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => [...prev, msg]);
+    setTimeout(() => {
+      if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+    }, 0);
+  };
 
   useEffect(() => {
     apiService.getMeters().then(setMeters).catch(console.error);

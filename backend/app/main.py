@@ -76,12 +76,18 @@ async def global_exception_handler(request, exc):
 
 
 @app.get("/health")
+@app.get("/api/health")
 def health_check(db: Session = Depends(get_db)):
-    meter_count = db.query(Meter).count()
+    try:
+        meter_count = db.query(Meter).count()
+        db_status = "CONNECTED"
+    except Exception as exc:
+        meter_count = 0
+        db_status = f"DISCONNECTED ({type(exc).__name__})"
     return {
         "status": "HEALTHY",
         "app_mode": settings.APP_MODE,
-        "database": "CONNECTED",
+        "database": db_status,
         "total_meters": meter_count,
         "gurux_dlms_status": "INTEGRATED",
     }
@@ -99,9 +105,13 @@ def _get_or_create_firmware(db: Session, version_string: str) -> Firmware:
 
 # METERS ENDPOINTS
 @app.get("/api/meters", response_model=List[MeterResponse])
-def list_meters(db: Session = Depends(get_db)):
-    meters = db.query(Meter).all()
-    if not meters:
+def list_meters(
+    limit: int = Query(default=100, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db)
+):
+    meters = db.query(Meter).offset(offset).limit(limit).all()
+    if not meters and offset == 0:
         service = MeterService(db)
         meters = [service.get_or_create_meter()]
     return meters

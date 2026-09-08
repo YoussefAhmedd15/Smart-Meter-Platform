@@ -134,10 +134,22 @@ export const apiService = {
       body: JSON.stringify(data),
     }),
 
+  updateTestCase: (caseId: number, data: Partial<TestCaseCreateInput>): Promise<TestCaseDefinition> =>
+    fetchJson<TestCaseDefinition>(`/test-cases/${caseId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteTestCase: (caseId: number): Promise<void> =>
+    fetchJson<void>(`/test-cases/${caseId}`, { method: 'DELETE' }),
+
   retrySyncTestCase: (caseId: number): Promise<TestCaseDefinition> =>
     fetchJson<TestCaseDefinition>(`/test-cases/${caseId}/sync-azure`, {
       method: 'POST',
     }),
+
+  getTestRun: (runId: number): Promise<any> =>
+    fetchJson<any>(`/test-runs/${runId}`),
 
   runTest: async (meterId: number, suiteId: number): Promise<TestRun> => {
     try {

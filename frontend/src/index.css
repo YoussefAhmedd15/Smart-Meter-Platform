@@ -496,3 +496,74 @@ a:hover { text-decoration: underline; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(42, 58, 92, 0.7); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+/* ---------- Spin Animation (loading state) ---------- */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spin { animation: spin 0.75s linear infinite; }
+
+/* ---------- Priority / Status badge variants ---------- */
+.badge-pending  { background: rgba(255,171,0,0.14);   color: var(--accent-amber);  border: 1px solid var(--border-amber); }
+.badge-warn     { background: rgba(255,171,0,0.10);   color: var(--accent-amber);  border: 1px solid rgba(255,171,0,0.25); }
+.badge-dim      { background: rgba(148,163,184,0.08); color: var(--text-dim);      border: 1px solid var(--border-subtle); }
+.badge-critical { background: rgba(255,23,68,0.14);   color: var(--accent-red);    border: 1px solid var(--border-red); }
+.badge-high     { background: rgba(255,171,0,0.12);   color: var(--accent-amber);  border: 1px solid var(--border-amber); }
+.badge-medium   { background: rgba(0,242,254,0.10);   color: var(--accent-cyan);   border: 1px solid var(--border-cyan); }
+.badge-low      { background: rgba(0,230,118,0.10);   color: var(--accent-green);  border: 1px solid var(--border-green); }
+
+/* ---------- Ghost Button ---------- */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-main);
+  border-color: rgba(255,255,255,0.18);
+}
+.btn-ghost:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- Secondary Button ---------- */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* ---------- Page Fade-in Transition ---------- */
+.page-enter {
+  animation: fadeIn 0.22s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+

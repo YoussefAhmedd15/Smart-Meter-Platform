@@ -57,14 +57,14 @@ class MeterResponse(BaseModel):
     meter_id: int
     meter_number: str
     meter_type: Optional[str] = None
-    meter_model: str
-    manufacturer: str
+    meter_model: Optional[str] = "AM550-TD1"
+    manufacturer: Optional[str] = "Iskraemeco"
     firmware_version: Optional[str] = None
-    hardware_revision: str
-    communication_interface: str
-    status: str
-    first_seen: datetime
-    last_seen: datetime
+    hardware_revision: Optional[str] = "HW-2.1"
+    communication_interface: Optional[str] = "HDLC_WITH_MODE_E"
+    status: Optional[str] = "ONLINE"
+    first_seen: Optional[datetime] = None
+    last_seen: Optional[datetime] = None
 
     class Config:
         from_attributes = True
