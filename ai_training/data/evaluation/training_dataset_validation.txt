@@ -1,0 +1,70 @@
+======================================================================
+ISKRA L1 TRAINING DATASET VALIDATION REPORT
+======================================================================
+
+Total records: 1701
+
+STRUCTURE VALIDATION
+----------------------------------------------------------------------
+Missing instruction: 0
+Missing input: 0
+Missing output: 0
+Invalid output objects: 0
+Duplicate case IDs: 0
+
+ISSUE CLASSIFICATION
+----------------------------------------------------------------------
+- Software: 1031
+- Software|Hardware: 95
+- Hardware: 516
+- Hardware|Communication: 36
+- Software|Communication: 15
+- Unknown: 4
+- Software|Hardware|Communication: 2
+- Hardware|Firmware: 2
+
+Unknown issues: 4
+Multi-label issue cases: 150
+
+SYSTEM CLASSIFICATION
+----------------------------------------------------------------------
+- Aqua: 153
+- Unknown: 1027
+- Vending: 334
+- MeterVerse: 49
+- Electric: 84
+- Billing: 19
+- Vending|Electric: 8
+- MeterVerse|Aqua: 4
+- MeterVerse|Electric: 13
+- Symbiot: 7
+- Vending|Aqua: 2
+- Vending|MeterVerse|Aqua: 1
+
+Unknown systems: 1027
+Multi-system cases: 28
+
+METER TYPE
+----------------------------------------------------------------------
+- Unknown: 1441
+- Water: 154
+- Electric: 78
+- Water|Electric: 27
+- Ultrasonic: 1
+
+Unknown meter type: 1441
+Multi-meter cases: 27
+
+RESOLUTION SAFETY
+----------------------------------------------------------------------
+Verified resolution records: 11
+Unexpected/unsupported resolution records: 0
+
+======================================================================
+VALIDATION STATUS: PASSED
+======================================================================
+
+IMPORTANT:
+This validation checks dataset structure and safety constraints.
+It does NOT prove that the classifications are ground-truth correct.
+Manual review is still required before fine-tuning.

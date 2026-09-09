@@ -1,0 +1,472 @@
+{
+  "taxonomy_name": "ISKRA L1 System Taxonomy",
+  "description": "Systems detected in the L1 knowledge dataset.",
+  "source_file": "C:\\Users\\A I\\AppData\\Local\\Programs\\Ollama\\iskra\\ai_training\\data\\structured\\l1_knowledge_records.csv",
+  "total_records": 1701,
+  "values": [
+    {
+      "name": "Unknown",
+      "count": 1027,
+      "percentage_of_records": 60.38,
+      "examples": [
+        {
+          "case_id": "29605",
+          "title": "Bohoo - Inquiry about valve status",
+          "system_info": "",
+          "tags": "Bohoo; CI; Hardware; PWM"
+        },
+        {
+          "case_id": "29601",
+          "title": "Veranda- Water meter negative consumption",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Veranda"
+        },
+        {
+          "case_id": "29600",
+          "title": "Epower - Solar Readings Issue",
+          "system_info": "",
+          "tags": "Epower; Smart; Software"
+        },
+        {
+          "case_id": "29598",
+          "title": "Alexandria - Utility Water Meter Maintenance",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Utility"
+        },
+        {
+          "case_id": "29597",
+          "title": "Sadat - Utility Water Meter Maintenance",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Utility"
+        },
+        {
+          "case_id": "29596",
+          "title": "Somabay - Pending jobs",
+          "system_info": "Too Many Failed Jobs",
+          "tags": "CI; Smart; Software; Somabay"
+        },
+        {
+          "case_id": "29594",
+          "title": "Badr Eldeen - Troubleshooting STS Water Meters Problems",
+          "system_info": "",
+          "tags": "Badr Eldeen; Hardware; PI; STS"
+        },
+        {
+          "case_id": "29589",
+          "title": "Courtyard - Error 1091 in MT514",
+          "system_info": "Error 1091",
+          "tags": "Courtyard; Hardware; PEM; PI"
+        },
+        {
+          "case_id": "29588",
+          "title": "Haram - Testing Reset and Out of Factory Cards",
+          "system_info": "",
+          "tags": "Hardware; PEM; PI; Utility"
+        },
+        {
+          "case_id": "29587",
+          "title": "Remco- No response issue in MPMS",
+          "system_info": "",
+          "tags": "CI; MPMS; REMCO; Software"
+        }
+      ]
+    },
+    {
+      "name": "Vending",
+      "count": 345,
+      "percentage_of_records": 20.28,
+      "examples": [
+        {
+          "case_id": "29604",
+          "title": "South Delta- Delete Charge",
+          "system_info": "Missing Feature",
+          "tags": "CI; SDDC; Software; vending"
+        },
+        {
+          "case_id": "29603",
+          "title": "Sun Capital - User permission to add settlements",
+          "system_info": "System Bug",
+          "tags": "PI; Software; Suncapital; vending"
+        },
+        {
+          "case_id": "29593",
+          "title": "Chinese Village- Check windows security",
+          "system_info": "",
+          "tags": "Chinese Mall; CI; Software; vending"
+        },
+        {
+          "case_id": "29583",
+          "title": "Chinese Village Mall- Card socket security issue",
+          "system_info": "",
+          "tags": "Chinese Mall; CI; Software; vending"
+        },
+        {
+          "case_id": "29580",
+          "title": "Alex - Add new user",
+          "system_info": "",
+          "tags": "ADC; Alex; CI; Software; vending"
+        },
+        {
+          "case_id": "29566",
+          "title": "Elsewedy utilities- Collection card gives error when reading it",
+          "system_info": "",
+          "tags": "PI; Software; Utilities; vending"
+        },
+        {
+          "case_id": "29525",
+          "title": "Caribbeano - Reinitialize faulty meter",
+          "system_info": "",
+          "tags": "Caribbeano; CI; Software; vending"
+        },
+        {
+          "case_id": "29524",
+          "title": "Caribeano- Java cards are not read",
+          "system_info": "",
+          "tags": "Caribbeano; CI; Software; vending"
+        },
+        {
+          "case_id": "29512",
+          "title": "Light Power - Steps for settlements on software",
+          "system_info": "",
+          "tags": "CI; Lightpower; Software; vending"
+        },
+        {
+          "case_id": "29503",
+          "title": "Ona Electric - Change tariff",
+          "system_info": "",
+          "tags": "CI; Ona; Software; vending"
+        }
+      ]
+    },
+    {
+      "name": "Aqua",
+      "count": 160,
+      "percentage_of_records": 9.41,
+      "examples": [
+        {
+          "case_id": "29606",
+          "title": "Veranda- Issue Control Card from JCkit",
+          "system_info": "",
+          "tags": "aqua; CI; Software; Veranda"
+        },
+        {
+          "case_id": "29590",
+          "title": "Cornado- Settlement Inquiry",
+          "system_info": "",
+          "tags": "aqua; CI; Cornado; Software"
+        },
+        {
+          "case_id": "29570",
+          "title": "Icon: Checking meter charges",
+          "system_info": "",
+          "tags": "aqua; CI; Icon; Software"
+        },
+        {
+          "case_id": "29547",
+          "title": "Emdad - Make control cards",
+          "system_info": "",
+          "tags": "aqua; CI; Emdad; Software"
+        },
+        {
+          "case_id": "29546",
+          "title": "Emdad - Make control cards",
+          "system_info": "",
+          "tags": "aqua; CI; Emdad; Software"
+        },
+        {
+          "case_id": "29538",
+          "title": "Elkhamayel - Reset water meter",
+          "system_info": "",
+          "tags": "aqua; CI; ElKhamayl; Software"
+        },
+        {
+          "case_id": "29537",
+          "title": "Elkhamayel - Reset water meters",
+          "system_info": "",
+          "tags": "aqua; CI; ElKhamayl; Software"
+        },
+        {
+          "case_id": "29536",
+          "title": "Elkhamayel - Inquiry regarding friendly time",
+          "system_info": "",
+          "tags": "aqua; CI; ElKhamayl; Software"
+        },
+        {
+          "case_id": "29523",
+          "title": "Emdad- Check tariff",
+          "system_info": "",
+          "tags": "aqua; CI; Emaar; Software"
+        },
+        {
+          "case_id": "29521",
+          "title": "Emdad- Inquiry about tariff card",
+          "system_info": "",
+          "tags": "aqua; CI; Emdad; Software"
+        }
+      ]
+    },
+    {
+      "name": "Electric",
+      "count": 105,
+      "percentage_of_records": 6.17,
+      "examples": [
+        {
+          "case_id": "29599",
+          "title": "10th of Ramadan - Utility Electrical Meters Maintenance",
+          "system_info": "",
+          "tags": "Hardware; PEM; PI; Utility"
+        },
+        {
+          "case_id": "29595",
+          "title": "Ona electric - Err 76 on 3 phase meter",
+          "system_info": "Err 67",
+          "tags": "CI; Hardware; Ona; PEM"
+        },
+        {
+          "case_id": "29564",
+          "title": "Marriott Residence - Electrical Meters New Configuration",
+          "system_info": "",
+          "tags": "Hardware; Marriott; PEM; PI"
+        },
+        {
+          "case_id": "29563",
+          "title": "Sun Capital - Electrical And Water Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "Hardware; PI; SEM; Suncapital"
+        },
+        {
+          "case_id": "29562",
+          "title": "10th of ramadan - Utility electrical meter maintenance",
+          "system_info": "",
+          "tags": "Hardware; PEM; PI; Utility"
+        },
+        {
+          "case_id": "29533",
+          "title": "Marriott Residence - Electrical Meters New Configuration",
+          "system_info": "",
+          "tags": "Hardware; Marriott; PI; SEM; W"
+        },
+        {
+          "case_id": "29532",
+          "title": "Marriott Residence - Electrical Meters New Configuration",
+          "system_info": "",
+          "tags": "Hardware; Marriott; PI; SEM; W"
+        },
+        {
+          "case_id": "29529",
+          "title": "10th of Ramadan - Electrical Meter Maintenance",
+          "system_info": "",
+          "tags": "CDC; CI; Hardware; SEM; SLA; Utility"
+        },
+        {
+          "case_id": "29503",
+          "title": "Ona Electric - Change tariff",
+          "system_info": "",
+          "tags": "CI; Ona; Software; vending"
+        },
+        {
+          "case_id": "29489",
+          "title": "10th of ramadan - Utility electrical meter maintenance",
+          "system_info": "",
+          "tags": "CDC; CI; Hardware; SEM; SLA; Utility"
+        }
+      ]
+    },
+    {
+      "name": "MeterVerse",
+      "count": 67,
+      "percentage_of_records": 3.94,
+      "examples": [
+        {
+          "case_id": "29602",
+          "title": "GFS - Meterverse deployment",
+          "system_info": "",
+          "tags": "CI; GFS; Meterverse; Software"
+        },
+        {
+          "case_id": "29551",
+          "title": "Electronile - Meterverse Update",
+          "system_info": "",
+          "tags": "Electronile; Meterverse; PI; Software"
+        },
+        {
+          "case_id": "29542",
+          "title": "Eko Mena - Meterverse updates",
+          "system_info": "",
+          "tags": "Eko Mena; Meterverse; PI; Software"
+        },
+        {
+          "case_id": "29541",
+          "title": "Sidewalk - Meterverse Update",
+          "system_info": "",
+          "tags": "Meterverse; PI; Sidewalk; Software"
+        },
+        {
+          "case_id": "29520",
+          "title": "Deyar Elharam - Meterverse Deployment",
+          "system_info": "",
+          "tags": "CI; Deyar Elharam; Meterverse; Software"
+        },
+        {
+          "case_id": "28983",
+          "title": "Electronile - Modifying a Role",
+          "system_info": "",
+          "tags": "CI; Electronile; Meterverse; Software"
+        },
+        {
+          "case_id": "28979",
+          "title": "Aqua Marine - Meterverse Driver Installation",
+          "system_info": "",
+          "tags": "Aqua marine; Meterverse; PI; Software"
+        },
+        {
+          "case_id": "28942",
+          "title": "Sidewalk Mall - Meterverse Deployment",
+          "system_info": "",
+          "tags": "Meterverse; PI; Sidewalk; Software"
+        },
+        {
+          "case_id": "28911",
+          "title": "Aqua Marine - Meterverse Deployment",
+          "system_info": "",
+          "tags": "Aqua marine; Meterverse; PI; Software"
+        },
+        {
+          "case_id": "28890",
+          "title": "Electronile - Modifying a Role",
+          "system_info": "",
+          "tags": "CI; Electronile; Meterverse; Software"
+        }
+      ]
+    },
+    {
+      "name": "Billing",
+      "count": 19,
+      "percentage_of_records": 1.12,
+      "examples": [
+        {
+          "case_id": "29535",
+          "title": "Taqa - Can not access billing software",
+          "system_info": "",
+          "tags": "billing; CI; Software; Taqa"
+        },
+        {
+          "case_id": "28316",
+          "title": "Mountain View - Billing deployement",
+          "system_info": "",
+          "tags": "CI; Mountain View; Smart; Software"
+        },
+        {
+          "case_id": "28174",
+          "title": "Fouka Bay- Check Meters' connection from billing",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "27726",
+          "title": "New Giza - Changing Billing Tariff",
+          "system_info": "",
+          "tags": "CI; New giza; Smart; Software"
+        },
+        {
+          "case_id": "27692",
+          "title": "Fouka Bay- Edit Reversed meters from billing",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "27671",
+          "title": "Fouka Bay - Check Reversed Water Meters from billing",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "27660",
+          "title": "Fouka Bay - Check Reversed Water Meters from billing",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "27584",
+          "title": "New Giza - Old Billing System Down",
+          "system_info": "",
+          "tags": "CI; New giza; Smart; Software"
+        },
+        {
+          "case_id": "27566",
+          "title": "Somabay- Connect meter from billing",
+          "system_info": "",
+          "tags": "CI; Smart; Software; Somabay"
+        },
+        {
+          "case_id": "27326",
+          "title": "Soma bay: Site visit recap",
+          "system_info": "",
+          "tags": "billing; CI; Software; Somabay"
+        }
+      ]
+    },
+    {
+      "name": "Symbiot",
+      "count": 7,
+      "percentage_of_records": 0.41,
+      "examples": [
+        {
+          "case_id": "28567",
+          "title": "Fouka Bay- Add meters to symbiot",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "28320",
+          "title": "Somabay- Add meters to symbiot",
+          "system_info": "",
+          "tags": "CI; Smart; Software; Somabay"
+        },
+        {
+          "case_id": "27689",
+          "title": "Fouka Bay- Edit Reversed Meter from symbiot",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Sodic VYE"
+        },
+        {
+          "case_id": "27586",
+          "title": "Fouka Bay- Check meter readings after they were reversed in symbiot",
+          "system_info": "",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "27564",
+          "title": "Somabay- Symbiot Down",
+          "system_info": "",
+          "tags": "PI; Smart; Software; Somabay"
+        },
+        {
+          "case_id": "26808",
+          "title": "EPower: Enquiry about symbiot number of users",
+          "system_info": "",
+          "tags": "CI; Epower; Smart; Software"
+        },
+        {
+          "case_id": "26740",
+          "title": "EPower: Acquiring Schema of IE5 Meter",
+          "system_info": "",
+          "tags": "CI; Epower; Software; Symbiot"
+        }
+      ]
+    }
+  ],
+  "system_sources": {
+    "unknown": 1027,
+    "tag": 471,
+    "title": 106,
+    "tag+title": 68,
+    "multiple": 28,
+    "title+history": 1
+  },
+  "notes": [
+    "Unknown means there was not enough evidence.",
+    "System classification is kept separate from issue classification.",
+    "System names are not automatically treated as Software issues."
+  ]
+}

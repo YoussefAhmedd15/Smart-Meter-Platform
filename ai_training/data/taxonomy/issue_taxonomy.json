@@ -1,0 +1,273 @@
+{
+  "taxonomy_name": "ISKRA L1 Issue Taxonomy",
+  "description": "Issue categories extracted from the structured L1 knowledge dataset.",
+  "source_file": "C:\\Users\\A I\\AppData\\Local\\Programs\\Ollama\\iskra\\ai_training\\data\\structured\\l1_knowledge_records.csv",
+  "total_records": 1701,
+  "values": [
+    {
+      "name": "Software",
+      "count": 1143,
+      "percentage_of_records": 67.2,
+      "examples": [
+        {
+          "case_id": "29606",
+          "title": "Veranda- Issue Control Card from JCkit",
+          "system_info": "",
+          "tags": "aqua; CI; Software; Veranda"
+        },
+        {
+          "case_id": "29605",
+          "title": "Bohoo - Inquiry about valve status",
+          "system_info": "",
+          "tags": "Bohoo; CI; Hardware; PWM"
+        },
+        {
+          "case_id": "29604",
+          "title": "South Delta- Delete Charge",
+          "system_info": "Missing Feature",
+          "tags": "CI; SDDC; Software; vending"
+        },
+        {
+          "case_id": "29603",
+          "title": "Sun Capital - User permission to add settlements",
+          "system_info": "System Bug",
+          "tags": "PI; Software; Suncapital; vending"
+        },
+        {
+          "case_id": "29602",
+          "title": "GFS - Meterverse deployment",
+          "system_info": "",
+          "tags": "CI; GFS; Meterverse; Software"
+        },
+        {
+          "case_id": "29600",
+          "title": "Epower - Solar Readings Issue",
+          "system_info": "",
+          "tags": "Epower; Smart; Software"
+        },
+        {
+          "case_id": "29596",
+          "title": "Somabay - Pending jobs",
+          "system_info": "Too Many Failed Jobs",
+          "tags": "CI; Smart; Software; Somabay"
+        },
+        {
+          "case_id": "29593",
+          "title": "Chinese Village- Check windows security",
+          "system_info": "",
+          "tags": "Chinese Mall; CI; Software; vending"
+        },
+        {
+          "case_id": "29590",
+          "title": "Cornado- Settlement Inquiry",
+          "system_info": "",
+          "tags": "aqua; CI; Cornado; Software"
+        },
+        {
+          "case_id": "29587",
+          "title": "Remco- No response issue in MPMS",
+          "system_info": "",
+          "tags": "CI; MPMS; REMCO; Software"
+        }
+      ]
+    },
+    {
+      "name": "Hardware",
+      "count": 651,
+      "percentage_of_records": 38.27,
+      "examples": [
+        {
+          "case_id": "29605",
+          "title": "Bohoo - Inquiry about valve status",
+          "system_info": "",
+          "tags": "Bohoo; CI; Hardware; PWM"
+        },
+        {
+          "case_id": "29601",
+          "title": "Veranda- Water meter negative consumption",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Veranda"
+        },
+        {
+          "case_id": "29599",
+          "title": "10th of Ramadan - Utility Electrical Meters Maintenance",
+          "system_info": "",
+          "tags": "Hardware; PEM; PI; Utility"
+        },
+        {
+          "case_id": "29598",
+          "title": "Alexandria - Utility Water Meter Maintenance",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Utility"
+        },
+        {
+          "case_id": "29597",
+          "title": "Sadat - Utility Water Meter Maintenance",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Utility"
+        },
+        {
+          "case_id": "29595",
+          "title": "Ona electric - Err 76 on 3 phase meter",
+          "system_info": "Err 67",
+          "tags": "CI; Hardware; Ona; PEM"
+        },
+        {
+          "case_id": "29594",
+          "title": "Badr Eldeen - Troubleshooting STS Water Meters Problems",
+          "system_info": "",
+          "tags": "Badr Eldeen; Hardware; PI; STS"
+        },
+        {
+          "case_id": "29589",
+          "title": "Courtyard - Error 1091 in MT514",
+          "system_info": "Error 1091",
+          "tags": "Courtyard; Hardware; PEM; PI"
+        },
+        {
+          "case_id": "29588",
+          "title": "Haram - Testing Reset and Out of Factory Cards",
+          "system_info": "",
+          "tags": "Hardware; PEM; PI; Utility"
+        },
+        {
+          "case_id": "29586",
+          "title": "Sheraton Sharm - Error 81",
+          "system_info": "Error 81",
+          "tags": "Hardware; PI; PWM; Sheraton Sharm"
+        }
+      ]
+    },
+    {
+      "name": "Communication",
+      "count": 53,
+      "percentage_of_records": 3.12,
+      "examples": [
+        {
+          "case_id": "29564",
+          "title": "Marriott Residence - Electrical Meters New Configuration",
+          "system_info": "",
+          "tags": "Hardware; Marriott; PEM; PI"
+        },
+        {
+          "case_id": "29563",
+          "title": "Sun Capital - Electrical And Water Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "Hardware; PI; SEM; Suncapital"
+        },
+        {
+          "case_id": "29118",
+          "title": "Elgouna- Inquiry about meters down due to communication",
+          "system_info": "",
+          "tags": "CI; Gouna; Smart; Software"
+        },
+        {
+          "case_id": "29109",
+          "title": "Sun Capital - Electrical And Water Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "CI; Hardware; SEM; Suncapital; W"
+        },
+        {
+          "case_id": "29108",
+          "title": "Sun Capital - Electrical And Water Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "CI; Hardware; SEM; Suncapital; W"
+        },
+        {
+          "case_id": "28994",
+          "title": "Sun Capital - Electrical and water meter communication troubleshooting",
+          "system_info": "",
+          "tags": "CI; Hardware; SEM; Suncapital; W"
+        },
+        {
+          "case_id": "28929",
+          "title": "Sun Capital - Electrical And Water Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "CI; Hardware; SEM; Suncapital; W"
+        },
+        {
+          "case_id": "28928",
+          "title": "ElAbd - Site visit for CT meters installation and connections",
+          "system_info": "",
+          "tags": "CI; ElAbd; Hardware; O/S; PEM"
+        },
+        {
+          "case_id": "28908",
+          "title": "El Gouna - MT300 Electrical Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "CI; Elgouna; Hardware; O/S; PI; SEM"
+        },
+        {
+          "case_id": "28906",
+          "title": "El Gouna - MT300 Electrical Meters Communication troubleshooting",
+          "system_info": "",
+          "tags": "CI; Elgouna; Hardware; O/S; PI; SEM"
+        }
+      ]
+    },
+    {
+      "name": "Unknown",
+      "count": 4,
+      "percentage_of_records": 0.24,
+      "examples": [
+        {
+          "case_id": "28379",
+          "title": "BDC - Creating Maintenance Report",
+          "system_info": "",
+          "tags": "BDC; CI; Utility"
+        },
+        {
+          "case_id": "27654",
+          "title": "Travco: Issue with mend charge",
+          "system_info": "",
+          "tags": "CI; Travco; Visa"
+        },
+        {
+          "case_id": "27079",
+          "title": "Internship: Transferring Knowledge to Interns",
+          "system_info": "",
+          "tags": ""
+        },
+        {
+          "case_id": "26606",
+          "title": "Giving Interns an overview of L1 work and scope",
+          "system_info": "",
+          "tags": ""
+        }
+      ]
+    },
+    {
+      "name": "Firmware",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "26724",
+          "title": "UEDC - Meter Pages shows null value",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        },
+        {
+          "case_id": "26502",
+          "title": "Korra: Firmware Issue in MT-514",
+          "system_info": "",
+          "tags": "Hardware; Korra; PEM; PI"
+        }
+      ]
+    }
+  ],
+  "classification_sources": {
+    "tag": 1307,
+    "tag+title": 236,
+    "multiple": 151,
+    "unknown": 4,
+    "tag+system_info": 2,
+    "title": 1
+  },
+  "notes": [
+    "This taxonomy describes the existing dataset.",
+    "It does not prove ground-truth correctness.",
+    "Unknown values are preserved.",
+    "No root cause or solution is invented."
+  ]
+}

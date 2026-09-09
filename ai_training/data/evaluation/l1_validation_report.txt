@@ -1,0 +1,92 @@
+
+======================================================================
+ISSUE CLASSIFICATION VALIDATION
+======================================================================
+
+Validation results:
+ - SUPPORTED: 1697 (99.76%)
+ - UNKNOWN: 4 (0.24%)
+
+======================================================================
+SYSTEM VALIDATION
+======================================================================
+ - UNKNOWN: 1027 (60.38%)
+ - SUPPORTED: 674 (39.62%)
+
+======================================================================
+METER TYPE VALIDATION
+======================================================================
+ - UNKNOWN: 1441 (84.71%)
+ - SUPPORTED: 260 (15.29%)
+
+======================================================================
+CLASSIFICATION SOURCE
+======================================================================
+ - tag: 1307 (76.84%)
+ - tag+title: 236 (13.87%)
+ - multiple: 151 (8.88%)
+ - unknown: 4 (0.24%)
+ - tag+system_info: 2 (0.12%)
+ - title: 1 (0.06%)
+
+======================================================================
+UNKNOWN CASES
+======================================================================
+
+Unknown issue cases: 4
+
+ID: 28379
+Title: BDC - Creating Maintenance Report
+Tags: BDC; CI; Utility
+System Info: 
+
+ID: 27654
+Title: Travco: Issue with mend charge
+Tags: CI; Travco; Visa
+System Info: 
+
+ID: 27079
+Title: Internship: Transferring Knowledge to Interns
+Tags: 
+System Info: 
+
+ID: 26606
+Title: Giving Interns an overview of L1 work and scope
+Tags: 
+System Info: 
+
+======================================================================
+POSSIBLE CLASSIFICATION CONFLICTS
+======================================================================
+
+Cases requiring review: 0
+
+======================================================================
+SUPPORT LEVEL
+======================================================================
+ - Unknown: 1699
+ - L2 Hardware: 1
+ - L1: 1
+
+======================================================================
+RESOLUTION EVIDENCE
+======================================================================
+
+Cases with actual History: 11
+Cases without History: 1690
+
+======================================================================
+DATASET READINESS
+======================================================================
+
+Issue classifications fully supported: 1697 (99.76%)
+Cases requiring review: 0
+Unknown cases: 4
+
+======================================================================
+RECOMMENDATION
+======================================================================
+
+Do NOT fine-tune the model yet.
+Use this validation report to identify classification conflicts and improve the taxonomy.
+Do NOT invent root causes or resolutions for cases without evidence.

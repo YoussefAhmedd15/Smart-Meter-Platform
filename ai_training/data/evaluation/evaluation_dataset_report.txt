@@ -1,0 +1,54 @@
+======================================================================
+ISKRA L1 EVALUATION DATASET REPORT
+======================================================================
+
+Input records: 1701
+Evaluation records: 200
+Random seed: 42
+
+ISSUE CATEGORIES
+----------------------------------------------------------------------
+- Software: 121
+- Hardware: 58
+- Software|Hardware: 11
+- Hardware|Communication: 4
+- Hardware|Firmware: 2
+- Software|Communication: 2
+- Unknown: 1
+- Software|Hardware|Communication: 1
+
+SYSTEMS
+----------------------------------------------------------------------
+- Unknown: 121
+- Vending: 43
+- Aqua: 23
+- Electric: 10
+- MeterVerse: 3
+
+METER TYPES
+----------------------------------------------------------------------
+- Unknown: 168
+- Water: 21
+- Electric: 6
+- Water|Electric: 4
+- Ultrasonic: 1
+
+QUALITY
+----------------------------------------------------------------------
+Unknown systems: 121
+Unknown meter types: 168
+Verified resolution records: 1
+
+SAFETY
+----------------------------------------------------------------------
+- Evaluation data is generated from source evidence.
+- Unknown values are preserved.
+- No unsupported solutions are generated.
+- No unsupported root causes are generated.
+- This dataset is for evaluation, not fine-tuning.
+
+FILES
+----------------------------------------------------------------------
+C:\Users\A I\AppData\Local\Programs\Ollama\iskra\ai_training\data\evaluation\l1_evaluation.jsonl
+C:\Users\A I\AppData\Local\Programs\Ollama\iskra\ai_training\data\evaluation\l1_evaluation.csv
+C:\Users\A I\AppData\Local\Programs\Ollama\iskra\ai_training\data\evaluation\evaluation_dataset_report.txt

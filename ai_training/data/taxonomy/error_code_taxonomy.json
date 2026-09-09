@@ -1,0 +1,991 @@
+{
+  "taxonomy_name": "ISKRA L1 Error Code Taxonomy",
+  "description": "Explicitly detected error codes from the L1 knowledge dataset.",
+  "source_file": "C:\\Users\\A I\\AppData\\Local\\Programs\\Ollama\\iskra\\ai_training\\data\\structured\\l1_knowledge_records.csv",
+  "total_records": 1701,
+  "total_unique_error_codes": 47,
+  "values": [
+    {
+      "code": "02",
+      "count": 20,
+      "percentage_of_records": 1.18,
+      "examples": [
+        {
+          "case_id": "29579",
+          "title": "La quenta- Reject 02",
+          "system_info": "La quenta",
+          "tags": "Hardware; Laquenta; PI; PWM"
+        },
+        {
+          "case_id": "29555",
+          "title": "La Vie - Reject 02",
+          "system_info": "Reject-02",
+          "tags": "CI; lavie; SMS; Software"
+        },
+        {
+          "case_id": "29554",
+          "title": "Ecklat Portsaid - Reject 02",
+          "system_info": "Reject-02",
+          "tags": "CI; Ecklat; SMS; Software"
+        },
+        {
+          "case_id": "28995",
+          "title": "Badr eldeen- Reject 02",
+          "system_info": "Reject 02",
+          "tags": "Badr Eldeen; Hardware; PI; PWM"
+        },
+        {
+          "case_id": "28976",
+          "title": "Badr Eldeen - Issuing Key Change Token",
+          "system_info": "Reject-02",
+          "tags": "Badr Eldeen; PI; SMS; Software"
+        },
+        {
+          "case_id": "28975",
+          "title": "Badr Eldeen - Issuing Out of Factory Card",
+          "system_info": "Reject-02",
+          "tags": "Badr Eldeen; PI; SMS; Software"
+        },
+        {
+          "case_id": "28974",
+          "title": "Badr Eldeen - Issuing Super Clear Card",
+          "system_info": "Reject-02",
+          "tags": "Badr Eldeen; PI; SMS; Software"
+        },
+        {
+          "case_id": "28973",
+          "title": "Badr Eldeen - Reject 02",
+          "system_info": "Reject-02",
+          "tags": "Badr Eldeen; Hardware; PI; STS"
+        },
+        {
+          "case_id": "28637",
+          "title": "Hurghada Hub- Reject 02 Tokens",
+          "system_info": "Reject 02",
+          "tags": "CI; Hurghada Hub; Software; STS"
+        },
+        {
+          "case_id": "28584",
+          "title": "La Vie - Error 106",
+          "system_info": "E-106 and Reject 02",
+          "tags": "Hardware; lavie; PI; PWM; STS"
+        }
+      ]
+    },
+    {
+      "code": "106",
+      "count": 10,
+      "percentage_of_records": 0.59,
+      "examples": [
+        {
+          "case_id": "28901",
+          "title": "Light power - E-106 on single phase meter",
+          "system_info": "E-106",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        },
+        {
+          "case_id": "28584",
+          "title": "La Vie - Error 106",
+          "system_info": "E-106 and Reject 02",
+          "tags": "Hardware; lavie; PI; PWM; STS"
+        },
+        {
+          "case_id": "28536",
+          "title": "ElAdb- Error 106 in PWM",
+          "system_info": "E-106",
+          "tags": "ElAbd; Hardware; PI; PWM"
+        },
+        {
+          "case_id": "28431",
+          "title": "Epower - Valve does not open/close correctly with E-106",
+          "system_info": "E-106",
+          "tags": "CI; Epower; Hardware; PWM"
+        },
+        {
+          "case_id": "27759",
+          "title": "ElAbd - Valve closed opened with negative balance and errors",
+          "system_info": "E-106 & E-107",
+          "tags": "ElAbd; Hardware; PI; PWM"
+        },
+        {
+          "case_id": "27700",
+          "title": "Tiba: Valve Issue",
+          "system_info": "Error E-106/E-107",
+          "tags": "Hardware; PI; PWM; Tiba"
+        },
+        {
+          "case_id": "27626",
+          "title": "ElAbd - E-106 and E-107 with valve opened closed",
+          "system_info": "",
+          "tags": "CI; ElAbd; Hardware; PWM"
+        },
+        {
+          "case_id": "27306",
+          "title": "ElAbd - E-106 on water meter",
+          "system_info": "",
+          "tags": "CI; ElAbd; Hardware; PWM"
+        },
+        {
+          "case_id": "26864",
+          "title": "Ecklat - Error 106",
+          "system_info": "",
+          "tags": "Ecklat; Hardware; PI; PWM"
+        },
+        {
+          "case_id": "26444",
+          "title": "ElAbd: Error E-106",
+          "system_info": "E-106",
+          "tags": "aqua; CI; ElAbd; Software"
+        }
+      ]
+    },
+    {
+      "code": "107",
+      "count": 7,
+      "percentage_of_records": 0.41,
+      "examples": [
+        {
+          "case_id": "27759",
+          "title": "ElAbd - Valve closed opened with negative balance and errors",
+          "system_info": "E-106 & E-107",
+          "tags": "ElAbd; Hardware; PI; PWM"
+        },
+        {
+          "case_id": "27700",
+          "title": "Tiba: Valve Issue",
+          "system_info": "Error E-106/E-107",
+          "tags": "Hardware; PI; PWM; Tiba"
+        },
+        {
+          "case_id": "27626",
+          "title": "ElAbd - E-106 and E-107 with valve opened closed",
+          "system_info": "",
+          "tags": "CI; ElAbd; Hardware; PWM"
+        },
+        {
+          "case_id": "27440",
+          "title": "Tiba View: Error E-107",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Tiba"
+        },
+        {
+          "case_id": "27329",
+          "title": "New Heliopolis: Error E-107",
+          "system_info": "",
+          "tags": "Hardware; New Heliopolis; PI; PWM"
+        },
+        {
+          "case_id": "27065",
+          "title": "Relantecs - E107 in PWM",
+          "system_info": "",
+          "tags": "Hardware; PI; PWM; Relantecs"
+        },
+        {
+          "case_id": "26529",
+          "title": "ElAbd - Open close on screen with error E-107",
+          "system_info": "E-107",
+          "tags": "CI; ElAbd; Hardware; PWM"
+        }
+      ]
+    },
+    {
+      "code": "103",
+      "count": 6,
+      "percentage_of_records": 0.35,
+      "examples": [
+        {
+          "case_id": "29484",
+          "title": "Fanadir - Err 103 on V5 meter",
+          "system_info": "Err 103",
+          "tags": "CI; Fanadir; Hardware; PEM"
+        },
+        {
+          "case_id": "27487",
+          "title": "Coral Bay- Error 103 in V5",
+          "system_info": "",
+          "tags": "CI; Coral; Hardware; PEM"
+        },
+        {
+          "case_id": "27195",
+          "title": "CDC - Error 103",
+          "system_info": "",
+          "tags": "CDC; CI; Hardware; PEM"
+        },
+        {
+          "case_id": "27013",
+          "title": "CDC - Error 103",
+          "system_info": "",
+          "tags": "CDC; CI; Hardware; PEM"
+        },
+        {
+          "case_id": "26903",
+          "title": "UEDC - Error 103",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        },
+        {
+          "case_id": "26628",
+          "title": "Makadi - Error 0103 while resetting V5 meter",
+          "system_info": "Err-103",
+          "tags": "CI; Hardware; Makadi; PEM"
+        }
+      ]
+    },
+    {
+      "code": "0001",
+      "count": 6,
+      "percentage_of_records": 0.35,
+      "examples": [
+        {
+          "case_id": "28926",
+          "title": "Amwaj- ICERROR 1 in old MT514",
+          "system_info": "Err-0001",
+          "tags": "Amwaj; CI; Software; Visa"
+        },
+        {
+          "case_id": "28402",
+          "title": "Ecklat Portsaid - Error 0001 on V5 with remove tamper card",
+          "system_info": "Err 0001",
+          "tags": "CI; Ecklat; Hardware; PEM"
+        },
+        {
+          "case_id": "28371",
+          "title": "Korra: Error with initial card",
+          "system_info": "Error: E-0001, E-2143",
+          "tags": "Hardware; Korra; PEM; PI"
+        },
+        {
+          "case_id": "27912",
+          "title": "ElAbd- Error 0001 in MT514",
+          "system_info": "Error 0001",
+          "tags": "ElAbd; Hardware; PEM; PI"
+        },
+        {
+          "case_id": "27335",
+          "title": "Travco: Error-0001",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; Travco"
+        },
+        {
+          "case_id": "27320",
+          "title": "CDC - Error 0001",
+          "system_info": "",
+          "tags": "CDC; Hardware; PEM; PI"
+        }
+      ]
+    },
+    {
+      "code": "1091",
+      "count": 4,
+      "percentage_of_records": 0.24,
+      "examples": [
+        {
+          "case_id": "29589",
+          "title": "Courtyard - Error 1091 in MT514",
+          "system_info": "Error 1091",
+          "tags": "Courtyard; Hardware; PEM; PI"
+        },
+        {
+          "case_id": "28414",
+          "title": "Utilites - CT ratio card error",
+          "system_info": "err 1091",
+          "tags": "CI; Hardware; PEM; Utilities"
+        },
+        {
+          "case_id": "27182",
+          "title": "Travco: Error-1091",
+          "system_info": "",
+          "tags": "CI; Software; Travco; Visa"
+        },
+        {
+          "case_id": "27181",
+          "title": "Elabd: Error-1091",
+          "system_info": "",
+          "tags": "CI; ElAbd; Software; vending"
+        }
+      ]
+    },
+    {
+      "code": "70",
+      "count": 4,
+      "percentage_of_records": 0.24,
+      "examples": [
+        {
+          "case_id": "29493",
+          "title": "New Giza - Err 70 with customer card on 3ph meters",
+          "system_info": "Err 70",
+          "tags": "CI; Hardware; Newgiza; PEM"
+        },
+        {
+          "case_id": "29024",
+          "title": "Ona electric - Err 70 on 3 phase meter",
+          "system_info": "Err 70",
+          "tags": "CI; Hardware; Ona; PEM"
+        },
+        {
+          "case_id": "28127",
+          "title": "UEDC - Error 70",
+          "system_info": "Err-2370",
+          "tags": "CI; Hardware; PEM; UEDC"
+        },
+        {
+          "case_id": "26451",
+          "title": "Travco - Error 70 mt514 while opening acount",
+          "system_info": "Err-70",
+          "tags": "CI; Hardware; PEM; Travco"
+        }
+      ]
+    },
+    {
+      "code": "52",
+      "count": 4,
+      "percentage_of_records": 0.24,
+      "examples": [
+        {
+          "case_id": "28984",
+          "title": "Makadi - Error 52",
+          "system_info": "Err-xx52",
+          "tags": "CI; Hardware; Makadi; PEM"
+        },
+        {
+          "case_id": "28893",
+          "title": "Makadi - Error 52",
+          "system_info": "Err-xx52",
+          "tags": "CI; Hardware; Makadi; PEM"
+        },
+        {
+          "case_id": "28063",
+          "title": "Travco - Error 52 with customer card",
+          "system_info": "Err 0052",
+          "tags": "CI; Hardware; PEM; Travco"
+        },
+        {
+          "case_id": "26610",
+          "title": "Travco: Error-XX52",
+          "system_info": "Err-52",
+          "tags": "CI; Hardware; PEM; Travco"
+        }
+      ]
+    },
+    {
+      "code": "0052",
+      "count": 4,
+      "percentage_of_records": 0.24,
+      "examples": [
+        {
+          "case_id": "28172",
+          "title": "Travco: Prepaid meter error",
+          "system_info": "Error-0052",
+          "tags": "CI; Hardware; PEM; Travco"
+        },
+        {
+          "case_id": "28063",
+          "title": "Travco - Error 52 with customer card",
+          "system_info": "Err 0052",
+          "tags": "CI; Hardware; PEM; Travco"
+        },
+        {
+          "case_id": "27707",
+          "title": "ElAbd - Error 0052 on mt514 IC",
+          "system_info": "",
+          "tags": "ElAbd; Hardware; PEM; PI"
+        },
+        {
+          "case_id": "27559",
+          "title": "Meedco- Error0052 in MT514",
+          "system_info": "",
+          "tags": "Hardware; MEEDCO; PEM; PI"
+        }
+      ]
+    },
+    {
+      "code": "81",
+      "count": 3,
+      "percentage_of_records": 0.18,
+      "examples": [
+        {
+          "case_id": "29586",
+          "title": "Sheraton Sharm - Error 81",
+          "system_info": "Error 81",
+          "tags": "Hardware; PI; PWM; Sheraton Sharm"
+        },
+        {
+          "case_id": "27702",
+          "title": "Light power - Error 81 on water meter",
+          "system_info": "",
+          "tags": "CI; Hardware; Lightpower; PWM"
+        },
+        {
+          "case_id": "27691",
+          "title": "Emdad - Error 81 on water meter with customer card",
+          "system_info": "",
+          "tags": "CI; Emdad; Hardware; PWM"
+        }
+      ]
+    },
+    {
+      "code": "201",
+      "count": 3,
+      "percentage_of_records": 0.18,
+      "examples": [
+        {
+          "case_id": "29487",
+          "title": "Fanadir - Err 201 with reset card",
+          "system_info": "Err 201",
+          "tags": "CI; Fanadir; Hardware; PEM"
+        },
+        {
+          "case_id": "28323",
+          "title": "Mena Oasis- Error 201",
+          "system_info": "Error 201",
+          "tags": "CI; Hardware; Mena Oasis; PEM"
+        },
+        {
+          "case_id": "27911",
+          "title": "Selena Bay - Error 201",
+          "system_info": "Err-0201",
+          "tags": "CI; Hardware; PEM; Selena bay"
+        }
+      ]
+    },
+    {
+      "code": "91",
+      "count": 3,
+      "percentage_of_records": 0.18,
+      "examples": [
+        {
+          "case_id": "26778",
+          "title": "UEDC - Error 91",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        },
+        {
+          "case_id": "26731",
+          "title": "UEDC - Error 91",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        },
+        {
+          "case_id": "26674",
+          "title": "UEDC - Error 91",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        }
+      ]
+    },
+    {
+      "code": "0201",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "29114",
+          "title": "Carribeano - Err 0201 on V5 meter",
+          "system_info": "Err 0201",
+          "tags": "Caribbeano; CI; Hardware; PEM"
+        },
+        {
+          "case_id": "27911",
+          "title": "Selena Bay - Error 201",
+          "system_info": "Err-0201",
+          "tags": "CI; Hardware; PEM; Selena bay"
+        }
+      ]
+    },
+    {
+      "code": "41",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "29023",
+          "title": "Ona electric - Err 41 on 3 phase meter",
+          "system_info": "Err 41",
+          "tags": "CI; Hardware; Ona; PEM"
+        },
+        {
+          "case_id": "28501",
+          "title": "Azurra - Err 41 on 3 phase meter",
+          "system_info": "Err 41",
+          "tags": "Azurra; CI; Hardware; PEM"
+        }
+      ]
+    },
+    {
+      "code": "0103",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "28596",
+          "title": "Fanadir - Error 0103 with customer card",
+          "system_info": "Err 0103",
+          "tags": "CI; Fanadir; Hardware; PEM"
+        },
+        {
+          "case_id": "26628",
+          "title": "Makadi - Error 0103 while resetting V5 meter",
+          "system_info": "Err-103",
+          "tags": "CI; Hardware; Makadi; PEM"
+        }
+      ]
+    },
+    {
+      "code": "43",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "28566",
+          "title": "Azurra - Err 43 on 3 phase meter",
+          "system_info": "Err 43",
+          "tags": "Azurra; CI; Hardware; PEM"
+        },
+        {
+          "case_id": "26632",
+          "title": "Ecklat Portsaid - Error 43",
+          "system_info": "Err-43",
+          "tags": "CI; Ecklat; Hardware; PEM"
+        }
+      ]
+    },
+    {
+      "code": "500",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "28555",
+          "title": "Fouka Bay- Error 500 when uploading manual template",
+          "system_info": "Error 500",
+          "tags": "CI; Fouka; Smart; Software"
+        },
+        {
+          "case_id": "27645",
+          "title": "UEDC - Error 500",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        }
+      ]
+    },
+    {
+      "code": "0170",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "28332",
+          "title": "Chinese Mall- Error 0170 in MT514",
+          "system_info": "Error 0170",
+          "tags": "Chinese Mall; CI; Hardware; PEM"
+        },
+        {
+          "case_id": "27334",
+          "title": "NDDC: Error-0170",
+          "system_info": "",
+          "tags": "CI; Hardware; NDDC; PEM"
+        }
+      ]
+    },
+    {
+      "code": "0805",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "28166",
+          "title": "Light Power - Err 0805 with remove tamper card",
+          "system_info": "Err 0805",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        },
+        {
+          "case_id": "27794",
+          "title": "Light Power - Error 0805",
+          "system_info": "Err 0805",
+          "tags": "CI; Hardware; Lightpower; PWM"
+        }
+      ]
+    },
+    {
+      "code": "0116",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "28049",
+          "title": "Light Power - Error 0116 with customer card",
+          "system_info": "Err 0116",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        },
+        {
+          "case_id": "28017",
+          "title": "Light Power- Error-0116",
+          "system_info": "Error-0116",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        }
+      ]
+    },
+    {
+      "code": "101",
+      "count": 2,
+      "percentage_of_records": 0.12,
+      "examples": [
+        {
+          "case_id": "27743",
+          "title": "Trivium - Error E-101 on water meter",
+          "system_info": "E-101",
+          "tags": "CI; Hardware; PWM; STS"
+        },
+        {
+          "case_id": "26730",
+          "title": "UEDC - Error 101",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        }
+      ]
+    },
+    {
+      "code": "76",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "29595",
+          "title": "Ona electric - Err 76 on 3 phase meter",
+          "system_info": "Err 67",
+          "tags": "CI; Hardware; Ona; PEM"
+        }
+      ]
+    },
+    {
+      "code": "67",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "29595",
+          "title": "Ona electric - Err 76 on 3 phase meter",
+          "system_info": "Err 67",
+          "tags": "CI; Hardware; Ona; PEM"
+        }
+      ]
+    },
+    {
+      "code": "400",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "29479",
+          "title": "Fanadir - Error 400 with customer card",
+          "system_info": "Err 400",
+          "tags": "CI; Fanadir; Hardware; PEM"
+        }
+      ]
+    },
+    {
+      "code": "003",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "29019",
+          "title": "Light Power - Err 003 with remove tamper card",
+          "system_info": "Err 003",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        }
+      ]
+    },
+    {
+      "code": "005",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28986",
+          "title": "Light Power - Err 005 on V5 meter",
+          "system_info": "Err 005",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        }
+      ]
+    },
+    {
+      "code": "45",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28939",
+          "title": "Veranda - Error 45 with customer card",
+          "system_info": "Err 45",
+          "tags": "CI; Hardware; PEM; Veranda"
+        }
+      ]
+    },
+    {
+      "code": "1043",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28562",
+          "title": "NCDC: PEM Error",
+          "system_info": "Error: Err-1043",
+          "tags": "CI; Hardware; NCDC; PEM"
+        }
+      ]
+    },
+    {
+      "code": "40",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28496",
+          "title": "Ecklat - Err 40 with mend card",
+          "system_info": "Err 40",
+          "tags": "CI; Ecklat; Hardware; PEM"
+        }
+      ]
+    },
+    {
+      "code": "0447",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28415",
+          "title": "Utilities - Error 0447 with customer card",
+          "system_info": "Err 0447",
+          "tags": "CI; Hardware; PEM; Utilities"
+        }
+      ]
+    },
+    {
+      "code": "2143",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28371",
+          "title": "Korra: Error with initial card",
+          "system_info": "Error: E-0001, E-2143",
+          "tags": "Hardware; Korra; PEM; PI"
+        }
+      ]
+    },
+    {
+      "code": "1541",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28334",
+          "title": "Chinese Mall- Error 1541 in MT514",
+          "system_info": "error 1541",
+          "tags": "Chinese Mall; Hardware; PEM; PI"
+        }
+      ]
+    },
+    {
+      "code": "01",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28331",
+          "title": "Hurghada Hub- IStgood and Reject 01 Errors with same card",
+          "system_info": "",
+          "tags": "Hardware; Hurghada Hub; PI; PWM"
+        }
+      ]
+    },
+    {
+      "code": "2370",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "28127",
+          "title": "UEDC - Error 70",
+          "system_info": "Err-2370",
+          "tags": "CI; Hardware; PEM; UEDC"
+        }
+      ]
+    },
+    {
+      "code": "100",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27748",
+          "title": "Trivium - E-100 with customer card",
+          "system_info": "E-100",
+          "tags": "CI; Hardware; PWM; Trivium"
+        }
+      ]
+    },
+    {
+      "code": "0004",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27650",
+          "title": "EPower: Error-0004",
+          "system_info": "",
+          "tags": "aqua; CI; Epower; Software"
+        }
+      ]
+    },
+    {
+      "code": "0003",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27561",
+          "title": "Elsewedy E&C- Error0003 in ME514 meter",
+          "system_info": "",
+          "tags": "Elsewedy E&C; Hardware; PEM; PI"
+        }
+      ]
+    },
+    {
+      "code": "0202",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27528",
+          "title": "Fanadir - Error 0202 on ME514 meter",
+          "system_info": "",
+          "tags": "CI; Fanadir; Hardware; PEM"
+        }
+      ]
+    },
+    {
+      "code": "0203",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27325",
+          "title": "Tiba View: Error-0203",
+          "system_info": "",
+          "tags": "aqua; CI; Software; Tiba"
+        }
+      ]
+    },
+    {
+      "code": "1057",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27321",
+          "title": "Travco: Error-1057",
+          "system_info": "",
+          "tags": "Hardware; PEM; PI; Travco"
+        }
+      ]
+    },
+    {
+      "code": "0077",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "27089",
+          "title": "MEEDCO- Error 0077 in MT514",
+          "system_info": "",
+          "tags": "Hardware; MEEDCO; PI; PWM"
+        }
+      ]
+    },
+    {
+      "code": "600",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "26902",
+          "title": "UEDC - Error 600",
+          "system_info": "",
+          "tags": "CI; Hardware; PEM; UEDC"
+        }
+      ]
+    },
+    {
+      "code": "304",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "26894",
+          "title": "CDC - Error 304",
+          "system_info": "",
+          "tags": "CDC; CI; Hardware; PEM"
+        }
+      ]
+    },
+    {
+      "code": "0102",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "26892",
+          "title": "Light Power - Error 0102 while opening account on v5 meter",
+          "system_info": "",
+          "tags": "CI; Hardware; Lightpower; PWM"
+        }
+      ]
+    },
+    {
+      "code": "108",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "26679",
+          "title": "New Giza - Error 108",
+          "system_info": "",
+          "tags": "CI; New giza; Software; vending"
+        }
+      ]
+    },
+    {
+      "code": "0500",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "26611",
+          "title": "Light Power - Error 0500 on IC single phase meter",
+          "system_info": "",
+          "tags": "CI; Hardware; Lightpower; PEM"
+        }
+      ]
+    },
+    {
+      "code": "802",
+      "count": 1,
+      "percentage_of_records": 0.06,
+      "examples": [
+        {
+          "case_id": "26605",
+          "title": "CDC - Error 802",
+          "system_info": "Err-802",
+          "tags": "CDC; CI; Hardware; PEM"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Only explicitly detected error codes are included.",
+    "No meaning is assigned to an error code.",
+    "No solution or root cause is invented."
+  ]
+}

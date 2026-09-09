@@ -1,0 +1,255 @@
+======================================================================
+ISKRA L1 DATASET QUALITY ANALYSIS
+======================================================================
+
+BASIC DATASET INFORMATION
+----------------------------------------------------------------------
+Total cases: 1701
+Total columns: 25
+
+Columns:
+ - ID
+ - Work Item Type
+ - Created By
+ - Title
+ - System Info
+ - Assigned To
+ - State
+ - Tags
+ - Resolved By
+ - Created Date
+ - History
+ - combined_text
+ - title_normalized
+ - detected_error_codes
+ - detected_meter_models
+ - source_file
+ - case_text
+ - detected_system
+ - issue_category
+ - meter_type
+ - support_level
+ - error_code
+ - resolution
+ - root_cause
+ - classification_confidence
+
+MISSING DATA ANALYSIS
+----------------------------------------------------------------------
+ID: 0 missing (0.00%)
+Work Item Type: 0 missing (0.00%)
+Created By: 0 missing (0.00%)
+Title: 0 missing (0.00%)
+System Info: 1560 missing (91.71%)
+Assigned To: 0 missing (0.00%)
+State: 0 missing (0.00%)
+Tags: 2 missing (0.12%)
+Resolved By: 13 missing (0.76%)
+Created Date: 0 missing (0.00%)
+History: 1690 missing (99.35%)
+combined_text: 0 missing (0.00%)
+title_normalized: 0 missing (0.00%)
+detected_error_codes: 1593 missing (93.65%)
+detected_meter_models: 1677 missing (98.59%)
+source_file: 0 missing (0.00%)
+case_text: 0 missing (0.00%)
+detected_system: 0 missing (0.00%)
+issue_category: 0 missing (0.00%)
+meter_type: 0 missing (0.00%)
+support_level: 0 missing (0.00%)
+error_code: 0 missing (0.00%)
+resolution: 0 missing (0.00%)
+root_cause: 0 missing (0.00%)
+classification_confidence: 0 missing (0.00%)
+
+SYSTEM DISTRIBUTION
+----------------------------------------------------------------------
+Unknown: 1027 (60.38%)
+Vending: 334 (19.64%)
+Aqua: 153 (8.99%)
+Electric: 84 (4.94%)
+MeterVerse: 49 (2.88%)
+Billing: 19 (1.12%)
+MeterVerse|Electric: 13 (0.76%)
+Vending|Electric: 8 (0.47%)
+Symbiot: 7 (0.41%)
+MeterVerse|Aqua: 4 (0.24%)
+Vending|Aqua: 2 (0.12%)
+Vending|MeterVerse|Aqua: 1 (0.06%)
+
+ISSUE CATEGORY DISTRIBUTION
+----------------------------------------------------------------------
+Software: 1006 (59.14%)
+Hardware: 649 (38.15%)
+Unknown: 24 (1.41%)
+Communication: 20 (1.18%)
+Firmware: 2 (0.12%)
+
+METER TYPE DISTRIBUTION
+----------------------------------------------------------------------
+Unknown: 1287 (75.66%)
+Water: 335 (19.69%)
+Electric: 78 (4.59%)
+Ultrasonic: 1 (0.06%)
+
+METER MODEL DISTRIBUTION
+----------------------------------------------------------------------
+MT514: 18
+MT800: 4
+ME514: 2
+
+TOP ERROR CODES
+----------------------------------------------------------------------
+Error 106: 10
+Error 107: 7
+Error 103: 6
+Error 0001: 6
+Error 1091: 4
+Error 70: 4
+Error 52: 4
+Error 0052: 4
+Error 81: 3
+Error 201: 3
+Error 91: 3
+Error 0201: 2
+Error 41: 2
+Error 0103: 2
+Error 43: 2
+Error 500: 2
+Error 0170: 2
+Error 0805: 2
+Error 0116: 2
+Error 101: 2
+Error 76: 1
+Error 67: 1
+Error 400: 1
+Error 003: 1
+Error 005: 1
+Error 45: 1
+Error 1043: 1
+Error 40: 1
+Error 0447: 1
+Error 2143: 1
+Error 1541: 1
+Error 2370: 1
+Error 100: 1
+Error 0004: 1
+Error 0003: 1
+Error 0202: 1
+Error 0203: 1
+Error 1057: 1
+Error 0077: 1
+Error 600: 1
+Error 304: 1
+Error 0102: 1
+Error 108: 1
+Error 0500: 1
+Error 802: 1
+
+TOP TAGS
+----------------------------------------------------------------------
+CI: 1189
+Software: 1034
+Hardware: 643
+PI: 510
+vending: 344
+Smart: 302
+PWM: 276
+PEM: 240
+W: 190
+aqua: 153
+Utility: 140
+New giza: 116
+SEM: 101
+NUCA: 69
+Meterverse: 66
+ElAbd: 60
+Korra: 59
+Travco: 58
+Lightpower: 57
+Somabay: 52
+Epower: 49
+STS: 49
+Elsewedy E&C: 49
+Suncapital: 48
+Inquiry: 48
+Visa: 48
+Private: 43
+SLA: 35
+Emaar: 35
+Emdad: 34
+SMS: 33
+Cornado: 32
+CDC: 32
+Fouka: 31
+Ecklat: 30
+Utilities: 25
+Alex: 24
+UEDC: 24
+ElKhamayl: 23
+HCWW: 23
+Newgiza: 19
+PVMS: 19
+SWM: 19
+Florenza: 19
+Electronile: 18
+MEDC: 18
+REMCO: 17
+E&C: 16
+O/S: 16
+Azurra: 16
+
+RESOLUTION AVAILABILITY
+----------------------------------------------------------------------
+Cases with resolution: 0
+Cases without resolution: 1701
+Resolution coverage: 0.00%
+
+HISTORY AVAILABILITY
+----------------------------------------------------------------------
+Cases with History: 11
+Cases without History: 1690
+History coverage: 0.65%
+
+SUPPORT LEVEL DISTRIBUTION
+----------------------------------------------------------------------
+L1: 1700 (99.94%)
+L2 Hardware: 1 (0.06%)
+
+EXAMPLES BY ISSUE CATEGORY
+----------------------------------------------------------------------
+
+[Software]
+ID: 29606 | Title: Veranda- Issue Control Card from JCkit | System: Aqua | Model:  | Error: Unknown
+ID: 29604 | Title: South Delta- Delete Charge | System: Vending | Model:  | Error: Unknown
+ID: 29603 | Title: Sun Capital - User permission to add settlements | System: Vending | Model:  | Error: Unknown
+
+[Hardware]
+ID: 29605 | Title: Bohoo - Inquiry about valve status | System: Unknown | Model:  | Error: Unknown
+ID: 29601 | Title: Veranda- Water meter negative consumption | System: Unknown | Model:  | Error: Unknown
+ID: 29599 | Title: 10th of Ramadan - Utility Electrical Meters Maintenance | System: Electric | Model:  | Error: Unknown
+
+[Communication]
+ID: 29118 | Title: Elgouna- Inquiry about meters down due to communication | System: Unknown | Model:  | Error: Unknown
+ID: 28849 | Title: Gouna- Check meters' communication | System: Unknown | Model:  | Error: Unknown
+ID: 28623 | Title: Emaar - Communication Issue | System: Unknown | Model:  | Error: Unknown
+
+[Unknown]
+ID: 28985 | Title: Elsewedy E&C - Meter Inquiry | System: Unknown | Model:  | Error: Unknown
+ID: 28379 | Title: BDC - Creating Maintenance Report | System: Unknown | Model:  | Error: Unknown
+ID: 27881 | Title: ElAhly Momken - Inquiry about meters | System: Unknown | Model:  | Error: Unknown
+
+[Firmware]
+ID: 26724 | Title: UEDC - Meter Pages shows null value | System: Unknown | Model:  | Error: Unknown
+ID: 26502 | Title: Korra: Firmware Issue in MT-514 | System: Unknown | Model:  | Error: Unknown
+
+INITIAL ASSESSMENT
+----------------------------------------------------------------------
+
+WARNINGS:
+ - High percentage of Unknown meter types.
+ - High percentage of Unknown systems.
+ - Most cases do not have explicit resolutions.
+
+RECOMMENDATION:
+Do NOT fine-tune the model yet. First validate labels and extract reliable L1 knowledge from the source cases.

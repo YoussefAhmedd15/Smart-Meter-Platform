@@ -1,0 +1,417 @@
+﻿case_id,input,issue_category,system,meter_type,meter_model,error_code,support_level,missing_information,resolution
+28065,"Title: La Quenta - Update tariff
+Tags: CI; Laquenta; Software; STS",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27464,"Title: New Giza - Invoice Issue
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27565,"Title: Travco - Error while mending card on software
+Tags: CI; Software; Travco; Visa",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28493,"Title: Sun Capital - Electrical and Water Meters Communication Troubleshooting
+Tags: Hardware; PI; SEM; Suncapital; W",Hardware|Communication,Electric,Water|Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+28540,"Title: Sun Capital - Electrical And Water Meters Communication troubleshooting
+Tags: CI; Hardware; SEM; Suncapital; W",Hardware|Communication,Electric,Water|Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+26522,"Title: Selena Bay- Error in Charging
+Tags: CI; Selena bay; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28500,"Title: Utilities - Point 90 - Issuing CT Ratio Cards
+Tags: CI; Software; Utilities; Visa",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28332,"Title: Chinese Mall- Error 0170 in MT514
+System Info: Error 0170
+Tags: Chinese Mall; CI; Hardware; PEM",Hardware,Unknown,Unknown,MT514,0170,Unknown,software/system; meter type; support level,Not available from verified source data.
+26554,"Title: New Giza - Changing Meter Name from Database
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28343,"Title: BDC- Follow up on problem with delivering meters
+Tags: BDC; Hardware; PEM; PI",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27004,"Title: Somabay - Readings Issue
+Tags: CI; Smart; Software; Somabay",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26470,"Title: Tiba View- Issue Tariff Card for ultrasonic meters
+Tags: Hardware; PI; PWM; Tiba",Hardware,Unknown,Ultrasonic,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26512,"Title: Qena - Utility Water Meter Maintenance Visit
+Tags: Hardware; HCWW; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26724,"Title: UEDC - Meter Pages shows null value
+Tags: CI; Hardware; PEM; UEDC
+History: check firmware pages from turning off the meter and then starting it again the first page shows the firmware number.",Hardware|Firmware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,check firmware pages from turning off the meter and then starting it again the first page shows the firmware number.
+26530,"Title: Elkhamayel - Check Meter Consumption
+Tags: aqua; CI; ElKhamayl; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+29480,"Title: MEDC- Inquiry about diff in meters' number in maintenance
+Tags: Hardware; MEDC; PEM; PI",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26821,"Title: Fanadir: Downloading Latest Card Soket
+Tags: CI; Fanadir; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27120,"Title: Badr: Utility Water Meter maintainenance visit
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26520,"Title: Elkhamayel- Fawry Intergration
+Tags: CI; ElKhamayl; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27654,"Title: Travco: Issue with mend charge
+Tags: CI; Travco; Visa",Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,issue category; software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29008,"Title: Ona electric - 4 ct ratio cards
+Tags: CI; Hardware; Ona; PEM",Hardware,Electric,Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+27472,"Title: Elkhamayel- System Down
+Tags: aqua; CI; ElKhamayl; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27868,"Title: ElAbd - IC-0004 with open account card
+System Info: IC-0004
+Tags: CI; ElAbd; Hardware; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27683,"Title: New Giza - Inquiry about the solar meter
+Tags: CI; Inquiry; Newgiza",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27527,"Title: Azzura- Reject 02
+Tags: Azzura; Hardware; PI; PWM",Hardware,Unknown,Unknown,Unknown,02,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+28510,"Title: Emaar - Marassi - Uploading Readings Issue
+Tags: CI; Emaar; Marassi; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27304,"Title: ElAbd - Can not charge on system
+Tags: CI; ElAbd; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28009,"Title: New Giza - Invoice Issue
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28992,"Title: New Fayoum- Utility water meter maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+28515,"Title: Bohoo - Add meter on software and link to customer
+Tags: aqua; Bohoo; CI; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28894,"Title: ElAbd- Sahl Reports
+Tags: CI; ElAbd; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28088,"Title: Amwaj - Write Card Issue
+Tags: Amwaj; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28945,"Title: Emdad - Update water tariff
+Tags: aqua; CI; Emdad; Software",Software,Aqua,Water,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+29530,"Title: New Heliopolis - IC 0004
+System Info: IC 0004
+Tags: CI; Hardware; NewHeliopolis; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28181,"Title: New Damietta - Utility water meter maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+27589,"Title: Elsewedy E&C- Inquiry about water meter specs
+Tags: Elsewedy E&C; Hardware; PEM; PI",Software|Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+28941,"Title: Emdad - Reports update
+Tags: aqua; Emdad; PI; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28101,"Title: Waterway - Customer service report empty
+Tags: CI; Software; vending; Waterway",Software,Vending,Water,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+29540,"Title: Remco - Update tariff on MPMS
+Tags: CI; MPMS; REMCO; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28964,"Title: Roaya - Changing Meter Status
+Tags: CI; roaya; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27746,"Title: 10th of Ramadan - Utility electrical meter
+Tags: CDC; CI; Hardware; SEM; SLA; Utility",Hardware,Electric,Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+26485,"Title: Qena Gardens - Inquiry about repeated tariff difference
+Tags: aqua; CI; Qena Gardens; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28926,"Title: Amwaj- ICERROR 1 in old MT514
+System Info: Err-0001
+Tags: Amwaj; CI; Software; Visa",Software,Unknown,Unknown,MT514,0001,Unknown,software/system; meter type; support level,Not available from verified source data.
+28872,"Title: Remco- STS- Inquiry about force close card
+Tags: CI; Hardware; PWM; REMCO",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26593,"Title: South delta- delete charge
+Tags: CI; SDDC; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28849,"Title: Gouna- Check meters' communication
+Tags: CI; Gouna; Smart; Software",Software|Communication,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28391,"Title: Sun Capital - Electrical and water meters communication troubleshooting
+Tags: CI; Hardware; SEM; Suncapital; W",Hardware|Communication,Electric,Water|Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+27681,"Title: Elsewedy E&C- Inquiry about MT174 Meters
+Tags: Elsewedy E&C; Hardware; PEM; PI",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26602,"Title: Elsewedy E&C- Maintenance follow up
+Tags: Elsewedy E&C; Hardware; PI; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26625,"Title: Florenza: Downloading Latest Card Socket
+Tags: CI; Florenza; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26664,"Title: Cecilia - PF Update
+Tags: Cecilia; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28376,"Title: Ecklat - Leakage Issue
+System Info: انذار
+Tags: CI; Ecklat; Hardware; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26478,"Title: New Giza - Update settlement
+Tags: CI; Newgiza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27144,"Title: New Giza - Invoice Values Issue
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29601,"Title: Veranda- Water meter negative consumption
+Tags: Hardware; PI; PWM; Veranda",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26704,"Title: Light Power - Date and time card not working on V5 meter
+Tags: CI; Hardware; Lightpower; PEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28506,"Title: Azurra - Vending services down
+Tags: Azurra; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27461,"Title: Courtyard - Delete charge from visa
+Tags: CI; Courtyard; Software; Visa",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27280,"Title: Korra Vedning- Error when charging IC card
+Tags: Korra; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28562,"Title: NCDC: PEM Error
+System Info: Error: Err-1043
+Tags: CI; Hardware; NCDC; PEM",Hardware,Unknown,Unknown,Unknown,1043,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+28039,"Title: Epower - Can not issue control card
+Tags: Epower; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28901,"Title: Light power - E-106 on single phase meter
+System Info: E-106
+Tags: CI; Hardware; Lightpower; PEM",Hardware,Unknown,Unknown,Unknown,106,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+28601,"Title: Electronile - Meterverse Update
+Tags: Electronile; Meterverse; PI; Software",Software,MeterVerse,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28382,"Title: Elgouna- Follow up on meters' communication problems
+Tags: CI; Elgouna; Smart; Software",Software|Communication,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28407,"Title: Ora- Maintenance Inquiry
+Tags: Hardware; Ora; PI; PWM",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27468,"Title: New Heliopolis - Delete Customer
+Tags: aqua; CI; New Heliopolis; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27076,"Title: Elsewedy E&C Meeting
+Tags: Elsewedy E&C; Hardware; PEM; PI",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28381,"Title: Emaar - Uptown - Duplicated Meters
+Tags: Emaar; PI; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29003,"Title: Elgouna- Check meters' readings
+Tags: CI; Gouna; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26465,"Title: Florenza -Delete Charge
+Tags: CI; Florenza; Software; Visa",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26872,"Title: New Heliopolis- Maintenance Meters
+Tags: Hardware; New Heliopolis; PI; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26753,"Title: Summer Internship Mentorship
+Tags: Inquiry; training",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26624,"Title: Azurra: General Error
+Tags: Azzura; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27700,"Title: Tiba: Valve Issue
+System Info: Error E-106/E-107
+Tags: Hardware; PI; PWM; Tiba",Hardware,Unknown,Unknown,Unknown,106|107,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+27116,"Title: Kattamya: Reports issue
+Tags: aqua; CI; Kattameya; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28369,"Title: Scandeck: Delete Charge
+Tags: CI; ScanDeck; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26728,"Title: Travco: Checking Meter Consumption
+Tags: CI; Smart; Software; Travco",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27651,"Title: Fouka Bay - Troubleshoot reversed meters
+Tags: CI; Fouka; Hardware; SEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27707,"Title: ElAbd - Error 0052 on mt514 IC
+Tags: ElAbd; Hardware; PEM; PI",Hardware,Unknown,Unknown,MT514,0052,Unknown,software/system; meter type; support level,Not available from verified source data.
+29000,"Title: Mountain view - Pvms down
+System Info: System Down
+Tags: CI; Mountain View; PVMS; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29490,"Title: 10th of ramadan - Utility water meter maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26502,"Title: Korra: Firmware Issue in MT-514
+Tags: Hardware; Korra; PEM; PI",Hardware|Firmware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26592,"Title: Veranda - Can not charge for customers on vending software
+Tags: CI; Software; vending; Veranda",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28037,"Title: Alex - Password reset for user
+Tags: Alex; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26693,"Title: Badr eldeen - Inquiry about negative consumption on water meter
+Tags: Badr Eldeen; CI; Hardware; PWM",Software|Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+27135,"Title: Mena Oasis- Issue with replacing meters
+Tags: Hardware; Mena Oasis; PI; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26851,"Title: Cornado- Check Meter Consumption
+Tags: aqua; CI; Cornado; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28636,"Title: Hurghada Hub- Reset Meter
+Tags: CI; Hurghada Hub; Software; STS",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26882,"Title: Alex - Open new account
+Tags: Alex; CI; Utility; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26885,"Title: Soma Bay: Synch Readings
+Tags: CI; Smart; Software; Somabay",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27676,"Title: Family House - System down
+Tags: aqua; Family House; PI; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27760,"Title: The View- Steps to add customer and meter
+Tags: aqua; CI; Software; The view",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28092,"Title: Prime - Correct ip config for aqua url
+Tags: aqua; CI; Prime; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+29017,"Title: UEDC - Unbalance alarm on V5
+Tags: CI; Hardware; PEM; UEDC",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28916,"Title: Remco- Inquiry about tokens expiry date
+Tags: CI; PVMS; REMCO; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28390,"Title: 10th of Ramadan - Utility electrical meter maintenance
+Tags: CDC; CI; Hardware; PI; SEM; SLA; Utility",Hardware,Electric,Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+27189,"Title: Sun Capital - Electrical And Water Meters Communication troubleshooting
+Tags: CI; Hardware; SEM; Suncapital; W",Hardware|Communication,Electric,Water|Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+27308,"Title: ElAbd - CT Ratio cards
+Tags: CI; ElAbd; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27031,"Title: New Giza - Invoice Issue
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29007,"Title: Injaz - 3 CT ratio cards
+Tags: CI; Hardware; Injaz; PEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27303,"Title: Tibia View - Rejected 02
+Tags: PI; Software; STS; tibia",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27751,"Title: MEDC- Follow Up on meters in maintenance
+Tags: Hardware; MEDC; PEM; PI",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27470,"Title: New Giza - Initiating Maintenance Cycle
+Tags: CI; Hardware; New giza; PEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26456,"Title: Sea View: Reaching the maximum number of meters allowed on software
+Tags: aqua; CI; Seaview; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28043,"Title: Epower - Delete charges
+Tags: CI; Epower; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28027,"Title: Light Power- Problem when issuing control card for v5
+Tags: CI; Lightpower; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28297,"Title: Edelma - Friendly Time Investigation
+Tags: CI; Edelma; Hardware; PEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26909,"Title: Amwaj - Charging Issue
+Tags: Amwaj; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28056,"Title: Badr Eldeen - Issuing Tariff Cards
+Tags: Badr Eldeen; CI; SMS; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26717,"Title: Elkhamayel- Meter number is not available in PWM
+Tags: ElKhamayl; Hardware; PI; PWM; W",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27568,"Title: Elsewedy Utilities - Delete Charge
+Tags: CI; Software; Utilities; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28395,"Title: Badr - Utility water meter maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+28578,"Title: Emaar - Uptown - Modifying Tariff
+Tags: CI; Emaar; Smart; Software; Uptown Cairo",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28634,"Title: Remco- Stella Marina- Issue STS Tariff Cards
+Tags: CI; REMCO; Software; STS",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28626,"Title: Elsewedy E&C - Setting VT Ratio
+Tags: CI; E&C; MPMS3000; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26709,"Title: New Heliopolis - IC1700
+Tags: Hardware; New Heliopolis; PI; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28535,"Title: Hurghada Hub- Put token on meter
+System Info: Reject 02
+Tags: Hardware; Hurghada; PI; PWM",Hardware,Unknown,Unknown,Unknown,02,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+26612,"Title: Emdad - Can not read or write cards on aqua software
+Tags: aqua; Emdad; PI; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27067,"Title: Florenza: Deleting Charge
+Tags: CI; Florenza; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27012,"Title: El Ahly Momken - Issuing Control Cards Request
+Tags: CI; El Ahly Momken; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28555,"Title: Fouka Bay- Error 500 when uploading manual template
+System Info: Error 500
+Tags: CI; Fouka; Smart; Software",Software,Unknown,Unknown,Unknown,500,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+27670,"Title: Sun Capital - Connect order duplicated
+Tags: CI; Smart; Software; Suncapital",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27882,"Title: ElAbd - Inquiry about V5 meter connection and steps
+Tags: CI; ElAbd; Hardware; PEM",Software|Hardware|Communication,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28184,"Title: New Obour - Utility water meter maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+28281,"Title: Emdad - Meter valve closed due to tamper
+Tags: CI; Emdad; Hardware; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27884,"Title: 10th of Ramadan - Electrical Meter Maintenance
+Tags: CDC; CI; Hardware; SEM; SLA; Utility",Hardware,Electric,Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+28511,"Title: Malibu- Add deposit for meter
+Tags: aqua; CI; Malibu; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26787,"Title: Waterway: Power Factor Update
+Tags: CI; Software; vending; Waterway",Software,Vending,Water,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+27666,"Title: Capital Galleria - Upgrade Vending Software
+Tags: Capital Galleria; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+29597,"Title: Sadat - Utility Water Meter Maintenance
+Tags: Hardware; PI; PWM; Utility",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+29568,"Title: Tanta - Utility Water Meter Maintenance
+Tags: Hardware; PI; PWM; Utility",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+28176,"Title: Fouka Bay- Delete Unit ID
+Tags: CI; Fouka; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29016,"Title: New Giza: Invoice Issue
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26454,"Title: Cornado: Enquiry about a metrotech meter
+Tags: CI; Cornado; Hardware; PWM",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29479,"Title: Fanadir - Error 400 with customer card
+System Info: Err 400
+Tags: CI; Fanadir; Hardware; PEM",Hardware,Unknown,Unknown,Unknown,400,Unknown,software/system; meter type; meter model; support level,Not available from verified source data.
+28026,"Title: Caribbeano - Issuing a Tariff Card
+Tags: Caribbeano; CI; SMS; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27629,"Title: Prime: Read Data Error
+Tags: CI; Prime; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26910,"Title: Amwaj - Vending charging issue
+Tags: Amwaj; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27590,"Title: Elsewedy E&C- Inquiry about mt800
+Tags: Elsewedy E&C; Hardware; PEM; PI",Software|Hardware,Unknown,Unknown,MT800,Unknown,Unknown,software/system; meter type; error code; support level,Not available from verified source data.
+26568,"Title: Narges Gas station: Delete charges
+Tags: CI; Narges; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28315,"Title: Travco- Meter reading issue
+Tags: CI; Smart; Software; Travco",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27567,"Title: Ora- Aqua System Down
+Tags: aqua; Ora; PI; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26817,"Title: New Giza - Aggregation Issue
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26769,"Title: 10th of Ramadan - Utility water meter maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26536,"Title: SDDC- Meters to be picked up from warehouse
+Tags: Hardware; PEM; PI; SDDC",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27588,"Title: Fouka Bay- Check Meter Readings
+Tags: CI; Fouka; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27756,"Title: New Cairo: Utility Water Meter Maintenance visit
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+27153,"Title: Holandya: Meter Sync Issue
+Tags: CI; Iraq; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27601,"Title: Jump server - Meter verse migration
+Tags: jump; Meterverse; PI; Software",Software,MeterVerse,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27710,"Title: Azurra: Several Enquiries
+Tags: Azzura; CI; SMS; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28023,"Title: Caribbeano - Changing STS Tariff
+Tags: Caribbeano; CI; SMS; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26524,"Title: Elkhamayel- How to reinstall meter for customer
+Tags: aqua; CI; ElKhamayl; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26500,"Title: Sun Capital - Change relay status
+Tags: CI; Smart; Software; Suncapital",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28644,"Title: Cesar: Showing System setting
+Tags: Cesar Bay; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26551,"Title: Emdad - Can not charge in all POS
+Tags: CI; Emdad; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28440,"Title: Sidi abdelrahman - Update tariff
+Tags: CI; Software; Stella; STS",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26548,"Title: Elkhamayel- Reset Meter From Database
+Tags: aqua; ElKhamayl; PI; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27001,"Title: Epower-Info about device and schema
+Tags: CI; Epower; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29569,"Title: Benha - Utility Water Meter Maintenance
+Tags: Hardware; PI; PWM; Utility",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+27149,"Title: New Giza - Deleting a Settlement
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28557,"Title: Azurra - Rejected 02
+System Info: Rejecetd 02
+Tags: Azurra; CI; Hardware; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26716,"Title: Kattamya: Uninstal and Instal Meter
+Tags: aqua; CI; Kattameya; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+28448,"Title: Korra - Setting time and date
+Tags: Korra; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+29551,"Title: Electronile - Meterverse Update
+Tags: Electronile; Meterverse; PI; Software",Software,MeterVerse,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27758,"Title: The View- Inquiry about how to add meter batch
+Tags: aqua; CI; Software; The view",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27717,"Title: Private Sector: Meters Maintenance Follow-up
+Tags: Hardware; PEM; PI; Private; W",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28631,"Title: Mountain view - Can not add new tariff
+Tags: Mountain View; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27484,"Title: Cornado- Inquiry about STS control cards
+Tags: Cornado; Hardware; PI; PWM",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26508,"Title: Utility Water Meter Maintenance - New Assiut
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26643,"Title: Arabiano - PF Update
+Tags: arabiano; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27200,"Title: Travco- Check Ports and IP of HES Operator
+Tags: CI; Smart; Software; Travco",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27296,"Title: Injaz - Inquiry regarding software deployment
+Tags: CI; Injaz; Inquiry; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27634,"Title: Travco: Invoices Issue
+Tags: CI; Smart; Software; Travco",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28507,"Title: Sun Capital - Reports
+Tags: CI; Smart; Software; Suncapital",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26633,"Title: Light Power - Inquiry about double charge on sts system
+Tags: CI; Lightpower; Software; STS",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28099,"Title: Florenza - IC0203 with tariff card
+System Info: IC0203
+Tags: CI; Florenza; Hardware; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27052,"Title: EPower: Energy 360 Update
+Tags: CI; Epower; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26666,"Title: Korra - Issue with missing charges
+Tags: Korra; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+29538,"Title: Elkhamayel - Reset water meter
+Tags: aqua; CI; ElKhamayl; Software",Software,Aqua,Water,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+29562,"Title: 10th of ramadan - Utility electrical meter maintenance
+Tags: Hardware; PEM; PI; Utility",Hardware,Electric,Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
+26703,"Title: Elsewedy E&C- Inform them to pick up meters from factory
+Tags: Elsewedy E&C; Hardware; PEM; PI",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26571,"Title: Travco: Steps for deleting readings
+Tags: CI; Smart; Software; Travco",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28553,"Title: Injaz - CT ratio cards
+Tags: CI; Injaz; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+29481,"Title: Fanadir - Steps to open account on V5 meter
+Tags: CI; Fanadir; Hardware; PEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+28073,"Title: New Heliopolis- IC-203 in PWM
+System Info: IC-203
+Tags: CI; Hardware; New Heliopolis; PWM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27311,"Title: Soma bay - Change relay status
+Tags: PI; Smart; Software; Somabay",Software|Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+29521,"Title: Emdad- Inquiry about tariff card
+Tags: aqua; CI; Emdad; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+27886,"Title: October - Utility Water Meter Maintenance
+Tags: Hardware; NUCA; PI; PWM; Utility; W",Hardware,Unknown,Water,Unknown,Unknown,Unknown,software/system; meter model; error code; support level,Not available from verified source data.
+26932,"Title: Alex - Open Accounts
+Tags: Alex; CI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26577,"Title: Elsewedy E&C- Meter Screen toggles on and off
+Tags: Elsewedy E&C; Hardware; PEM; PI",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26776,"Title: Relantecs - Can not issue cards from aqua software
+Tags: aqua; PI; Relantecs; Software",Software,Aqua,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26845,"Title: New Giza - Deleting Meters from Database
+Tags: CI; New giza; Smart; Software",Software,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26679,"Title: New Giza - Error 108
+Tags: CI; New giza; Software; vending",Software,Vending,Unknown,Unknown,108,Unknown,meter type; meter model; support level,Not available from verified source data.
+28542,"Title: Private Sector Meters Maintenance Follow-up
+Tags: Hardware; PI; Private; PWM; W",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+26859,"Title: Edelma - Changing Friendly Time
+Tags: CI; Edelma; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26725,"Title: ElAbd - Meter does not respond to customer card
+Tags: CI; ElAbd; Hardware; PEM",Hardware,Unknown,Unknown,Unknown,Unknown,Unknown,software/system; meter type; meter model; error code; support level,Not available from verified source data.
+27133,"Title: Galleria: Vending Deployment
+Tags: Galleria Mall; PI; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26630,"Title: Korra - Vending System Down
+Tags: CI; Korra; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26754,"Title: Elbostan- Error when writing data to card
+Tags: CI; ElBostan; Software; vending",Software,Vending,Unknown,Unknown,Unknown,Unknown,meter type; meter model; error code; support level,Not available from verified source data.
+26766,"Title: 10th of Ramadan - Utility electrical meter maintenance
+Tags: CDC; CI; Hardware; SEM; SLA; Utility",Hardware,Electric,Electric,Unknown,Unknown,Unknown,meter model; error code; support level,Not available from verified source data.
