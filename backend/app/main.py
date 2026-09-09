@@ -21,7 +21,7 @@ from backend.app.db.models import (
     FailureRecord, KnowledgeItem, Firmware
 )
 from backend.app.schemas.schemas import (
-    MeterCreate, MeterResponse, ReadingResponse, TestRunCreate,
+    MeterCreate, MeterResponse, MeterProfileResponse, ReadingResponse, TestRunCreate,
     RegressionCompareRequest, RecommendationRequest, AIChatRequest, KnowledgeItemCreate,
     TestSuiteCreate, TestSuiteUpdate, TestSuiteResponse,
     TestCaseCreate, TestCaseUpdate, TestCaseResponse,
@@ -145,27 +145,59 @@ def get_meter_objects(meter_id: int, db: Session = Depends(get_db)):
     return [obj.__dict__ for obj in service.discover_objects()]
 
 
+@app.get("/api/meters/{meter_id}/profile", response_model=MeterProfileResponse)
+def get_meter_profile(meter_id: int, db: Session = Depends(get_db)):
+    service = MeterService(db)
+    profile = service.get_meter_profile(meter_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Meter not found")
+    return profile
+
+
+def _reading_to_dict(r: MeterReading, data_source: str) -> dict:
+    return {
+        "meter_reading_id": r.meter_reading_id,
+        "meter_id": r.meter_id,
+        "obis": r.obis,
+        "attribute_index": r.attribute_index,
+        "value": r.value,
+        "raw_value": r.raw_value,
+        "unit": r.unit,
+        "data_type": r.data_type,
+        "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+        "quality": r.quality,
+        "source": r.source,
+        # Real per-request value when freshly read this request; "unknown"
+        # (not fabricated as mock/hardware) for rows already stored from a
+        # prior request, since data_source isn't a persisted column and
+        # genuinely isn't known for historical rows.
+        "data_source": data_source,
+    }
+
+
 @app.get("/api/meters/{meter_id}/readings")
 def get_meter_readings(meter_id: int, db: Session = Depends(get_db)):
-    readings = db.query(MeterReading).filter(MeterReading.meter_id == meter_id).all()
-    if not readings:
-        service = MeterService(db)
-        readings = service.read_all_telemetry()
-    return readings
+    """Always takes a fresh read — this is the endpoint the Live Meter
+    frontend polls on an interval, so it must return this moment's real
+    telemetry (and real data_source) every call, not the first call's
+    readings replayed forever. LiveMeter.tsx is the only caller of this
+    endpoint (confirmed via grep) — no other consumer relies on the old
+    "only refresh when the table is empty" behavior."""
+    service = MeterService(db)
+    fresh_readings = service.read_all_telemetry()
+    return [_reading_to_dict(r, r.data_source) for r in fresh_readings]
 
 
 @app.post("/api/meters/{meter_id}/connect", dependencies=[Depends(get_current_user)])
 def connect_meter(meter_id: int, db: Session = Depends(get_db)):
     service = MeterService(db)
-    return service.connect_meter()
+    return service.connect_meter(meter_id)
 
 
 @app.post("/api/meters/{meter_id}/disconnect", dependencies=[Depends(get_current_user)])
 def disconnect_meter(meter_id: int, db: Session = Depends(get_db)):
-    service = MeterService(db)
-    service.reader.disconnect()
-    return {"status": "DISCONNECTED", "meter_id": meter_id}
-
+    service = MeterService(db)    
+    return service.disconnect_meter()
 
 def get_azure_service() -> AzureDevOpsService:
     """FastAPI dependency; overridden with a mock in tests."""

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, Tag, CheckCircle2, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 import { KnowledgeItem } from '../types';
 

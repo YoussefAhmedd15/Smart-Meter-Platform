@@ -32,9 +32,15 @@ class ReadResult(BaseModel):
     duration_ms: float = 0.0
     status: str = "PASS"
     error_message: Optional[str] = None
+    # Defaults to "mock" deliberately — every real-hardware code path in
+    # reader.py must explicitly pass data_source="hardware" to claim it.
+    # If a hardware branch is ever added and forgets to set this, it fails
+    # safe (stays labeled "mock") rather than silently claiming real data.
+    data_source: str = "mock"
 
 
 class AssociationView(BaseModel):
     meter_serial: str = "UNKNOWN"
     total_objects: int = 0
     objects: List[COSEMObjectDescriptor] = Field(default_factory=list)
+    data_source: str = "mock"

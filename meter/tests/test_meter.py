@@ -61,5 +61,92 @@ class TestMeterPackage(unittest.TestCase):
         self.assertAlmostEqual(reading.value, 50.0, delta=1.0)
 
 
+class _DummyObjects:
+    """Stands in for GXDLMSClient.objects. Records what was actually looked
+    up so a test can prove the real hardware code path ran (not just that
+    it didn't crash)."""
+
+    def __init__(self):
+        self.find_calls = []
+
+    def findByLN(self, object_type, obis_code):
+        self.find_calls.append((object_type, obis_code))
+        return object()  # any non-None sentinel stands in for "object found"
+
+
+class _DummyClient:
+    def __init__(self):
+        self.objects = _DummyObjects()
+
+
+class _DummyGuruxReader:
+    """Stands in for GXDLMSReader. Simulates "a real connection already
+    exists" (the exact condition reader.py's own methods check —
+    self._reader being truthy) without any real hardware, media, or Gurux
+    connection at all."""
+
+    def __init__(self, stub_value="STUB-VALUE"):
+        self.stub_value = stub_value
+        self.read_calls = []
+
+    def read(self, obj, attribute_index):
+        self.read_calls.append((obj, attribute_index))
+        return self.stub_value
+
+
+class TestHardwareBranchingLogic(unittest.TestCase):
+    """Verifies the data_source branching logic itself using a stub
+    self._reader/self._client — NOT a real hardware integration test. Real
+    hardware (or a proper DLMS simulator) isn't available in this
+    environment, so full end-to-end hardware verification is out of scope
+    until one is. What IS provable without hardware: that the code
+    correctly chooses "hardware" and actually calls through to whatever
+    reader is present, rather than silently pulling from MockMeterAdapter,
+    and that this doesn't disturb the mock path at all.
+    """
+
+    def _hardware_reader(self, stub_value="231.4"):
+        config = MeterConfig(app_mode=AppMode.HARDWARE)
+        reader = DLMSMeterReader(config)
+        reader._reader = _DummyGuruxReader(stub_value)
+        reader._client = _DummyClient()
+        return reader
+
+    def test_hardware_present_uses_hardware_path_not_mock(self):
+        reader = self._hardware_reader(stub_value="231.4")
+        result = reader.read_obis("1.0.32.7.0.255")
+
+        self.assertEqual(result.data_source, "hardware")
+        self.assertEqual(result.value, "231.4")
+
+        # Proves it actually went through the stub reader, not MockMeterAdapter.
+        self.assertEqual(len(reader._reader.read_calls), 1)
+        self.assertEqual(reader._client.objects.find_calls[0][1], "1.0.32.7.0.255")
+
+    def test_reader_data_source_property_reflects_hardware_state(self):
+        reader = self._hardware_reader()
+        self.assertEqual(reader.data_source, "hardware")
+
+    def test_mock_path_unaffected_by_hardware_branching_change(self):
+        config = MeterConfig(app_mode=AppMode.DEMO)
+        reader = DLMSMeterReader(config)
+        self.assertEqual(reader.data_source, "mock")
+
+        result = reader.read_obis("1.0.32.7.0.255")
+        self.assertEqual(result.data_source, "mock")
+
+    def test_no_reader_present_falls_back_to_mock_even_in_hardware_app_mode(self):
+        # app_mode=HARDWARE but self._reader is still None (connect() never
+        # called, or it never succeeded) — must still honestly report
+        # "mock", not claim hardware just because the mode setting says so.
+        config = MeterConfig(app_mode=AppMode.HARDWARE)
+        reader = DLMSMeterReader(config)
+        self.assertIsNone(reader._reader)
+        self.assertEqual(reader.data_source, "mock")
+
+        result = reader.read_obis("1.0.32.7.0.255")
+        self.assertEqual(result.data_source, "mock")
+
+
 if __name__ == "__main__":
     unittest.main()

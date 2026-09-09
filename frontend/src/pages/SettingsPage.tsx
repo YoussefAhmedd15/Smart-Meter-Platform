@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Settings as SettingsIcon, Save, CheckCircle2, Info,
+  Save, CheckCircle2, Info,
   Monitor, Server, Eye, EyeOff, TestTube, ExternalLink,
 } from 'lucide-react';
-
-// Azure credentials are stored in localStorage so the TestCaseManager
-// can build deep links. The backend reads them from .env at startup.
-const AZURE_KEYS = ['azure_org', 'azure_project', 'azure_pat', 'azure_plan_id'] as const;
 
 export const SettingsPage: React.FC = () => {
   const [comPort,         setComPort]         = useState('COM6');

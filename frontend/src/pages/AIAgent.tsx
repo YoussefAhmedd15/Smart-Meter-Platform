@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Sparkles, User, Cpu } from 'lucide-react';
+import { Bot, Send, Sparkles, User, RotateCcw } from 'lucide-react';
 import { apiService } from '../services/api';
 
 const SUGGESTED = [
@@ -30,6 +30,20 @@ export const AIAgent: React.FC = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
+  const handleReset = async () => {
+    try {
+      await apiService.askAI('/reset');
+    } catch {
+      // ignore
+    }
+    setMessages([
+      {
+        sender: 'ai',
+        text: "Session memory reset.\n\nHello! I'm your Smart Meter AI Quality & Testing Assistant.\n\nHow can I assist your testing today?",
+      },
+    ]);
+  };
+
   const handleSend = async (q?: string) => {
     const text = (q ?? question).trim();
     if (!text) return;
@@ -51,11 +65,32 @@ export const AIAgent: React.FC = () => {
     <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '0', height: 'calc(100vh - 68px)', boxSizing: 'border-box' }}>
 
       {/* Header */}
-      <div style={{ marginBottom: '18px' }}>
-        <h2 className="section-title">Grounded AI Testing Assistant (RAG)</h2>
-        <p className="section-sub">
-          Ask questions grounded in database evidence, failure history, and knowledge base articles.
-        </p>
+      <div style={{ marginBottom: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h2 className="section-title">Grounded AI Testing Assistant (RAG)</h2>
+          <p className="section-sub">
+            Ask questions grounded in database evidence, failure history, and knowledge base articles.
+          </p>
+        </div>
+        <button
+          onClick={handleReset}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '7px 14px',
+            borderRadius: '6px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-main)',
+            fontSize: '0.82rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          title="Reset conversation memory and start a new case"
+        >
+          <RotateCcw size={14} /> Reset Session
+        </button>
       </div>
 
       {/* Suggestion chips */}

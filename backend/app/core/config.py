@@ -2,7 +2,14 @@ import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-load_dotenv()
+if os.getenv("TESTING", "0") != "1":
+    # Skip loading a real .env during test runs. TESTING is set by
+    # backend/tests/conftest.py before any test module is collected — a
+    # real .env file on disk (which may contain real credentials, e.g.
+    # Azure DevOps) must never be able to leak into a test process no
+    # matter what it contains. When TESTING is unset, this is
+    # byte-for-byte the same unconditional load_dotenv() call as before.
+    load_dotenv()
 
 # This exact string was the old hardcoded fallback below. It no longer
 # authenticates anything (see the check after Settings is instantiated) —

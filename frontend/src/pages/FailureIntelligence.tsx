@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldAlert, AlertOctagon, Sparkles, CheckCircle2, RefreshCw, List } from 'lucide-react';
+import { AlertOctagon, Sparkles, CheckCircle2, RefreshCw, List } from 'lucide-react';
 import { apiService } from '../services/api';
 import { FailureRecord } from '../types';
 

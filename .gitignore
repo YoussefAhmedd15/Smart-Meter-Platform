@@ -8,3 +8,11 @@ local.db
 node_modules/
 frontend/dist/
 .pytest_cache/
+data/
+ai_training/vector_store/
+
+__pycache__/
+
+*.pyc
+
+scratch/

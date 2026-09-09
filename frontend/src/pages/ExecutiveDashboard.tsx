@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck, CheckCircle2, AlertTriangle, Cpu,
-  TrendingUp, TrendingDown, Activity, Zap,
+  TrendingUp, Activity,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,

@@ -21,8 +21,8 @@ class AnalyticsService:
         passed_tests = self.db.query(func.sum(TestRun.passed_tests)).scalar() or 0
         failed_tests = self.db.query(func.sum(TestRun.failed_tests)).scalar() or 0
 
-        pass_rate = round((passed_tests / total_tests * 100), 1) if total_tests > 0 else 96.8
-        avg_duration = self.db.query(func.avg(TestRun.duration_seconds)).scalar() or 4.2
+        pass_rate = round((passed_tests / total_tests * 100), 1) if total_tests > 0 else 0.0
+        avg_duration = self.db.query(func.avg(TestRun.duration_seconds)).scalar() or 0.0
 
         open_failures = self.db.query(FailureRecord).filter(FailureRecord.resolved_date.is_(None)).count()
         critical_failures = self.db.query(FailureRecord).filter(FailureRecord.case_severity == "CRITICAL").count()
@@ -32,14 +32,14 @@ class AnalyticsService:
         return {
             "overall_quality_score": quality_score,
             "pass_rate_percentage": pass_rate,
-            "total_meters_tested": total_meters or 12,
-            "total_test_runs": total_runs or 148,
-            "total_tests_executed": total_tests or 1840,
-            "passed_tests": passed_tests or 1781,
-            "failed_tests": failed_tests or 59,
+            "total_meters_tested": total_meters,
+            "total_test_runs": total_runs,
+            "total_tests_executed": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": failed_tests,
             "average_duration_seconds": round(avg_duration, 2),
-            "open_failures": open_failures or 5,
-            "critical_failures": critical_failures or 2,
+            "open_failures": open_failures,
+            "critical_failures": critical_failures,
             "firmware_stability": "STABLE" if pass_rate >= 95 else "DEGRADED",
         }
 
@@ -57,28 +57,73 @@ class AnalyticsService:
             .group_by(Firmware.version)
             .all()
         )
-        if not results:
-            return [
-                {"firmware_version": "v3.12.1", "failure_count": 18, "pass_rate": 91.2},
-                {"firmware_version": "v3.13.0", "failure_count": 12, "pass_rate": 94.5},
-                {"firmware_version": "v3.14.2", "failure_count": 4, "pass_rate": 98.1},
-            ]
         return [{"firmware_version": r[0], "failure_count": r[1]} for r in results]
 
     def get_failures_by_model(self) -> List[dict]:
-        return [
-            {"model": "AM550-TD1", "failures": 14, "pass_rate": 96.8},
-            {"model": "MT880-D2", "failures": 8, "pass_rate": 97.4},
-            {"model": "MT382-T1", "failures": 22, "pass_rate": 92.1},
-        ]
+        # FailureRecord -> Meter is a direct FK (meter_id), and meter_model
+        # lives on Meter itself — confirmed against models.py, not assumed.
+        failure_counts = dict(
+            self.db.query(Meter.meter_model, func.count(FailureRecord.failure_id))
+            .join(FailureRecord, FailureRecord.meter_id == Meter.meter_id)
+            .group_by(Meter.meter_model)
+            .all()
+        )
+
+        # Same total/passed aggregation pattern get_overview_kpis uses,
+        # joined through Meter and grouped by model instead of taken globally.
+        run_totals = (
+            self.db.query(
+                Meter.meter_model,
+                func.sum(TestRun.total_tests),
+                func.sum(TestRun.passed_tests),
+            )
+            .join(TestRun, TestRun.meter_id == Meter.meter_id)
+            .group_by(Meter.meter_model)
+            .all()
+        )
+        run_totals_by_model = {r[0]: (r[1] or 0, r[2] or 0) for r in run_totals}
+
+        # A model with test runs but zero failures still belongs in the
+        # response, so union both sides rather than only iterating failures.
+        all_models = set(failure_counts.keys()) | set(run_totals_by_model.keys())
+
+        results = []
+        for model in sorted(m for m in all_models if m is not None):
+            total_tests, passed_tests = run_totals_by_model.get(model, (0, 0))
+            pass_rate = round((passed_tests / total_tests * 100), 1) if total_tests > 0 else 0.0
+            results.append({
+                "model": model,
+                "failures": failure_counts.get(model, 0),
+                "pass_rate": pass_rate,
+            })
+        return results
 
     def get_test_trends(self) -> List[dict]:
-        return [
-            {"date": "Mon", "passed": 240, "failed": 8, "duration": 4.1},
-            {"date": "Tue", "passed": 280, "failed": 5, "duration": 3.9},
-            {"date": "Wed", "passed": 310, "failed": 12, "duration": 4.5},
-            {"date": "Thu", "passed": 290, "failed": 4, "duration": 4.0},
-            {"date": "Fri", "passed": 350, "failed": 6, "duration": 3.8},
-            {"date": "Sat", "passed": 180, "failed": 2, "duration": 3.7},
-            {"date": "Sun", "passed": 130, "failed": 1, "duration": 3.6},
+        # Real calendar dates from TestRun.started_at (the actual timestamp
+        # column — confirmed against models.py), grouped per day, limited to
+        # the most recent 7 distinct days actually present in the data.
+        day_col = func.date(TestRun.started_at)
+        rows = (
+            self.db.query(
+                day_col.label("day"),
+                func.sum(TestRun.passed_tests).label("passed"),
+                func.sum(TestRun.failed_tests).label("failed"),
+                func.avg(TestRun.duration_seconds).label("avg_duration"),
+            )
+            .group_by(day_col)
+            .order_by(day_col.desc())
+            .limit(7)
+            .all()
+        )
+
+        trends = [
+            {
+                "date": r.day.isoformat() if hasattr(r.day, "isoformat") else str(r.day),
+                "passed": int(r.passed or 0),
+                "failed": int(r.failed or 0),
+                "duration": round(float(r.avg_duration or 0.0), 2),
+            }
+            for r in rows
         ]
+        trends.reverse()  # chronological order — oldest of the 7 days first
+        return trends

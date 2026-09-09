@@ -1,7 +1,8 @@
 import {
-  Meter, MeterReading, TestSuite, TestRun, FailureRecord,
+  Meter, MeterReading, MeterProfile, TestSuite, TestRun, FailureRecord,
   AnalyticsOverview, KnowledgeItem, RegressionComparison,
-  TestCaseDefinition, TestCaseCreateInput
+  TestCaseDefinition, TestCaseCreateInput,
+  AnalyticsFirmware, AnalyticsModel, AnalyticsTrend,
 } from '../types';
 import { getAuthToken } from './authToken';
 
@@ -123,6 +124,35 @@ export const apiService = {
     }
   },
 
+  // Real call only, no mock fallback — used by LiveMeter.tsx to show the
+  // real meter.status on initial load, before any connect/disconnect click.
+  getMeter: (meterId: number): Promise<Meter> =>
+    fetchJson<Meter>(`/meters/${meterId}`),
+
+  // Real call only, no mock fallback — MeterProfile.tsx's whole point is
+  // showing a real online/certified state; silently falling back to fake
+  // numbers on a fetch failure would defeat that.
+  getMeterProfile: (meterId: number): Promise<MeterProfile> =>
+    fetchJson<MeterProfile>(`/meters/${meterId}/profile`),
+
+  // Real calls only, no mock fallback — used by LiveMeter.tsx specifically,
+  // where a fetch failure must surface as a real disconnected/error state
+  // rather than silently rendering fake numbers that look live. This does
+  // not replace getMeterReadings above, which other callers may still rely
+  // on for its mock fallback.
+  getMeterReadingsOrThrow: (meterId: number): Promise<MeterReading[]> =>
+    fetchJson<MeterReading[]>(`/meters/${meterId}/readings`),
+
+  connectMeter: (meterId: number): Promise<{
+    meter_id: number; meter_number: string; connected: boolean; handshake: any; data_source: string;
+  }> =>
+    fetchJson(`/meters/${meterId}/connect`, { method: 'POST' }),
+
+  disconnectMeter: (meterId: number): Promise<{
+    meter_id: number; meter_number: string; disconnected: boolean; status: string;
+  }> =>
+    fetchJson(`/meters/${meterId}/disconnect`, { method: 'POST' }),
+
   getTestSuites: async (): Promise<TestSuite[]> => {
     try {
       return await fetchJson<TestSuite[]>('/test-suites');
@@ -160,6 +190,9 @@ export const apiService = {
 
   getTestRun: (runId: number): Promise<any> =>
     fetchJson<any>(`/test-runs/${runId}`),
+
+  getTestRuns: (): Promise<TestRun[]> =>
+    fetchJson<TestRun[]>('/test-runs'),
 
   runTest: async (meterId: number, suiteId: number): Promise<TestRun> => {
     try {
@@ -199,6 +232,49 @@ export const apiService = {
         critical_failures: 2,
         firmware_stability: 'STABLE',
       };
+    }
+  },
+
+  // Merged in from the incoming branch (Analytics.tsx, pre-existing and not
+  // part of this session's work, depends on all three of these).
+  getAnalyticsFirmware: async (): Promise<AnalyticsFirmware[]> => {
+    try {
+      return await fetchJson<AnalyticsFirmware[]>('/analytics/firmware');
+    } catch {
+      return [
+        { firmware_version: 'v3.12.1', failure_count: 18, pass_rate: 91.2 },
+        { firmware_version: 'v3.13.0', failure_count: 12, pass_rate: 94.5 },
+        { firmware_version: 'v3.14.2', failure_count: 4, pass_rate: 98.1 },
+        { firmware_version: 'v3.15.0-RC1', failure_count: 1, pass_rate: 99.2 },
+      ];
+    }
+  },
+
+  getAnalyticsModels: async (): Promise<AnalyticsModel[]> => {
+    try {
+      return await fetchJson<AnalyticsModel[]>('/analytics/models');
+    } catch {
+      return [
+        { model: 'AM550-TD1', failures: 14, pass_rate: 96.8, tests: 580 },
+        { model: 'MT880-D2', failures: 8, pass_rate: 97.4, tests: 420 },
+        { model: 'MT382-T1', failures: 22, pass_rate: 92.1, tests: 310 },
+      ];
+    }
+  },
+
+  getAnalyticsTrends: async (): Promise<AnalyticsTrend[]> => {
+    try {
+      return await fetchJson<AnalyticsTrend[]>('/analytics/trends');
+    } catch {
+      return [
+        { date: 'Mon', passed: 240, failed: 8, duration: 4.1 },
+        { date: 'Tue', passed: 280, failed: 5, duration: 3.9 },
+        { date: 'Wed', passed: 310, failed: 12, duration: 4.5 },
+        { date: 'Thu', passed: 290, failed: 4, duration: 4.0 },
+        { date: 'Fri', passed: 350, failed: 6, duration: 3.8 },
+        { date: 'Sat', passed: 180, failed: 2, duration: 3.7 },
+        { date: 'Sun', passed: 130, failed: 1, duration: 3.6 },
+      ];
     }
   },
 
@@ -320,7 +396,10 @@ export const apiService = {
       body: JSON.stringify({ email, password, role }),
     }),
 
-  adminUpdateUser: (userId: number, data: Partial<{ email: string; password: string; role: string; is_active: boolean }>): Promise<AuthUser> =>
+  adminUpdateUser: (
+    userId: number,
+    data: Partial<{ email: string; password: string; role: string; is_active: boolean }>
+  ): Promise<AuthUser> =>
     fetchJson<AuthUser>(`/admin/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -328,4 +407,23 @@ export const apiService = {
 
   adminDeleteUser: (userId: number): Promise<void> =>
     fetchJson<void>(`/admin/users/${userId}`, { method: 'DELETE' }),
+
+  // --- Reports: real calls only, no mock fallback ---
+
+  generateReport: (
+    runId: number,
+    formatType: string = 'pdf'
+  ): Promise<{ filename: string; download_url: string }> =>
+    authFetch<{ filename: string; download_url: string }>(
+      `/reports/test-run/${runId}?format_type=${encodeURIComponent(formatType)}`,
+      { method: 'POST' },
+    ),
+
+  downloadReportFile: async (downloadUrl: string): Promise<Blob> => {
+    const res = await fetch(downloadUrl);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    return res.blob();
+  },
 };

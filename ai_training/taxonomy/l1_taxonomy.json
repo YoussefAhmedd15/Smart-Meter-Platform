@@ -1,0 +1,36 @@
+{
+  "issue_categories": [
+    "Software",
+    "Firmware",
+    "Hardware",
+    "Communication",
+    "Configuration",
+    "Meter Data",
+    "Testing",
+    "Installation",
+    "Unknown"
+  ],
+  "meter_types": [
+    "Electric",
+    "Water",
+    "Ultrasonic",
+    "Unknown"
+  ],
+  "support_levels": [
+    "L1",
+    "L2 Software",
+    "L2 Hardware",
+    "L2 Firmware",
+    "Unknown"
+  ],
+  "systems": [
+    "Billing",
+    "Symbiot",
+    "Vending",
+    "MeterVerse",
+    "Aqua",
+    "Electric",
+    "Other",
+    "Unknown"
+  ]
+}
