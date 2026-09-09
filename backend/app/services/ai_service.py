@@ -113,6 +113,55 @@ class AIService:
         self.failure_service = FailureIntelligenceService(db)
 
     def ask_ai(self, question: str) -> dict:
+        # Option A: In-process direct call to your friend's AI Agent (no separate server needed)
+        try:
+            from ai_training.agent.conversation import ConversationManager
+            if not hasattr(AIService, "_conversation_manager") or AIService._conversation_manager is None:
+                AIService._conversation_manager = ConversationManager()
+
+            manager = AIService._conversation_manager
+
+            # Handle reset if requested
+            if question.strip().lower() in ["/reset", "reset", "clear"]:
+                manager.start_new_case()
+                return {
+                    "question": question,
+                    "answer": "Session memory reset. What would you like to ask or troubleshoot?",
+                    "sources": [{"type": "L1_Agent", "title": "Memory Reset"}],
+                    "grounding_evidence": {"agent_connected": True},
+                }
+
+            agent_resp = manager.handle_message(question.strip())
+            answer_text = agent_resp.text
+            trace_dict = agent_resp.trace if hasattr(agent_resp, "trace") else {}
+            evidence_list = trace_dict.get("evidence", []) if isinstance(trace_dict, dict) else []
+            sources = []
+            for ev in evidence_list:
+                src_title = ev.get("source") or ev.get("title") or "MT514 Knowledge Base"
+                sources.append({"type": "AgentEvidence", "title": src_title})
+            if not sources:
+                sources = [{"type": "L1_Agent", "title": "ISKRA L1 Knowledge Base (MT514)"}]
+
+            decision = getattr(manager.agent, "last_decision", None)
+            decision_dict = decision.model_dump() if hasattr(decision, "model_dump") else (decision.__dict__ if decision else {})
+            state = manager.agent.memory.get_state() if hasattr(manager.agent, "memory") else {}
+
+            return {
+                "question": question,
+                "answer": answer_text,
+                "sources": sources,
+                "grounding_evidence": {
+                    "agent_connected": True,
+                    "in_process": True,
+                },
+                "decision": decision_dict,
+                "trace": trace_dict,
+                "state": state if isinstance(state, dict) else (state.model_dump() if hasattr(state, "model_dump") else {}),
+            }
+        except Exception as err:
+            # Fallback to local DB/Rule grounded knowledge if agent encounters an error
+            pass
+
         q_lower = question.lower()
         facts = []
         knowledge_matches = []
