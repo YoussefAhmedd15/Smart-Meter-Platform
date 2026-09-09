@@ -11,9 +11,9 @@ load_dotenv()
 
 from backend.app.core.security import hash_password
 
-email = "admin@admin.com"
-password = "admin123"
-role = "admin"
+email = "omar@user.com"
+password = "omar123"
+role = "tester"
 
 hashed = hash_password(password)
 

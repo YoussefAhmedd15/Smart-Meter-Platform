@@ -11,6 +11,39 @@ export interface Meter {
   last_seen: string;
 }
 
+export interface LastTestRunSummary {
+  test_run_id: number;
+  status: string;
+  started_at: string | null;
+  finished_at: string | null;
+  duration_seconds: number | null;
+}
+
+// Matches GET /api/meters/{meter_id}/profile exactly (real field names —
+// meter_number/meter_model, not the serial_number/model naming the older
+// `Meter` interface above uses for a different, pre-existing endpoint).
+export interface MeterProfile {
+  meter_id: number;
+  meter_number: string;
+  meter_type: string | null;
+  meter_model: string | null;
+  manufacturer: string | null;
+  firmware_version: string | null;
+  hardware_revision: string | null;
+  communication_interface: string | null;
+  status: string | null;
+  first_seen: string | null;
+  last_seen: string | null;
+  is_online: boolean;
+  last_test_run: LastTestRunSummary | null;
+  is_certified: boolean;
+  total_test_runs: number;
+  pass_rate: number;
+  avg_duration_seconds: number;
+  failures_resolved_count: number;
+  total_readings_count: number;
+}
+
 export interface MeterReading {
   id: number;
   meter_id: number;
@@ -23,6 +56,9 @@ export interface MeterReading {
   timestamp: string;
   quality: string;
   source: string;
+  // Real per-request value from the backend ("mock" | "hardware" | "unknown")
+  // — optional since older mock fallback literals in api.ts don't set it.
+  data_source?: string;
 }
 
 export interface TestSuite {

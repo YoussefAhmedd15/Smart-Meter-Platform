@@ -8,3 +8,5 @@ local.db
 node_modules/
 frontend/dist/
 .pytest_cache/
+
+data/

@@ -137,6 +137,9 @@ class MockMeterAdapter:
         elif obis_code == "0.0.96.1.0.255":  # Firmware
             value = self.firmware_version
             data_type = "OctetString"
+        elif obis_code == "1.0.99.1.0.255":  # Load Profile 1 buffer
+            value = self.read_profile(obis_code=obis_code, limit=10)
+            data_type = "Array"
         else:
             value = 100.0
 
@@ -172,6 +175,7 @@ class MockMeterAdapter:
                 "voltage_l1_v": round(230.2 + random.uniform(-1.0, 1.0), 1),
                 "current_l1_a": round(4.31 + random.uniform(-0.2, 0.2), 2),
                 "status_code": "00000000",
+                "data_source": "mock",
             })
         return records
 
@@ -185,4 +189,5 @@ class MockMeterAdapter:
             "communication_interface": self.config.interface.value,
             "serial_port": self.config.serial_port,
             "status": "ONLINE",
+            "data_source": "mock",
         }

@@ -70,6 +70,38 @@ class MeterResponse(BaseModel):
         from_attributes = True
 
 
+class LastTestRunSummary(BaseModel):
+    test_run_id: int
+    status: str
+    started_at: Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    duration_seconds: Optional[float] = None
+
+
+class MeterProfileResponse(BaseModel):
+    meter_id: int
+    meter_number: str
+    meter_type: Optional[str] = None
+    meter_model: Optional[str] = None
+    manufacturer: Optional[str] = None
+    firmware_version: Optional[str] = None
+    hardware_revision: Optional[str] = None
+    communication_interface: Optional[str] = None
+    status: Optional[str] = None
+    first_seen: Optional[datetime] = None
+    last_seen: Optional[datetime] = None
+
+    # Real, computed — not stored fields on Meter itself.
+    is_online: bool
+    last_test_run: Optional[LastTestRunSummary] = None
+    is_certified: bool
+    total_test_runs: int
+    pass_rate: float
+    avg_duration_seconds: float
+    failures_resolved_count: int
+    total_readings_count: int
+
+
 class ReadingResponse(BaseModel):
     meter_reading_id: int
     meter_id: int

@@ -5,7 +5,13 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # Skip loading a real .env during test runs — same reasoning as
+    # config.py's identical guard: a real .env on disk must never leak
+    # into a test process no matter what it contains. When TESTING is
+    # unset, this is byte-for-byte the same unconditional load_dotenv()
+    # call as before.
+    if os.getenv("TESTING", "0") != "1":
+        load_dotenv()
 except ImportError:
     pass
 

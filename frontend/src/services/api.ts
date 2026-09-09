@@ -1,5 +1,5 @@
 import {
-  Meter, MeterReading, TestSuite, TestRun, FailureRecord,
+  Meter, MeterReading, MeterProfile, TestSuite, TestRun, FailureRecord,
   AnalyticsOverview, KnowledgeItem, RegressionComparison,
   TestCaseDefinition, TestCaseCreateInput
 } from '../types';
@@ -113,6 +113,35 @@ export const apiService = {
     }
   },
 
+  // Real call only, no mock fallback — used by LiveMeter.tsx to show the
+  // real meter.status on initial load, before any connect/disconnect click.
+  getMeter: (meterId: number): Promise<Meter> =>
+    fetchJson<Meter>(`/meters/${meterId}`),
+
+  // Real call only, no mock fallback — MeterProfile.tsx's whole point is
+  // showing a real online/certified state; silently falling back to fake
+  // numbers on a fetch failure would defeat that.
+  getMeterProfile: (meterId: number): Promise<MeterProfile> =>
+    fetchJson<MeterProfile>(`/meters/${meterId}/profile`),
+
+  // Real calls only, no mock fallback — used by LiveMeter.tsx specifically,
+  // where a fetch failure must surface as a real disconnected/error state
+  // rather than silently rendering fake numbers that look live. This does
+  // not replace getMeterReadings above, which other callers may still rely
+  // on for its mock fallback.
+  getMeterReadingsOrThrow: (meterId: number): Promise<MeterReading[]> =>
+    fetchJson<MeterReading[]>(`/meters/${meterId}/readings`),
+
+  connectMeter: (meterId: number): Promise<{
+    meter_id: number; meter_number: string; connected: boolean; handshake: any; data_source: string;
+  }> =>
+    fetchJson(`/meters/${meterId}/connect`, { method: 'POST' }),
+
+  disconnectMeter: (meterId: number): Promise<{
+    meter_id: number; meter_number: string; disconnected: boolean; status: string;
+  }> =>
+    fetchJson(`/meters/${meterId}/disconnect`, { method: 'POST' }),
+
   getTestSuites: async (): Promise<TestSuite[]> => {
     try {
       return await fetchJson<TestSuite[]>('/test-suites');
@@ -150,6 +179,9 @@ export const apiService = {
 
   getTestRun: (runId: number): Promise<any> =>
     fetchJson<any>(`/test-runs/${runId}`),
+
+  getTestRuns: (): Promise<TestRun[]> =>
+    fetchJson<TestRun[]>('/test-runs'),
 
   runTest: async (meterId: number, suiteId: number): Promise<TestRun> => {
     try {
@@ -298,4 +330,23 @@ export const apiService = {
     authFetch<AuthUser>('/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  // --- Reports: real calls only, no mock fallback — a report is either
+  // actually generated/downloaded or the caller needs to know it failed. ---
+
+  generateReport: (runId: number, formatType: string = 'pdf'): Promise<{ filename: string; download_url: string }> =>
+    authFetch<{ filename: string; download_url: string }>(
+      `/reports/test-run/${runId}?format_type=${encodeURIComponent(formatType)}`,
+      { method: 'POST' },
+    ),
+
+  downloadReportFile: async (downloadUrl: string): Promise<Blob> => {
+    // downloadUrl (from generateReport's response) is already a full
+    // "/api/..." path — fetched directly, not through API_BASE again.
+    const res = await fetch(downloadUrl);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    return res.blob();
+  },
 };

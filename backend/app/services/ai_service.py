@@ -144,11 +144,15 @@ class AIService:
             )
             for f in recent_failures:
                 facts.append(f"Recorded Failure in '{f.test_case_name}' ({f.error_code}): {f.case_details}")
+                # Real similarity between the question text and this failure's
+                # recorded details — not a hardcoded number. Reuses the same
+                # method find_similar_failures() uses, not reimplemented here.
+                text_sim = self.failure_service.calculate_text_similarity(question, f.case_details or "")
                 similar_failures.append({
                     "test_case": f.test_case_name,
                     "error_type": f.error_code,
                     "firmware_version": f.firmware_version,
-                    "similarity_score": 94.2,
+                    "similarity_score": round(text_sim * 100, 1),
                 })
 
         # Grounding Knowledge Base

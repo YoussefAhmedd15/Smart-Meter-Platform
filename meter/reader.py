@@ -122,6 +122,15 @@ class DLMSMeterReader:
             logger.warning(f"Gurux components initialization fallback to Mock mode: {e}")
             return False
 
+    @property
+    def data_source(self) -> str:
+        """"mock" or "hardware" — the single source of truth for which
+        branch every read_*/connect/initialize method below is actually
+        using right now. Centralized here so the same condition isn't
+        duplicated (and risking drift) across every method and across
+        meter_service.py."""
+        return "mock" if (self.config.app_mode == AppMode.DEMO or not self._reader) else "hardware"
+
     def _find_active_com_port(self, default_port: str) -> str:
         """Scans available Windows COM ports for active SONDA optical head or serial adapters."""
         try:
@@ -234,6 +243,7 @@ class DLMSMeterReader:
                 meter_serial=self.get_meter_information().get("serial_number", "UNKNOWN"),
                 total_objects=len(objects),
                 objects=objects,
+                data_source="hardware",
             )
             return self._association_view
         except Exception as e:
@@ -266,6 +276,7 @@ class DLMSMeterReader:
                 timestamp=datetime.utcnow(),
                 duration_ms=duration_ms,
                 status="PASS",
+                data_source="hardware",
             )
         except OBISNotFoundError:
             raise
@@ -289,20 +300,45 @@ class DLMSMeterReader:
         return results
 
     def read_profile(self, obis_code: str = "1.0.99.1.0.255", limit: int = 10) -> List[dict]:
-        if self.config.app_mode == AppMode.DEMO or not self._reader:
-            return self.mock_adapter.read_profile(obis_code, limit)
+        # No real Gurux load-profile-buffer read is implemented yet — both
+        # branches genuinely call the mock adapter today. Left as-is rather
+        # than labeling this "hardware", which would be exactly the kind of
+        # false claim this session exists to remove. Each record already
+        # carries its own real "data_source": "mock" (see mock_meter.py).
         return self.mock_adapter.read_profile(obis_code, limit)
+
+    def _read_identity_field(self, obis_code: str) -> str:
+        """Reads one identity OBIS via the real hardware path (read_obis's
+        own hardware branch — this method is only ever called from within
+        that branch, so it's never accidentally reading from the mock).
+        Returns "UNKNOWN" for that one field on failure rather than
+        silently falling back to a hardcoded literal."""
+        try:
+            return str(self.read_obis(obis_code).value)
+        except Exception as e:
+            logger.warning(f"Could not read identity OBIS {obis_code}: {e}")
+            return "UNKNOWN"
 
     def get_meter_information(self) -> dict:
         if self.config.app_mode == AppMode.DEMO or not self._reader:
             return self.mock_adapter.get_meter_information()
+
+        # Real reads of the meter's own identity OBIS codes — not hardcoded
+        # literals. Only two identity OBIS codes are actually registered
+        # anywhere in this codebase (meter/obis.py): serial number
+        # (0.0.96.1.1.255) and firmware version (0.0.96.1.0.255). No
+        # manufacturer/model/hardware_revision OBIS mapping exists or is
+        # documented anywhere here — rather than guessing one, those three
+        # are honestly reported as unknown until a real mapping is
+        # confirmed against actual hardware.
         return {
-            "serial_number": "ISK-2026-984210",
-            "manufacturer": "Iskraemeco",
-            "model": "AM550-TD1",
-            "firmware_version": "v3.14.2",
-            "hardware_revision": "HW-2.1",
+            "serial_number": self._read_identity_field("0.0.96.1.1.255"),
+            "manufacturer": "UNKNOWN",
+            "model": "UNKNOWN",
+            "firmware_version": self._read_identity_field("0.0.96.1.0.255"),
+            "hardware_revision": "UNKNOWN",
             "communication_interface": self.config.interface.value,
             "serial_port": self.config.serial_port,
             "status": "ONLINE" if self._is_connected else "OFFLINE",
+            "data_source": "hardware",
         }
