@@ -79,7 +79,7 @@ export const LiveMeter: React.FC = () => {
   };
 
   useEffect(() => {
-    apiService.getMeter(METER_ID).then((m) => setMeterStatus(m.status)).catch(() => {});
+    apiService.getMeter(METER_ID).then((m) => setMeterStatus(m.status ?? null)).catch(() => {});
     poll();
     const interval = setInterval(poll, POLL_INTERVAL_MS);
     return () => clearInterval(interval);

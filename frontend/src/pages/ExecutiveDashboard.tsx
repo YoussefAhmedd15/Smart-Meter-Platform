@@ -7,17 +7,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { apiService } from '../services/api';
-import { AnalyticsOverview, Meter } from '../types';
-
-const weekData = [
-  { day: 'Mon', passed: 240, failed: 8 },
-  { day: 'Tue', passed: 285, failed: 5 },
-  { day: 'Wed', passed: 310, failed: 12 },
-  { day: 'Thu', passed: 295, failed: 4 },
-  { day: 'Fri', passed: 358, failed: 6 },
-  { day: 'Sat', passed: 182, failed: 2 },
-  { day: 'Sun', passed: 130, failed: 1 },
-];
+import { AnalyticsOverview, AnalyticsTrend, Meter } from '../types';
 
 const customTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -40,57 +30,74 @@ const customTooltip = ({ active, payload, label }: any) => {
 export const ExecutiveDashboard: React.FC = () => {
   const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
   const [meters, setMeters]       = useState<Meter[]>([]);
+  const [trends, setTrends]       = useState<AnalyticsTrend[]>([]);
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
     Promise.allSettled([
       apiService.getAnalyticsOverview(),
       apiService.getMeters(),
-    ]).then(([a, m]) => {
+      apiService.getAnalyticsTrends(),
+    ]).then(([a, m, t]) => {
       if (a.status === 'fulfilled') setAnalytics(a.value);
       if (m.status === 'fulfilled') setMeters(m.value);
+      if (t.status === 'fulfilled') setTrends(t.value);
       setLoading(false);
     });
   }, []);
 
+  const totalExecutions = analytics?.total_test_executions ?? analytics?.total_tests_executed ?? 0;
+  const passRate = analytics?.overall_pass_rate ?? analytics?.pass_rate_percentage ?? 0;
+  const qualityScore = analytics?.quality_score ?? analytics?.overall_quality_score ?? 0;
+  const passedTests = analytics?.passed_tests ?? 0;
+  const criticalDefects = analytics?.critical_failures ?? 0;
+  const openDefects = analytics?.open_failures ?? 0;
+  const metersTested = analytics?.total_meters_tested ?? meters.length;
+
   const kpis = [
     {
       label: 'Overall Quality Score',
-      value: analytics ? `${analytics.overall_quality_score}` : '95.4',
-      unit: '/ 100',
+      value: analytics ? `${qualityScore}` : '—',
+      unit: analytics ? '/ 100' : '',
       color: 'var(--accent-cyan)',
       icon: ShieldCheck,
-      trend: '+1.8% vs last firmware',
-      trendUp: true,
+      trend: analytics ? `${analytics.firmware_stability ?? 'STABLE'} quality status` : 'Calculating…',
+      trendUp: qualityScore >= 80,
     },
     {
       label: 'Automated Pass Rate',
-      value: analytics ? `${analytics.pass_rate_percentage}%` : '96.8%',
+      value: analytics ? `${passRate}%` : '—',
       unit: '',
       color: 'var(--accent-green)',
       icon: CheckCircle2,
-      trend: `${analytics?.passed_tests ?? 1781} / ${analytics?.total_tests_executed ?? 1840} tests`,
-      trendUp: true,
+      trend: analytics ? `${passedTests} / ${totalExecutions} tests passed` : 'Calculating…',
+      trendUp: passRate >= 90,
     },
     {
       label: 'Critical Defects',
-      value: analytics ? `${analytics.critical_failures}` : '2',
+      value: analytics ? `${criticalDefects}` : '0',
       unit: '',
-      color: 'var(--accent-red)',
+      color: criticalDefects > 0 ? 'var(--accent-red)' : 'var(--accent-green)',
       icon: AlertTriangle,
-      trend: `${analytics?.open_failures ?? 5} open issues logged`,
-      trendUp: false,
+      trend: `${openDefects} open issues logged`,
+      trendUp: criticalDefects === 0,
     },
     {
       label: 'Meters Tested',
-      value: analytics ? `${analytics.total_meters_tested}` : '12',
+      value: analytics ? `${metersTested}` : `${meters.length}`,
       unit: '',
       color: 'var(--accent-blue)',
       icon: Cpu,
-      trend: 'AM550, MT880, MT382',
-      trendUp: true,
+      trend: meters.length > 0 ? `${meters.length} meter(s) registered` : 'No meters registered',
+      trendUp: meters.length > 0,
     },
   ];
+
+  const chartData = trends.map(t => ({
+    day: t.date,
+    passed: t.passed,
+    failed: t.failed,
+  }));
 
   return (
     <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -99,12 +106,12 @@ export const ExecutiveDashboard: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
           <h2 className="section-title">Executive Intelligence Dashboard</h2>
-          <p className="section-sub">Real-time smart meter quality, firmware stability, and failure analytics.</p>
+          <p className="section-sub">Real-time smart meter quality, firmware stability, and failure analytics from database.</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="dot dot-green pulse-green" />
           <span style={{ fontSize: '0.78rem', color: 'var(--accent-green)', fontWeight: 600 }}>
-            LIVE DATA
+            LIVE DATABASE METRICS
           </span>
         </div>
       </div>
@@ -154,35 +161,41 @@ export const ExecutiveDashboard: React.FC = () => {
                 Weekly Test Pass / Fail Trend
               </h3>
               <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '2px' }}>
-                Last 7 days · automated DLMS test executions
+                Historical test executions recorded in database
               </p>
             </div>
             <span className="badge badge-pass">
-              <TrendingUp size={12} /> Stable
+              <TrendingUp size={12} /> {analytics?.firmware_stability ?? 'STABLE'}
             </span>
           </div>
-          <div style={{ width: '100%', height: 240 }}>
-            <ResponsiveContainer>
-              <AreaChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
-                <defs>
-                  <linearGradient id="gPassed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#00e676" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#00e676" stopOpacity={0}    />
-                  </linearGradient>
-                  <linearGradient id="gFailed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#ff1744" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#ff1744" stopOpacity={0}    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="day" stroke="#55657e" tick={{ fontSize: 11 }} />
-                <YAxis stroke="#55657e" tick={{ fontSize: 11 }} />
-                <Tooltip content={customTooltip} />
-                <Area type="monotone" dataKey="passed" name="Passed" stroke="#00e676" strokeWidth={2} fill="url(#gPassed)" />
-                <Area type="monotone" dataKey="failed"  name="Failed"  stroke="#ff1744" strokeWidth={2} fill="url(#gFailed)"  />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {chartData.length > 0 ? (
+            <div style={{ width: '100%', height: 240 }}>
+              <ResponsiveContainer>
+                <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
+                  <defs>
+                    <linearGradient id="gPassed" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#00e676" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#00e676" stopOpacity={0}    />
+                    </linearGradient>
+                    <linearGradient id="gFailed" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#ff1744" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#ff1744" stopOpacity={0}    />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="day" stroke="#55657e" tick={{ fontSize: 11 }} />
+                  <YAxis stroke="#55657e" tick={{ fontSize: 11 }} />
+                  <Tooltip content={customTooltip} />
+                  <Area type="monotone" dataKey="passed" name="Passed" stroke="#00e676" strokeWidth={2} fill="url(#gPassed)" />
+                  <Area type="monotone" dataKey="failed"  name="Failed"  stroke="#ff1744" strokeWidth={2} fill="url(#gFailed)"  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontSize: '0.86rem' }}>
+              No test execution trends logged in database yet.
+            </div>
+          )}
         </div>
 
         {/* Active Meter Fleet */}
@@ -191,14 +204,19 @@ export const ExecutiveDashboard: React.FC = () => {
             <h3 style={{ fontFamily: 'var(--font-head)', fontSize: '1rem', fontWeight: 600, margin: 0 }}>
               Active Meter Fleet
             </h3>
-            <span className="badge badge-info">{meters.length} Online</span>
+            <span className="badge badge-info">{meters.length} Registered</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
             {meters.length === 0 && loading && [1, 2, 3].map(i => (
               <div key={i} className="skeleton" style={{ height: '54px', borderRadius: '8px' }} />
             ))}
+            {meters.length === 0 && !loading && (
+              <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.84rem' }}>
+                No meters found in database.
+              </div>
+            )}
             {meters.map(m => (
-              <div key={m.id} style={{
+              <div key={m.meter_id ?? m.id} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '10px 14px', borderRadius: '9px',
                 background: 'rgba(13,20,36,0.7)', border: '1px solid var(--border-color)',
@@ -206,14 +224,14 @@ export const ExecutiveDashboard: React.FC = () => {
               }}>
                 <div>
                   <div className="mono" style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--accent-cyan)' }}>
-                    {m.serial_number}
+                    {m.meter_number || m.serial_number}
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '2px' }}>
-                    {m.model} · {m.firmware_version}
+                    {m.meter_model || m.model} · {m.firmware_version || 'FW: N/A'}
                   </div>
                 </div>
-                <div className="badge badge-pass">
-                  <div className="dot dot-green pulse-green" /> ONLINE
+                <div className={`badge ${m.status === 'ONLINE' ? 'badge-pass' : 'badge-dim'}`}>
+                  <div className={`dot ${m.status === 'ONLINE' ? 'dot-green pulse-green' : 'dot-red'}`} /> {m.status || 'UNKNOWN'}
                 </div>
               </div>
             ))}
@@ -224,9 +242,9 @@ export const ExecutiveDashboard: React.FC = () => {
       {/* ── Summary Row ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
         {[
-          { label: 'Total Test Runs',      value: analytics?.total_test_runs ?? 148, color: 'var(--accent-cyan)', icon: '🔬' },
-          { label: 'Avg Execution Time',   value: `${analytics?.average_duration_seconds ?? 4.2}s`, color: 'var(--accent-blue)', icon: '⚡' },
-          { label: 'Firmware Stability',   value: analytics?.firmware_stability ?? 'STABLE', color: 'var(--accent-green)', icon: '🛡️' },
+          { label: 'Total Test Executions', value: totalExecutions, color: 'var(--accent-cyan)', icon: '🔬' },
+          { label: 'Avg Execution Time',    value: `${analytics?.avg_duration_seconds ?? analytics?.average_duration_seconds ?? 0}s`, color: 'var(--accent-blue)', icon: '⚡' },
+          { label: 'Firmware Stability',    value: analytics?.firmware_stability ?? 'STABLE', color: 'var(--accent-green)', icon: '🛡️' },
         ].map(s => (
           <div key={s.label} className="glass-card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: '1.6rem' }}>{s.icon}</span>

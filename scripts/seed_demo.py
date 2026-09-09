@@ -1,12 +1,14 @@
 """
-Demo data seeder — works with both SQLite (local dev) and PostgreSQL (production).
+MANUAL-ONLY DEMO DATA SEEDER (OPT-IN FOR LOCAL DEVELOPMENT)
 
-Run directly:   python scripts/seed_demo.py
-Via run_app:    called automatically on startup (run_app.ps1 / run_app.bat)
+This script populates synthetic demo/mock data (meters, test runs, synthetic failures)
+for isolated local development or offline test environments.
 
-All DB access goes through SQLAlchemy (SessionLocal / models) so this script
-is engine-agnostic — it works identically whether DATABASE_URL points at
-SQLite or PostgreSQL.
+IT MUST NEVER BE RUN AUTOMATICALLY ON STARTUP.
+The shared Neon PostgreSQL database is the production source of truth.
+
+Usage:
+    python scripts/seed_demo.py --confirm
 """
 import sys
 import os
@@ -31,13 +33,31 @@ from backend.app.core.security import hash_password
 
 
 def seed():
+    if "--confirm" not in sys.argv:
+        print("====================================================================")
+        print(" [MANUAL DEMO SEED SCRIPT]")
+        print(" The shared PostgreSQL/Neon database is the source of truth.")
+        print(" Automatic demo seeding has been removed from the normal startup flow.")
+        print(" To explicitly seed synthetic demo data into an isolated database, run:")
+        print("     python scripts/seed_demo.py --confirm")
+        print("====================================================================")
+        return
+
+    db_url = os.getenv("DATABASE_URL", "")
+    if "neon.tech" in db_url.lower() and "--force-neon" not in sys.argv:
+        print("[SAFETY ABORT] DATABASE_URL points to the shared Neon PostgreSQL database.")
+        print("Demo data seeding is prohibited on the shared database to protect real records.")
+        print("If you need demo data, configure DATABASE_URL to an isolated local database.")
+        return
+
     print("Initializing database tables...")
     try:
         init_db()
         db = SessionLocal()
         existing_meters = db.query(Meter).count()
-        if existing_meters > 0:
+        if existing_meters > 0 and "--overwrite" not in sys.argv:
             print(f"Database already contains data ({existing_meters} meters found). Skipping demo seed to protect existing data.")
+            print("Pass --overwrite along with --confirm if you explicitly wish to reset.")
             db.close()
             return
     except Exception as exc:
@@ -45,7 +65,7 @@ def seed():
         return
 
     # -----------------------------------------------------------------------
-    # Clear existing demo data (only reached if database is empty)
+    # Clear existing demo data (only reached if database is empty or --overwrite)
     # -----------------------------------------------------------------------
     print("Clearing existing demo data...")
     for model in [

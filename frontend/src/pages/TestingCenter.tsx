@@ -24,56 +24,75 @@ export const TestingCenter: React.FC = () => {
   };
 
   useEffect(() => {
-    apiService.getMeters().then(setMeters).catch(console.error);
-    apiService.getTestSuites().then(setSuites).catch(console.error);
+    apiService.getMeters().then(res => {
+      setMeters(res);
+      if (res.length > 0) {
+        const firstId = res[0].meter_id ?? res[0].id;
+        if (firstId) setSelectedMeter(firstId);
+      }
+    }).catch(console.error);
+
+    apiService.getTestSuites().then(res => {
+      setSuites(res);
+      if (res.length > 0) {
+        const firstSuiteId = res[0].suite_id ?? res[0].id;
+        if (firstSuiteId) setSelectedSuite(firstSuiteId);
+      }
+    }).catch(console.error);
   }, []);
 
   const handleStartTest = async () => {
     setIsRunning(true);
-    setProgress(0);
+    setProgress(10);
     setCurrentRun(null);
     setResults([]);
     setLogs([]);
 
-    addLog(`Initializing DLMS connection on target meter #${selectedMeter}…`);
-    addLog(`Interface: HDLC_WITH_MODE_E · 300 baud, 7E1`);
+    const targetMeter = selectedMeterObj;
+    const targetSuite = selectedSuiteObj;
 
-    // Simulate initial handshake phase
-    await new Promise(r => setTimeout(r, 400));
-    setProgress(15);
-    addLog('IEC 62056-21 Mode E identification request sent…');
+    const meterNum = targetMeter?.meter_number || targetMeter?.serial_number || `Meter #${selectedMeter}`;
+    const meterModel = targetMeter?.meter_model || targetMeter?.model || 'Unknown Model';
+    const fw = targetMeter?.firmware_version ? `, FW: ${targetMeter.firmware_version}` : '';
 
-    await new Promise(r => setTimeout(r, 500));
-    setProgress(30);
-    addLog('Handshake ACK received. Switching baudrate to 9600 baud…');
-    addLog('SNRM / UA frame negotiation successful.');
-
-    await new Promise(r => setTimeout(r, 500));
-    setProgress(50);
-    addLog('AARQ low-level authentication accepted.');
-    addLog(`Executing test suite ID ${selectedSuite}…`);
+    addLog(`Initiating test run for suite: "${targetSuite?.name || `Suite #${selectedSuite}`}"`);
+    addLog(`Target Meter: ${meterNum} (${meterModel}${fw})`);
+    addLog(`Communication Interface: ${targetMeter?.communication_interface || 'HDLC_WITH_MODE_E'}`);
+    addLog(`Mode: Dispatched directly to backend test engine`);
 
     try {
+      setProgress(40);
       const run = await apiService.runTest(selectedMeter, selectedSuite);
-      setProgress(85);
-      addLog(`Suite execution complete. Status: ${run.status}`);
-      addLog(`Results: ${run.passed_tests} PASSED · ${run.failed_tests} FAILED · total ${run.total_tests}`);
+      setProgress(80);
 
-      // Fetch detailed results
+      addLog(`Backend execution completed with status: ${run.status}`);
+      addLog(`Summary: ${run.passed_tests} PASSED · ${run.failed_tests} FAILED out of ${run.total_tests} tests (${run.duration_seconds}s)`);
+
+      // Fetch real execution logs and detailed case results from backend
       try {
         const detail = await apiService.getTestRun(run.id);
-        if (detail?.results?.length) {
-          setResults(detail.results);
-          detail.results.forEach((r: TestResult) => {
-            addLog(`  [${r.status}] ${r.test_name} — ${r.actual_value ?? r.error_message ?? ''} (${r.duration_ms}ms)`);
+        if (detail?.logs?.length) {
+          addLog('--- Backend Execution Logs ---');
+          detail.logs.forEach((l: { level: string; message: string }) => {
+            addLog(`[${l.level}] ${l.message}`);
           });
         }
-      } catch { /* results display will fall back to summary */ }
+        if (detail?.results?.length) {
+          setResults(detail.results);
+          addLog('--- Case Results ---');
+          detail.results.forEach((r: TestResult) => {
+            const detailStr = r.actual_value || r.error_message || '';
+            addLog(`  [${r.status}] ${r.test_name}${detailStr ? ` — ${detailStr}` : ''} (${r.duration_ms}ms)`);
+          });
+        }
+      } catch (detailErr) {
+        console.warn('Could not load detailed results:', detailErr);
+      }
 
       setCurrentRun(run);
       setProgress(100);
-    } catch (err) {
-      addLog(`ERROR: Execution failed — ${err}`);
+    } catch (err: any) {
+      addLog(`ERROR: Test run failed — ${err?.message || err}`);
       setProgress(100);
     } finally {
       setIsRunning(false);
@@ -86,8 +105,8 @@ export const TestingCenter: React.FC = () => {
     setProgress(100);
   };
 
-  const selectedSuiteObj = suites.find(s => s.id === selectedSuite);
-  const selectedMeterObj = meters.find(m => m.id === selectedMeter);
+  const selectedSuiteObj = suites.find(s => (s.suite_id ?? s.id) === selectedSuite);
+  const selectedMeterObj = meters.find(m => (m.meter_id ?? m.id) === selectedMeter);
 
   return (
     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -108,11 +127,16 @@ export const TestingCenter: React.FC = () => {
               onChange={e => setSelectedMeter(Number(e.target.value))}
               disabled={isRunning}
             >
-              {meters.map(m => (
-                <option key={m.id} value={m.id}>
-                  {m.serial_number} — {m.model} ({m.firmware_version})
-                </option>
-              ))}
+              {meters.map(m => {
+                const id = m.meter_id ?? m.id;
+                const num = m.meter_number || m.serial_number || `Meter #${id}`;
+                const model = m.meter_model || m.model || 'Smart Meter';
+                return (
+                  <option key={id} value={id}>
+                    {num} ({model})
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -125,11 +149,14 @@ export const TestingCenter: React.FC = () => {
               onChange={e => setSelectedSuite(Number(e.target.value))}
               disabled={isRunning}
             >
-              {suites.map(s => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.category})
-                </option>
-              ))}
+              {suites.map(s => {
+                const sId = s.suite_id ?? s.id;
+                return (
+                  <option key={sId} value={sId}>
+                    {s.name} ({s.category})
+                  </option>
+                );
+              })}
             </select>
           </div>
         </div>
@@ -144,7 +171,7 @@ export const TestingCenter: React.FC = () => {
               </>
             )}
             {selectedMeterObj && (
-              <span>Firmware: <strong className="mono" style={{ color: 'var(--accent-cyan)' }}>{selectedMeterObj.firmware_version}</strong></span>
+              <span>Firmware: <strong className="mono" style={{ color: 'var(--accent-cyan)' }}>{selectedMeterObj.firmware_version || 'N/A'}</strong></span>
             )}
           </div>
 

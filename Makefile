@@ -3,7 +3,7 @@
 help:
 	@echo "Smart Meter Intelligence Platform Commands:"
 	@echo "  make install        Install Python backend & Node frontend dependencies"
-	@echo "  make seed           Populate demo dataset into PostgreSQL / SQLite"
+	@echo "  make seed           Populate demo dataset (manual development opt-in only)"
 	@echo "  make test           Run unit test suites across meter engine and API"
 	@echo "  make run-backend    Start FastAPI server on port 8000"
 	@echo "  make run-frontend   Start Vite React dashboard on port 3000"
@@ -15,7 +15,7 @@ install:
 	cd frontend && npm install
 
 seed:
-	python scripts/seed_demo.py
+	python scripts/seed_demo.py --confirm
 
 test:
 	@echo "backend/tests requires TEST_DATABASE_URL or DATABASE_URL to point at Postgres (no SQLite fallback)."

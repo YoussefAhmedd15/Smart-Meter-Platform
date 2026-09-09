@@ -75,54 +75,11 @@ export interface TokenResponse {
 export const apiService = {
   getHealth: () => fetchJson<{ status: string; app_mode: string }>('/health'),
 
-  getMeters: async (): Promise<Meter[]> => {
-    try {
-      return await fetchJson<Meter[]>('/meters');
-    } catch {
-      return [
-        {
-          id: 1,
-          serial_number: 'ISK-2026-984210',
-          manufacturer: 'Iskraemeco',
-          model: 'AM550-TD1',
-          firmware_version: 'v3.14.2',
-          hardware_revision: 'HW-2.1',
-          communication_interface: 'HDLC_WITH_MODE_E',
-          status: 'ONLINE',
-          first_seen: new Date().toISOString(),
-          last_seen: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          serial_number: 'ISK-2026-984211',
-          manufacturer: 'Iskraemeco',
-          model: 'MT880-D2',
-          firmware_version: 'v3.13.0',
-          hardware_revision: 'HW-1.8',
-          communication_interface: 'HDLC_WITH_MODE_E',
-          status: 'ONLINE',
-          first_seen: new Date().toISOString(),
-          last_seen: new Date().toISOString(),
-        },
-      ];
-    }
-  },
+  getMeters: (): Promise<Meter[]> =>
+    fetchJson<Meter[]>('/meters'),
 
-  getMeterReadings: async (meterId: number): Promise<MeterReading[]> => {
-    try {
-      return await fetchJson<MeterReading[]>(`/meters/${meterId}/readings`);
-    } catch {
-      const now = new Date().toISOString();
-      return [
-        { id: 1, meter_id: meterId, obis: '1.0.32.7.0.255', attribute_index: 2, value: '230.2', unit: 'V', data_type: 'DoubleLongUnsigned', timestamp: now, quality: 'GOOD', source: 'DLMS_READ' },
-        { id: 2, meter_id: meterId, obis: '1.0.31.7.0.255', attribute_index: 2, value: '4.31', unit: 'A', data_type: 'DoubleLongUnsigned', timestamp: now, quality: 'GOOD', source: 'DLMS_READ' },
-        { id: 3, meter_id: meterId, obis: '1.0.14.7.0.255', attribute_index: 2, value: '50.01', unit: 'Hz', data_type: 'DoubleLongUnsigned', timestamp: now, quality: 'GOOD', source: 'DLMS_READ' },
-        { id: 4, meter_id: meterId, obis: '1.0.1.7.0.255', attribute_index: 2, value: '875', unit: 'W', data_type: 'DoubleLongUnsigned', timestamp: now, quality: 'GOOD', source: 'DLMS_READ' },
-        { id: 5, meter_id: meterId, obis: '1.0.1.8.0.255', attribute_index: 2, value: '1245.3', unit: 'kWh', data_type: 'DoubleLongUnsigned', timestamp: now, quality: 'GOOD', source: 'DLMS_READ' },
-        { id: 6, meter_id: meterId, obis: '1.0.13.7.0.255', attribute_index: 2, value: '0.96', unit: '', data_type: 'DoubleLongUnsigned', timestamp: now, quality: 'GOOD', source: 'DLMS_READ' },
-      ];
-    }
-  },
+  getMeterReadings: (meterId: number): Promise<MeterReading[]> =>
+    fetchJson<MeterReading[]>(`/meters/${meterId}/readings`),
 
   // Real call only, no mock fallback — used by LiveMeter.tsx to show the
   // real meter.status on initial load, before any connect/disconnect click.
@@ -153,17 +110,8 @@ export const apiService = {
   }> =>
     fetchJson(`/meters/${meterId}/disconnect`, { method: 'POST' }),
 
-  getTestSuites: async (): Promise<TestSuite[]> => {
-    try {
-      return await fetchJson<TestSuite[]>('/test-suites');
-    } catch {
-      return [
-        { id: 1, name: 'Communication & Optical Handshake Suite', category: 'Communication', description: 'Mode E baudrate switching and SNRM/AARQ association.', total_cases: 3 },
-        { id: 2, name: 'Electrical Telemetry & Registers Suite', category: 'Voltage & Power', description: 'RMS voltage, current, frequency, active power, and power factor.', total_cases: 6 },
-        { id: 3, name: 'Load Profile 1 & RTC Generic Suite', category: 'LoadProfile', description: 'Real-time clock accuracy and 15-minute load profile buffer integrity.', total_cases: 2 },
-      ];
-    }
-  },
+  getTestSuites: (): Promise<TestSuite[]> =>
+    fetchJson<TestSuite[]>('/test-suites'),
 
   getTestCases: (suiteId?: number): Promise<TestCaseDefinition[]> =>
     fetchJson<TestCaseDefinition[]>(suiteId ? `/test-cases?suite_id=${suiteId}` : '/test-cases'),
@@ -194,174 +142,44 @@ export const apiService = {
   getTestRuns: (): Promise<TestRun[]> =>
     fetchJson<TestRun[]>('/test-runs'),
 
-  runTest: async (meterId: number, suiteId: number): Promise<TestRun> => {
-    try {
-      return await fetchJson<TestRun>('/test-runs', {
-        method: 'POST',
-        body: JSON.stringify({ meter_id: meterId, suite_id: suiteId }),
-      });
-    } catch {
-      return {
-        id: Math.floor(Math.random() * 1000) + 10,
-        meter_id: meterId,
-        firmware_version: 'v3.14.2',
-        status: 'COMPLETED',
-        total_tests: 6,
-        passed_tests: 6,
-        failed_tests: 0,
-        duration_seconds: 4.12,
-        started_at: new Date().toISOString(),
-      };
-    }
-  },
+  runTest: (meterId: number, suiteId: number): Promise<TestRun> =>
+    fetchJson<TestRun>('/test-runs', {
+      method: 'POST',
+      body: JSON.stringify({ meter_id: meterId, suite_id: suiteId }),
+    }),
 
-  getAnalyticsOverview: async (): Promise<AnalyticsOverview> => {
-    try {
-      return await fetchJson<AnalyticsOverview>('/analytics/overview');
-    } catch {
-      return {
-        overall_quality_score: 95.4,
-        pass_rate_percentage: 96.8,
-        total_meters_tested: 12,
-        total_test_runs: 148,
-        total_tests_executed: 1840,
-        passed_tests: 1781,
-        failed_tests: 59,
-        average_duration_seconds: 4.2,
-        open_failures: 5,
-        critical_failures: 2,
-        firmware_stability: 'STABLE',
-      };
-    }
-  },
+  getAnalyticsOverview: (): Promise<AnalyticsOverview> =>
+    fetchJson<AnalyticsOverview>('/analytics/overview'),
 
-  // Merged in from the incoming branch (Analytics.tsx, pre-existing and not
-  // part of this session's work, depends on all three of these).
-  getAnalyticsFirmware: async (): Promise<AnalyticsFirmware[]> => {
-    try {
-      return await fetchJson<AnalyticsFirmware[]>('/analytics/firmware');
-    } catch {
-      return [
-        { firmware_version: 'v3.12.1', failure_count: 18, pass_rate: 91.2 },
-        { firmware_version: 'v3.13.0', failure_count: 12, pass_rate: 94.5 },
-        { firmware_version: 'v3.14.2', failure_count: 4, pass_rate: 98.1 },
-        { firmware_version: 'v3.15.0-RC1', failure_count: 1, pass_rate: 99.2 },
-      ];
-    }
-  },
+  getAnalyticsFirmware: (): Promise<AnalyticsFirmware[]> =>
+    fetchJson<AnalyticsFirmware[]>('/analytics/firmware'),
 
-  getAnalyticsModels: async (): Promise<AnalyticsModel[]> => {
-    try {
-      return await fetchJson<AnalyticsModel[]>('/analytics/models');
-    } catch {
-      return [
-        { model: 'AM550-TD1', failures: 14, pass_rate: 96.8, tests: 580 },
-        { model: 'MT880-D2', failures: 8, pass_rate: 97.4, tests: 420 },
-        { model: 'MT382-T1', failures: 22, pass_rate: 92.1, tests: 310 },
-      ];
-    }
-  },
+  getAnalyticsModels: (): Promise<AnalyticsModel[]> =>
+    fetchJson<AnalyticsModel[]>('/analytics/models'),
 
-  getAnalyticsTrends: async (): Promise<AnalyticsTrend[]> => {
-    try {
-      return await fetchJson<AnalyticsTrend[]>('/analytics/trends');
-    } catch {
-      return [
-        { date: 'Mon', passed: 240, failed: 8, duration: 4.1 },
-        { date: 'Tue', passed: 280, failed: 5, duration: 3.9 },
-        { date: 'Wed', passed: 310, failed: 12, duration: 4.5 },
-        { date: 'Thu', passed: 290, failed: 4, duration: 4.0 },
-        { date: 'Fri', passed: 350, failed: 6, duration: 3.8 },
-        { date: 'Sat', passed: 180, failed: 2, duration: 3.7 },
-        { date: 'Sun', passed: 130, failed: 1, duration: 3.6 },
-      ];
-    }
-  },
+  getAnalyticsTrends: (): Promise<AnalyticsTrend[]> =>
+    fetchJson<AnalyticsTrend[]>('/analytics/trends'),
 
-  getFailures: async (): Promise<FailureRecord[]> => {
-    try {
-      return await fetchJson<FailureRecord[]>('/failures');
-    } catch {
-      return [
-        { id: 1, meter_id: 1, firmware_version: 'v3.13.0', test_case: 'Mode E Optical Handshake 300 Baud', error_type: 'TIMEOUT', error_message: 'Communication timeout waiting for UA frame.', severity: 'CRITICAL', created_at: new Date().toISOString() },
-        { id: 2, meter_id: 2, firmware_version: 'v3.12.1', test_case: 'Load Profile 1 Buffer Reading', error_type: 'READ_FAILED', error_message: 'Checksum FCS mismatch on HDLC frame block.', severity: 'HIGH', created_at: new Date().toISOString() },
-      ];
-    }
-  },
+  getFailures: (): Promise<FailureRecord[]> =>
+    fetchJson<FailureRecord[]>('/failures'),
 
-  getSimilarFailures: async (failureId: number) => {
-    try {
-      return await fetchJson<any>(`/failures/${failureId}/similar`);
-    } catch {
-      return {
-        target_failure: { id: failureId, test_case: 'Mode E Optical Handshake', error_type: 'TIMEOUT', firmware_version: 'v3.13.0' },
-        best_match: { failure_id: 42, similarity_score: 94.2, confidence: 'HIGH', firmware_version: 'v3.12.4', root_cause: 'Optical probe baudrate switching delay.', solution: 'Set stop bits to 1 and parity to EVEN (7E1 mode).' },
-        similar_failures: [
-          { failure_id: 42, similarity_score: 94.2, confidence: 'HIGH', firmware_version: 'v3.12.4', test_case: 'Mode E Optical Handshake', error_type: 'TIMEOUT' }
-        ]
-      };
-    }
-  },
+  getSimilarFailures: (failureId: number) =>
+    fetchJson<any>(`/failures/${failureId}/similar`),
 
-  compareRegression: async (fwA: string, fwB: string): Promise<RegressionComparison> => {
-    try {
-      return await fetchJson<RegressionComparison>('/regression/compare', {
-        method: 'POST',
-        body: JSON.stringify({ firmware_a: fwA, firmware_b: fwB }),
-      });
-    } catch {
-      return {
-        id: 1,
-        firmware_a: { version: fwA, pass_rate: 94.2, total_tests: 500, failures: 29 },
-        firmware_b: { version: fwB, pass_rate: 97.1, total_tests: 500, failures: 12 },
-        comparison: {
-          pass_rate_improvement: '+2.9%',
-          fixed_issues_count: 17,
-          new_failures_count: 4,
-          unchanged_failures_count: 8,
-          fixed_issues_list: ['Mode E 300 Baud Baudrate Switch', 'FCS Checksum Validation', 'Load Profile Overflow'],
-          new_failures_list: ['Clock Drift under 60Hz noise'],
-        }
-      };
-    }
-  },
+  compareRegression: (fwA: string, fwB: string): Promise<RegressionComparison> =>
+    fetchJson<RegressionComparison>('/regression/compare', {
+      method: 'POST',
+      body: JSON.stringify({ firmware_a: fwA, firmware_b: fwB }),
+    }),
 
-  askAI: async (question: string) => {
-    try {
-      return await fetchJson<any>('/ai/chat', {
-        method: 'POST',
-        body: JSON.stringify({ question }),
-      });
-    } catch {
-      return {
-        question,
-        answer: "### [FACT]\n- Meter ISK-2026-984210 operates under firmware v3.14.2.\n\n### [INFERENCE]\n- High similarity (94.2%) with past incident #42 (Mode E handshake timeout).\n\n### [RECOMMENDATION]\n- Verify optical probe head alignment and ensure parity is EVEN (7E1 mode).",
-        sources: [{ type: 'KnowledgeBase', title: 'HDLC Frame FCS Checksum Error' }],
-      };
-    }
-  },
+  askAI: (question: string) =>
+    fetchJson<any>('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ question }),
+    }),
 
-  getKnowledge: async (): Promise<KnowledgeItem[]> => {
-    try {
-      return await fetchJson<KnowledgeItem[]>('/knowledge');
-    } catch {
-      return [
-        {
-          id: 1,
-          title: 'HDLC Frame FCS Checksum Error on Iskraemeco AM550',
-          problem: 'Random FCS parity mismatch during high-speed block transfers on serial COM ports.',
-          symptoms: 'DLMS reader throws ReadFailedError during 15-minute Load Profile buffer download.',
-          affected_models: 'Iskraemeco AM550-TD1, MT880-D2',
-          firmware: 'v3.12.1 - v3.13.0',
-          root_cause: 'Serial driver parity mismatch when switching from 300 baud Mode E to 9600 baud HDLC.',
-          solution: 'Ensure serial media stop bits is explicitly set to 1 and parity set to EVEN in GXSerial settings.',
-          fixed_version: 'v3.14.2',
-          severity: 'HIGH',
-          tags: 'HDLC, FCS, Parity, Mode E, Serial',
-        }
-      ];
-    }
-  },
+  getKnowledge: (): Promise<KnowledgeItem[]> =>
+    fetchJson<KnowledgeItem[]>('/knowledge'),
 
   // --- Auth: real calls only, no mock fallback (see authFetch above) ---
 

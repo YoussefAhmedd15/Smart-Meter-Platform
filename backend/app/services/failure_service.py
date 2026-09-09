@@ -78,6 +78,8 @@ class FailureIntelligenceService:
             "target_failure": {
                 "id": target.failure_id,
                 "meter_id": target.meter_id,
+                "meter_number": target.meter.meter_number if target.meter else (f"Meter #{target.meter_id}" if target.meter_id else "N/A"),
+                "meter_model": target.meter.meter_model if target.meter else None,
                 "firmware_version": target.firmware_version,
                 "test_case": target.test_case_name,
                 "error_type": target.error_code,

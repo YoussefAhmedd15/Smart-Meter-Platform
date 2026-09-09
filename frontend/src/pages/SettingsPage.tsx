@@ -5,12 +5,12 @@ import {
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
-  const [comPort,         setComPort]         = useState('COM6');
-  const [interfaceType,   setInterfaceType]   = useState('HDLC_WITH_MODE_E');
-  const [baudrate,        setBaudrate]        = useState('300');
-  const [clientAddress,   setClientAddress]   = useState('1');
-  const [physicalAddress, setPhysicalAddress] = useState('11');
-  const [appMode,         setAppMode]         = useState('demo');
+  const [comPort,         setComPort]         = useState(() => localStorage.getItem('smp_pref_com_port') ?? 'COM6');
+  const [interfaceType,   setInterfaceType]   = useState(() => localStorage.getItem('smp_pref_interface') ?? 'HDLC_WITH_MODE_E');
+  const [baudrate,        setBaudrate]        = useState(() => localStorage.getItem('smp_pref_baudrate') ?? '300');
+  const [clientAddress,   setClientAddress]   = useState(() => localStorage.getItem('smp_pref_client_addr') ?? '1');
+  const [physicalAddress, setPhysicalAddress] = useState(() => localStorage.getItem('smp_pref_phys_addr') ?? '11');
+  const [appMode,         setAppMode]         = useState(() => localStorage.getItem('smp_pref_app_mode') ?? 'demo');
   const [hwSaveStatus,    setHwSaveStatus]    = useState<'idle' | 'saved'>('idle');
 
   // Azure DevOps credentials
@@ -22,8 +22,14 @@ export const SettingsPage: React.FC = () => {
   const [azureSaved,   setAzureSaved]   = useState<'idle' | 'saved' | 'testing' | 'ok' | 'fail'>('idle');
 
   const handleHwSave = () => {
+    localStorage.setItem('smp_pref_com_port', comPort);
+    localStorage.setItem('smp_pref_interface', interfaceType);
+    localStorage.setItem('smp_pref_baudrate', baudrate);
+    localStorage.setItem('smp_pref_client_addr', clientAddress);
+    localStorage.setItem('smp_pref_phys_addr', physicalAddress);
+    localStorage.setItem('smp_pref_app_mode', appMode);
     setHwSaveStatus('saved');
-    setTimeout(() => setHwSaveStatus('idle'), 3000);
+    setTimeout(() => setHwSaveStatus('idle'), 4000);
   };
 
   const handleAzureSave = () => {
@@ -70,7 +76,7 @@ export const SettingsPage: React.FC = () => {
       <div className="alert-banner info">
         <Info size={18} style={{ flexShrink: 0 }} />
         <div>
-          Communication settings apply at backend startup. Restart the FastAPI server after changing the COM port or interface type.
+          Physical communication parameters (COM port, interface mode, serial baudrate) are loaded by the FastAPI backend from the server <span className="mono" style={{ color: 'var(--accent-cyan)' }}>.env</span> file at startup.
         </div>
       </div>
 
@@ -79,7 +85,7 @@ export const SettingsPage: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', color: 'var(--accent-cyan)' }}>
           <Monitor size={18} />
           <h3 style={{ fontFamily: 'var(--font-head)', fontSize: '1rem', fontWeight: 700, margin: 0 }}>
-            Hardware Communication Parameters
+            Hardware Communication Parameters (Local Preferences)
           </h3>
         </div>
 
@@ -118,15 +124,15 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         <hr className="divider" />
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button className="btn-cyan" onClick={handleHwSave}>
             {hwSaveStatus === 'saved'
-              ? <><CheckCircle2 size={16} /> Saved!</>
-              : <><Save size={16} /> Save Configuration</>}
+              ? <><CheckCircle2 size={16} /> Saved to Local Storage</>
+              : <><Save size={16} /> Save Local Preferences</>}
           </button>
           {hwSaveStatus === 'saved' && (
-            <span style={{ fontSize: '0.82rem', color: 'var(--accent-green)' }}>
-              ✓ Configuration updated successfully.
+            <span style={{ fontSize: '0.8rem', color: 'var(--accent-green)' }}>
+              ✓ Preferences saved locally in browser. Note: Real server hardware ports require updating the .env file and restarting FastAPI.
             </span>
           )}
         </div>

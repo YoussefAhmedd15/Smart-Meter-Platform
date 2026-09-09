@@ -9,6 +9,12 @@ WORKSPACE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if WORKSPACE_ROOT not in sys.path:
     sys.path.insert(0, WORKSPACE_ROOT)
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Same variable, same fail-loudly-if-missing contract as backend/app/db/database.py —
 # there is no SQLite fallback for migrations either.
 DATABASE_URL = os.getenv("DATABASE_URL")

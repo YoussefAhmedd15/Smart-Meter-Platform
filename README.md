@@ -88,11 +88,12 @@ pip install -r requirements.txt
 cd frontend && npm install && cd ..
 ```
 
-### 3. Seed Demo Dataset
-Populate the database with 10 Iskraemeco meters, 150 test runs, failure logs, and knowledge base articles:
+### 3. Database Initialization (Optional Demo Dataset)
+The platform connects to the shared PostgreSQL database by default. If working with an isolated local development database and synthetic demo data is desired, run:
 ```bash
-python scripts/seed_demo.py
+python scripts/seed_demo.py --confirm
 ```
+*(Note: Automatic demo seeding is disabled on normal startup to protect shared database records.)*
 
 ### 4. Run CLI Meter Verification
 Inspect connection settings and available ports:

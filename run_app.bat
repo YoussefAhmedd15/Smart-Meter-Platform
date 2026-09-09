@@ -16,13 +16,6 @@ if not exist "frontend\node_modules" (
 )
 
 echo.
-echo 2. Seeding demo dataset into database...
-python scripts\seed_demo.py
-if %ERRORLEVEL% NEQ 0 (
-    echo [WARNING] Seed script encountered an error or dependencies are missing. Proceeding...
-)
-
-echo.
 echo 3. Launching FastAPI Backend Server on http://localhost:8000 ...
 start "FastAPI Backend - Smart Meter Platform" cmd /k "uvicorn backend.app.main:app --reload --port 8000"
 

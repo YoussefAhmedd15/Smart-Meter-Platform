@@ -113,9 +113,6 @@ def list_meters(
     db: Session = Depends(get_db)
 ):
     meters = db.query(Meter).offset(offset).limit(limit).all()
-    if not meters and offset == 0:
-        service = MeterService(db)
-        meters = [service.get_or_create_meter()]
     return meters
 
 
@@ -207,6 +204,7 @@ def get_azure_service() -> AzureDevOpsService:
 def _suite_to_dict(suite: TestSuite) -> dict:
     return {
         "suite_id": suite.suite_id,
+        "id": suite.suite_id,
         "name": suite.name,
         "category": suite.category,
         "description": suite.description,
@@ -291,8 +289,6 @@ def _sync_test_case_to_azure(db: Session, test_case: TestCase, suite: TestSuite,
 # TESTING ENDPOINTS
 @app.get("/api/test-suites", response_model=List[TestSuiteResponse])
 def list_test_suites(db: Session = Depends(get_db)):
-    engine = TestEngineService(db)
-    engine.create_default_suites()
     suites = db.query(TestSuite).all()
     return [_suite_to_dict(s) for s in suites]
 
@@ -475,6 +471,7 @@ def get_test_run_details(run_id: int, db: Session = Depends(get_db)):
     if not run:
         raise HTTPException(status_code=404, detail="Test run not found")
     results = db.query(TestResult).filter(TestResult.test_run_id == run.test_run_id).all()
+    logs = db.query(TestLog).filter(TestLog.test_run_id == run.test_run_id).order_by(TestLog.test_log_id.asc()).all()
     return {
         "id": run.test_run_id,
         "status": run.status,
@@ -483,6 +480,15 @@ def get_test_run_details(run_id: int, db: Session = Depends(get_db)):
         "total_tests": run.total_tests,
         "passed_tests": run.passed_tests,
         "failed_tests": run.failed_tests,
+        "logs": [
+            {
+                "id": l.test_log_id,
+                "level": l.level,
+                "message": l.message,
+                "timestamp": l.timestamp.isoformat() if hasattr(l, "timestamp") and l.timestamp else None,
+            }
+            for l in logs
+        ],
         "results": [
             {
                 "id": r.test_result_id,

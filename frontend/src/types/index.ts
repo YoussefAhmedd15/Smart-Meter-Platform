@@ -1,20 +1,21 @@
 export interface Meter {
-  id: number;
-  meter_id?: number;
-  serial_number: string;
-  meter_number?: string;
-  manufacturer: string;
-  model: string;
+  id?: number;
+  meter_id: number;
+  serial_number?: string;
+  meter_number: string;
+  manufacturer?: string;
+  model?: string;
   meter_model?: string;
-  firmware_version: string;
-  hardware_revision: string;
-  communication_interface: string;
+  meter_type?: string | null;
+  firmware_version?: string | null;
+  hardware_revision?: string | null;
+  communication_interface?: string;
   communication_protocol?: string;
   port_name?: string;
   baud_rate?: number;
-  status: 'ONLINE' | 'OFFLINE' | 'TESTING' | 'ERROR';
-  first_seen: string;
-  last_seen: string;
+  status?: 'ONLINE' | 'OFFLINE' | 'TESTING' | 'ERROR' | string;
+  first_seen?: string | null;
+  last_seen?: string | null;
 }
 
 export interface LastTestRunSummary {
@@ -169,17 +170,23 @@ export interface FailureRecord {
 }
 
 export interface AnalyticsOverview {
-  overall_quality_score: number;
-  pass_rate_percentage: number;
+  quality_score: number;
+  overall_pass_rate: number;
+  total_test_executions: number;
   total_meters_tested: number;
-  total_test_runs: number;
-  total_tests_executed: number;
   passed_tests: number;
   failed_tests: number;
-  average_duration_seconds: number;
-  open_failures: number;
-  critical_failures: number;
-  firmware_stability: string;
+  pending_tests?: number;
+  avg_duration_seconds: number;
+  open_failures?: number;
+  critical_failures?: number;
+  firmware_stability?: string;
+  // Compatibility read-throughs
+  overall_quality_score?: number;
+  pass_rate_percentage?: number;
+  total_test_runs?: number;
+  total_tests_executed?: number;
+  average_duration_seconds?: number;
 }
 
 export interface KnowledgeItem {

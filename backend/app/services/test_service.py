@@ -232,7 +232,6 @@ class TestEngineService:
             self.db.commit()
 
     def execute_test_run(self, meter_id: int, suite_id: int) -> TestRun:
-        self.create_default_suites()
         meter = self.db.query(Meter).filter(Meter.meter_id == meter_id).first()
         suite = self.db.query(TestSuite).filter(TestSuite.suite_id == suite_id).first()
 

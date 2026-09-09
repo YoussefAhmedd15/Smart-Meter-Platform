@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 from typing import List, Optional, Any
 from datetime import datetime
 
@@ -65,6 +65,21 @@ class MeterResponse(BaseModel):
     status: Optional[str] = "ONLINE"
     first_seen: Optional[datetime] = None
     last_seen: Optional[datetime] = None
+
+    @computed_field
+    @property
+    def id(self) -> int:
+        return self.meter_id
+
+    @computed_field
+    @property
+    def serial_number(self) -> str:
+        return self.meter_number
+
+    @computed_field
+    @property
+    def model(self) -> Optional[str]:
+        return self.meter_model
 
     class Config:
         from_attributes = True
@@ -153,6 +168,11 @@ class TestSuiteResponse(BaseModel):
     azure_sync_error: Optional[str] = None
     azure_last_synced_at: Optional[datetime] = None
 
+    @computed_field
+    @property
+    def id(self) -> int:
+        return self.suite_id
+
     class Config:
         from_attributes = True
 
@@ -238,8 +258,12 @@ class KPISummaryResponse(BaseModel):
     quality_score: float
     passed_tests: int
     failed_tests: int
-    pending_tests: int
+    pending_tests: int = 0
     avg_duration_seconds: float
+    open_failures: int = 0
+    critical_failures: int = 0
+    firmware_stability: str = "STABLE"
+
 
 class DailyTrendPoint(BaseModel):
     date: str
