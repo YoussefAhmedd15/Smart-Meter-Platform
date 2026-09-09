@@ -1,7 +1,7 @@
 # ISKRA Knowledge Base Ingestion & Multi-Document Intelligence Report
 
-**Execution Timestamp:** 2026-09-08 10:44:54
-**Total Ingestion Duration:** 1788.32 seconds
+**Execution Timestamp:** 2026-09-09 23:05:44
+**Total Ingestion Duration:** 1031.79 seconds
 **Vector Store:** ChromaDB (`iskra_knowledge`) with `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
 
 ---
@@ -23,10 +23,10 @@
 | # | Filename | Format | Size | SHA-256 (Prefix) | Model | Doc Type | Version | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 1 | `Error cpu.pdf` | .PDF | 787.7 KB | `65c49654be` | UNKNOWN | ERROR_REFERENCE | v0.2 | `UNIQUE` |
-| 2 | `L1 Created 2131 (1).csv` | .CSV | 444.4 KB | `1dce959ad5` | MT514 | ERROR_REFERENCE | UNKNOWN | `UNIQUE` |
+| 2 | `L1 Created 2131 (1).csv` | .CSV | 446.0 KB | `ef993c8bc0` | MT514 | ERROR_REFERENCE | UNKNOWN | `UNIQUE` |
 | 3 | `L1 Created 2131.csv` | .CSV | 0.0 KB | `e3b0c44298` | UNKNOWN | HISTORICAL_RECORD | UNKNOWN | `EMPTY_CORRUPT` |
-| 4 | `L2 Soft (1) (1).csv` | .CSV | 168.8 KB | `a86711ca93` | UNKNOWN | ERROR_REFERENCE | UNKNOWN | `UNIQUE` |
-| 5 | `L2 Soft (1).csv` | .CSV | 168.8 KB | `a86711ca93` | UNKNOWN | ERROR_REFERENCE | UNKNOWN | `EXACT_DUPLICATE` |
+| 4 | `L2 Soft (1) (1).csv` | .CSV | 169.7 KB | `2affc81659` | UNKNOWN | ERROR_REFERENCE | UNKNOWN | `UNIQUE` |
+| 5 | `L2 Soft (1).csv` | .CSV | 169.7 KB | `2affc81659` | UNKNOWN | ERROR_REFERENCE | UNKNOWN | `EXACT_DUPLICATE` |
 | 6 | `ME 514 V5 1.pdf` | .PDF | 879.1 KB | `88d75d7e7a` | ME514 | OTHER | v5 | `UNIQUE` |
 | 7 | `ME514 Meter.pdf` | .PDF | 1051.8 KB | `9bf2abac82` | ME514 | METER_MANUAL | UNKNOWN | `UNIQUE` |
 | 8 | `ME514-5 Brochure.pdf` | .PDF | 679.3 KB | `8ce8ab1f91` | ME514-5 | BROCHURE | UNKNOWN | `UNIQUE` |

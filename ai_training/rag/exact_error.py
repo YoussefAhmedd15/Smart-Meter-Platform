@@ -81,11 +81,27 @@ class DirectErrorSearcher:
                         # Avoid pure page number lines like "13 | Page"
                         if "|" in clean_line and "page" in clean_line.lower():
                             continue
-                        # If clean_line lacks descriptive words and next line has descriptive words (e.g. table cell on next line):
-                        if not re.search(r"[a-zA-Z\u0600-\u06FF]{2,}", clean_line) and idx + 1 < len(lines):
-                            next_line = lines[idx + 1].strip()
-                            if re.search(r"[a-zA-Z\u0600-\u06FF]{2,}", next_line):
-                                clean_line = f"{clean_line} {next_line}"
+                        # If clean_line lacks descriptive words, check adjacent lines (forward or backward for RTL tables):
+                        if not re.search(r"[a-zA-Z\u0600-\u06FF]{2,}", clean_line):
+                            found_adj = False
+                            for offset in [1, 2]:
+                                if idx + offset < len(lines):
+                                    adj = lines[idx + offset].strip()
+                                    if re.search(r"[a-zA-Z\u0600-\u06FF]{2,}", adj):
+                                        clean_line = f"{clean_line} {adj}"
+                                        found_adj = True
+                                        break
+                            if not found_adj:
+                                prev_parts = []
+                                for offset in [1, 2, 3]:
+                                    if idx - offset >= 0:
+                                        adj = lines[idx - offset].strip()
+                                        if re.search(r"[a-zA-Z\u0600-\u06FF]{2,}", adj):
+                                            prev_parts.insert(0, adj)
+                                        elif prev_parts:
+                                            break
+                                if prev_parts:
+                                    clean_line = f"{clean_line} {' '.join(prev_parts)}"
 
                         # A verified error definition MUST contain descriptive words explaining the error,
                         # not merely the error code number itself or table column numbers.

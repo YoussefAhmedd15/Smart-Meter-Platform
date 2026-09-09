@@ -9,7 +9,7 @@ AGENT_DIR = Path(__file__).resolve().parent
 AI_TRAINING_DIR = AGENT_DIR.parent
 PROJECT_ROOT = AI_TRAINING_DIR.parent
 
-VECTOR_STORE_DIR = AI_TRAINING_DIR / "vector_store"
+VECTOR_STORE_DIR = Path(os.getenv("VECTOR_STORE_DIR", str(Path.home() / ".smart_meter_chroma")))
 KNOWLEDGE_DIR = AI_TRAINING_DIR / "data" / "knowledge"
 TAXONOMY_FILE = AI_TRAINING_DIR / "taxonomy" / "l1_taxonomy.json"
 
@@ -28,7 +28,7 @@ TOP_K = 5
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434/api/generate")
 OLLAMA_TAGS_URL = os.getenv("OLLAMA_TAGS_URL", "http://127.0.0.1:11434/api/tags")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "granite4.2:8b")
-OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "45"))
+OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "2"))
 OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.0"))
 OLLAMA_MAX_TOKENS = int(os.getenv("OLLAMA_MAX_TOKENS", "150"))
 
