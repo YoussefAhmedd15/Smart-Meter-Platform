@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, RefreshCw, ExternalLink, CheckCircle2, XCircle,
   Clock, AlertTriangle, Search, Filter, ChevronDown, ChevronUp,
-  Trash2, Edit3, X, Save, Layers, Zap, Cloud, CloudOff,
+  Trash2, Edit3, X, Save, Layers, CloudOff,
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { TestCaseDefinition, TestSuite, AzureSyncStatus } from '../types';

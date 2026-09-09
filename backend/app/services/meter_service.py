@@ -78,10 +78,14 @@ class MeterService:
             self.db.refresh(meter)
         return meter
 
-    def connect_meter(self) -> dict:
+    def connect_meter(self, meter_id: Optional[int] = None) -> dict:
         connected = self.reader.connect()
         init_res = self.reader.initialize()
-        meter = self.get_or_create_meter()
+        meter = None
+        if meter_id:
+            meter = self.db.query(Meter).filter(Meter.meter_id == meter_id).first()
+        if not meter:
+            meter = self.get_or_create_meter()
         meter.last_seen = datetime.utcnow()
         meter.status = "ONLINE" if connected else "ERROR"
         self.db.commit()

@@ -1,0 +1,63 @@
+======================================================================
+ISKRA L1 TRAINING DATASET REPORT
+======================================================================
+
+Input records: 1701
+Training records generated: 1701
+
+ISSUE CATEGORIES
+----------------------------------------------------------------------
+- Software: 1031
+- Hardware: 516
+- Software|Hardware: 95
+- Hardware|Communication: 36
+- Software|Communication: 15
+- Unknown: 4
+- Software|Hardware|Communication: 2
+- Hardware|Firmware: 2
+
+SYSTEMS
+----------------------------------------------------------------------
+- Unknown: 1027
+- Vending: 334
+- Aqua: 153
+- Electric: 84
+- MeterVerse: 49
+- Billing: 19
+- MeterVerse|Electric: 13
+- Vending|Electric: 8
+- Symbiot: 7
+- MeterVerse|Aqua: 4
+- Vending|Aqua: 2
+- Vending|MeterVerse|Aqua: 1
+
+METER TYPES
+----------------------------------------------------------------------
+- Unknown: 1441
+- Water: 154
+- Electric: 78
+- Water|Electric: 27
+- Ultrasonic: 1
+
+RESOLUTION EVIDENCE
+----------------------------------------------------------------------
+Verified resolution records: 11
+Resolution not available: 1690
+
+SAFETY RULES
+----------------------------------------------------------------------
+- No unsupported root causes are generated.
+- No unsupported solutions are generated.
+- Unknown information is preserved.
+- Missing information is explicitly requested.
+- Resolution is included only when source evidence exists.
+
+FILES
+----------------------------------------------------------------------
+C:\Users\A I\AppData\Local\Programs\Ollama\iskra\ai_training\data\training\l1_training.jsonl
+C:\Users\A I\AppData\Local\Programs\Ollama\iskra\ai_training\data\training\l1_training.csv
+C:\Users\A I\AppData\Local\Programs\Ollama\iskra\ai_training\data\training\training_report.txt
+
+======================================================================
+END OF REPORT
+======================================================================

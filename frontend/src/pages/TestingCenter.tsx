@@ -61,15 +61,12 @@ export const TestingCenter: React.FC = () => {
 
       // Fetch detailed results
       try {
-        const detail = await fetch(`/api/test-runs/${run.id}`);
-        if (detail.ok) {
-          const data = await detail.json();
-          if (data.results?.length) {
-            setResults(data.results);
-            data.results.forEach((r: TestResult) => {
-              addLog(`  [${r.status}] ${r.test_name} — ${r.actual_value ?? r.error_message ?? ''} (${r.duration_ms}ms)`);
-            });
-          }
+        const detail = await apiService.getTestRun(run.id);
+        if (detail?.results?.length) {
+          setResults(detail.results);
+          detail.results.forEach((r: TestResult) => {
+            addLog(`  [${r.status}] ${r.test_name} — ${r.actual_value ?? r.error_message ?? ''} (${r.duration_ms}ms)`);
+          });
         }
       } catch { /* results display will fall back to summary */ }
 

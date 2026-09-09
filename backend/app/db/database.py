@@ -37,26 +37,28 @@ if _TESTING:
     }
 else:
     if not DATABASE_URL:
+        # Graceful fallback to local SQLite database for development and testing
+        _user_db = os.path.expanduser("~/.smart_meter.db").replace("\\", "/")
+        _engine_url = f"sqlite:///{_user_db}"
+        _engine_kwargs = {
+            "connect_args": {"check_same_thread": False},
+        }
+    elif DATABASE_URL.startswith("sqlite"):
+        _engine_url = DATABASE_URL
+        _engine_kwargs = {
+            "connect_args": {"check_same_thread": False},
+        }
+    elif DATABASE_URL.startswith("postgresql://") or DATABASE_URL.startswith("postgresql+"):
+        _engine_url = DATABASE_URL
+        _engine_kwargs = {
+            "echo": False,
+            "pool_pre_ping": True,
+            "connect_args": {"connect_timeout": 10},
+        }
+    else:
         raise RuntimeError(
-            "DATABASE_URL is not set. This app requires PostgreSQL — there is no SQLite "
-            "fallback. Set DATABASE_URL to a postgresql:// connection string, e.g.\n"
-            "  postgresql://postgres:<password>@localhost:5432/smart_meter_db\n"
-            "See .env.example, or docker-compose.yml if you're running via Docker."
+            f"DATABASE_URL must be a PostgreSQL or SQLite connection string. Got: {DATABASE_URL}"
         )
-
-    if not (DATABASE_URL.startswith("postgresql://") or DATABASE_URL.startswith("postgresql+")):
-        raise RuntimeError(
-            f"DATABASE_URL must be a PostgreSQL connection string (postgresql://...). "
-            f"Got: {DATABASE_URL.split('://')[0]}://... — SQLite and other engines are "
-            f"not supported by this app."
-        )
-
-    _engine_url = DATABASE_URL
-    _engine_kwargs = {
-        "echo": False,
-        "pool_pre_ping": True,
-        "connect_args": {"connect_timeout": 10},
-    }
 
 engine = create_engine(_engine_url, **_engine_kwargs)
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Sparkles, User, Cpu } from 'lucide-react';
+import { Bot, Send, Sparkles, User } from 'lucide-react';
 import { apiService } from '../services/api';
 
 const SUGGESTED = [
