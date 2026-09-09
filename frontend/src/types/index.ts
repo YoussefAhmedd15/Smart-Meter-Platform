@@ -1,11 +1,17 @@
 export interface Meter {
   id: number;
+  meter_id?: number;
   serial_number: string;
+  meter_number?: string;
   manufacturer: string;
   model: string;
+  meter_model?: string;
   firmware_version: string;
   hardware_revision: string;
   communication_interface: string;
+  communication_protocol?: string;
+  port_name?: string;
+  baud_rate?: number;
   status: 'ONLINE' | 'OFFLINE' | 'TESTING' | 'ERROR';
   first_seen: string;
   last_seen: string;
@@ -13,8 +19,10 @@ export interface Meter {
 
 export interface MeterReading {
   id: number;
+  meter_reading_id?: number;
   meter_id: number;
   obis: string;
+  obis_code?: string;
   attribute_index: number;
   value: string;
   raw_value?: string;
@@ -27,6 +35,7 @@ export interface MeterReading {
 
 export interface TestSuite {
   id: number;
+  suite_id?: number;
   name: string;
   category: string;
   description: string;
@@ -38,7 +47,7 @@ export interface TestSuite {
   azure_last_synced_at?: string | null;
 }
 
-export type AzureSyncStatus = 'NOT_SYNCED' | 'SYNCED' | 'FAILED' | 'NOT_CONFIGURED';
+export type AzureSyncStatus = 'NOT_SYNCED' | 'SYNCED' | 'FAILED' | 'NOT_CONFIGURED' | 'PENDING';
 
 export interface TestStep {
   action: string;
@@ -83,19 +92,23 @@ export interface TestCaseCreateInput {
 
 export interface TestRun {
   id: number;
+  test_run_id?: number;
   meter_id: number;
   firmware_version: string;
-  status: 'RUNNING' | 'COMPLETED' | 'FAILED' | 'ABORTED';
+  status: 'RUNNING' | 'COMPLETED' | 'FAILED' | 'ABORTED' | 'PASSED';
   total_tests: number;
   passed_tests: number;
   failed_tests: number;
   duration_seconds: number;
   started_at: string;
+  start_time?: string;
+  end_time?: string;
   results?: TestResult[];
 }
 
 export interface TestResult {
   id: number;
+  test_result_id?: number;
   test_name: string;
   status: 'PASS' | 'FAIL' | 'SKIPPED' | 'ERROR';
   duration_ms: number;
@@ -105,12 +118,17 @@ export interface TestResult {
 
 export interface FailureRecord {
   id: number;
+  failure_id?: number;
   meter_id: number;
   firmware_version: string;
   test_case: string;
+  test_case_name?: string;
   error_type: string;
+  error_code?: string;
   error_message: string;
+  case_details?: string;
   severity: string;
+  case_severity?: string;
   created_at: string;
 }
 
@@ -130,6 +148,7 @@ export interface AnalyticsOverview {
 
 export interface KnowledgeItem {
   id: number;
+  knowledge_item_id?: number;
   title: string;
   problem: string;
   symptoms: string;
@@ -142,21 +161,34 @@ export interface KnowledgeItem {
   tags: string;
 }
 
+export interface RegressionDetail {
+  test_case_id: number;
+  test_name: string;
+  status_firmware_a: string;
+  status_firmware_b: string;
+}
+
 export interface RegressionComparison {
-  id: number;
-  firmware_a: {
+  id?: number;
+  pass_rate_a?: number;
+  pass_rate_b?: number;
+  pass_rate_delta?: number;
+  regressions_detected?: number;
+  regressed_tests?: RegressionDetail[];
+  handoff_payload?: any;
+  firmware_a: string | {
     version: string;
     pass_rate: number;
     total_tests: number;
     failures: number;
   };
-  firmware_b: {
+  firmware_b: string | {
     version: string;
     pass_rate: number;
     total_tests: number;
     failures: number;
   };
-  comparison: {
+  comparison?: {
     pass_rate_improvement: string;
     fixed_issues_count: number;
     new_failures_count: number;
@@ -183,3 +215,72 @@ export interface TestCase {
   azure_synced_at?: string;
   azure_url?: string;
 }
+
+export interface AnalyticsFirmware {
+  firmware_version: string;
+  failure_count: number;
+  pass_rate?: number;
+}
+
+export interface AnalyticsModel {
+  model: string;
+  failures: number;
+  pass_rate?: number;
+  tests?: number;
+}
+
+export interface AnalyticsTrend {
+  date: string;
+  passed: number;
+  failed: number;
+  duration: number;
+  passRate?: number;
+}
+
+export interface MeterConnectionResult {
+  meter_id: number;
+  meter_number: string;
+  connected: boolean;
+  handshake?: any;
+}
+
+export interface MeterObjectInfo {
+  meter_id?: number;
+  obis: string;
+  class_id: number;
+  name?: string;
+  description?: string;
+  attributes?: any[];
+  methods?: any[];
+}
+
+export interface ReportGenerationResult {
+  test_run_id: number;
+  format: string;
+  filename: string;
+  filepath: string;
+  report_summary: any;
+  download_url: string;
+}
+
+export interface TestRecommendationResult {
+  change_summary: string;
+  recommended_suite_name: string;
+  total_candidates: number;
+  selected_count: number;
+  reasoning: string;
+}
+
+export interface KnowledgeItemCreateInput {
+  title: string;
+  problem: string;
+  symptoms: string;
+  affected_models?: string;
+  firmware?: string;
+  root_cause: string;
+  solution: string;
+  fixed_version?: string;
+  severity?: string;
+  tags?: string;
+}
+

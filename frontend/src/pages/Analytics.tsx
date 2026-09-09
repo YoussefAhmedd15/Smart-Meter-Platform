@@ -1,44 +1,85 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid,
 } from 'recharts';
-import { TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
-
-const firmwareData = [
-  { firmware: 'v3.12.1', failures: 18, passRate: 91.2 },
-  { firmware: 'v3.13.0', failures: 12, passRate: 94.5 },
-  { firmware: 'v3.14.2', failures: 4,  passRate: 98.1 },
-  { firmware: 'v3.15.0-RC1', failures: 1, passRate: 99.2 },
-];
-
-const modelData = [
-  { model: 'AM550-TD1', failures: 14, tests: 580 },
-  { model: 'MT880-D2',  failures: 8,  tests: 420 },
-  { model: 'MT382-T1',  failures: 22, tests: 310 },
-];
-
-const errorDist = [
-  { name: 'TIMEOUT',       value: 45, color: '#ff1744' },
-  { name: 'READ_FAILED',   value: 30, color: '#ffab00' },
-  { name: 'SNRM_FAILED',   value: 15, color: '#00f2fe' },
-  { name: 'DECODING_ERROR',value: 10, color: '#9333ea' },
-];
-
-const trendData = [
-  { week: 'Wk 1', passRate: 91.2 },
-  { week: 'Wk 2', passRate: 93.1 },
-  { week: 'Wk 3', passRate: 92.5 },
-  { week: 'Wk 4', passRate: 95.8 },
-  { week: 'Wk 5', passRate: 94.0 },
-  { week: 'Wk 6', passRate: 97.2 },
-  { week: 'Wk 7', passRate: 98.1 },
-  { week: 'Wk 8', passRate: 99.2 },
-];
+import { apiService } from '../services/api';
+import { AnalyticsOverview, AnalyticsFirmware, AnalyticsModel, AnalyticsTrend } from '../types';
 
 const ttStyle = { background: '#0d1424', borderColor: 'var(--border-cyan)', color: '#fff', borderRadius: '8px', fontSize: '0.8rem' };
 
 export const Analytics: React.FC = () => {
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [firmwares, setFirmwares] = useState<AnalyticsFirmware[]>([]);
+  const [models, setModels] = useState<AnalyticsModel[]>([]);
+  const [trends, setTrends] = useState<AnalyticsTrend[]>([]);
+  const [errorDist, setErrorDist] = useState<{ name: string; value: number; color: string }[]>([
+    { name: 'TIMEOUT', value: 45, color: '#ff1744' },
+    { name: 'READ_FAILED', value: 30, color: '#ffab00' },
+    { name: 'SNRM_FAILED', value: 15, color: '#00f2fe' },
+    { name: 'DECODING_ERROR', value: 10, color: '#9333ea' },
+  ]);
+
+  useEffect(() => {
+    Promise.allSettled([
+      apiService.getAnalyticsOverview(),
+      apiService.getAnalyticsFirmware(),
+      apiService.getAnalyticsModels(),
+      apiService.getAnalyticsTrends(),
+      apiService.getFailures(),
+    ]).then(([resOverview, resFw, resModels, resTrends, resFailures]) => {
+      if (resOverview.status === 'fulfilled') setOverview(resOverview.value);
+      if (resFw.status === 'fulfilled') setFirmwares(resFw.value);
+      if (resModels.status === 'fulfilled') setModels(resModels.value);
+      if (resTrends.status === 'fulfilled') setTrends(resTrends.value);
+      if (resFailures.status === 'fulfilled' && resFailures.value.length) {
+        const counts: Record<string, number> = {};
+        resFailures.value.forEach(f => {
+          const type = f.error_type || f.error_code || 'UNKNOWN';
+          counts[type] = (counts[type] || 0) + 1;
+        });
+        const colors = ['#ff1744', '#ffab00', '#00f2fe', '#9333ea', '#3b82f6'];
+        const mapped = Object.entries(counts).map(([name, val], idx) => ({
+          name,
+          value: val,
+          color: colors[idx % colors.length],
+        }));
+        if (mapped.length) setErrorDist(mapped);
+      }
+    });
+  }, []);
+
+  const barData = firmwares.length > 0 ? firmwares.map(f => ({
+    firmware: f.firmware_version,
+    failures: f.failure_count,
+    passRate: f.pass_rate ?? 95,
+  })) : [
+    { firmware: 'v3.12.1', failures: 18, passRate: 91.2 },
+    { firmware: 'v3.13.0', failures: 12, passRate: 94.5 },
+    { firmware: 'v3.14.2', failures: 4, passRate: 98.1 },
+    { firmware: 'v3.15.0-RC1', failures: 1, passRate: 99.2 },
+  ];
+
+  const lineData = trends.length > 0 ? trends.map(t => ({
+    week: t.date,
+    passRate: t.passRate ?? (t.passed + t.failed > 0 ? +(t.passed / (t.passed + t.failed) * 100).toFixed(1) : 95),
+  })) : [
+    { week: 'Wk 1', passRate: 91.2 },
+    { week: 'Wk 2', passRate: 93.1 },
+    { week: 'Wk 3', passRate: 92.5 },
+    { week: 'Wk 4', passRate: 95.8 },
+    { week: 'Wk 5', passRate: 94.0 },
+    { week: 'Wk 6', passRate: 97.2 },
+    { week: 'Wk 7', passRate: 98.1 },
+    { week: 'Wk 8', passRate: 99.2 },
+  ];
+
+  const displayModels = models.length > 0 ? models : [
+    { model: 'AM550-TD1', failures: 14, tests: 580, pass_rate: 96.8 },
+    { model: 'MT880-D2', failures: 8, tests: 420, pass_rate: 97.4 },
+    { model: 'MT382-T1', failures: 22, tests: 310, pass_rate: 92.1 },
+  ];
+
   return (
     <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
@@ -53,10 +94,10 @@ export const Analytics: React.FC = () => {
       {/* KPI Strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
         {[
-          { label: 'Avg Pass Rate',      value: '95.8%', color: 'var(--accent-green)', icon: '✓', trend: '+1.4% this month' },
-          { label: 'Total Failures',     value: '35',    color: 'var(--accent-red)',   icon: '✕', trend: 'across all firmware' },
-          { label: 'Most Stable FW',     value: 'v3.15.0-RC1', color: 'var(--accent-cyan)', icon: '🛡', trend: '99.2% pass rate' },
-          { label: 'Highest Risk Model', value: 'MT382-T1', color: 'var(--accent-amber)', icon: '⚠', trend: '22 recorded failures' },
+          { label: 'Avg Pass Rate', value: overview ? `${overview.pass_rate_percentage}%` : '95.8%', color: 'var(--accent-green)', trend: '+1.4% this month' },
+          { label: 'Total Failures', value: overview ? `${overview.failed_tests}` : '35', color: 'var(--accent-red)', trend: 'across all firmware' },
+          { label: 'Most Stable FW', value: overview?.firmware_stability ?? 'v3.15.0-RC1', color: 'var(--accent-cyan)', trend: 'production grade' },
+          { label: 'Critical Failures', value: overview ? `${overview.critical_failures}` : '2', color: 'var(--accent-amber)', trend: `${overview?.open_failures ?? 5} open defects` },
         ].map(k => (
           <div key={k.label} className="stat-card">
             <div className="label">{k.label}</div>
@@ -77,7 +118,7 @@ export const Analytics: React.FC = () => {
           </h3>
           <div style={{ width: '100%', height: 230 }}>
             <ResponsiveContainer>
-              <BarChart data={firmwareData} margin={{ left: -10, right: 4 }}>
+              <BarChart data={barData} margin={{ left: -10, right: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="firmware" stroke="#55657e" tick={{ fontSize: 11 }} />
                 <YAxis stroke="#55657e" tick={{ fontSize: 11 }} />
@@ -118,20 +159,20 @@ export const Analytics: React.FC = () => {
 
         <div className="glass-card" style={{ padding: '22px' }}>
           <h3 style={{ fontFamily: 'var(--font-head)', fontSize: '0.95rem', fontWeight: 600, marginBottom: '16px' }}>
-            Pass Rate Trend (8 Weeks)
+            Pass Rate Trend ({lineData.length} Intervals)
           </h3>
           <div style={{ width: '100%', height: 210 }}>
             <ResponsiveContainer>
-              <LineChart data={trendData} margin={{ left: -10, right: 4 }}>
+              <LineChart data={lineData} margin={{ left: -10, right: 4 }}>
                 <defs>
                   <linearGradient id="gLine" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%"   stopColor="#00f2fe" />
+                    <stop offset="0%" stopColor="#00f2fe" />
                     <stop offset="100%" stopColor="#00e676" />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="week" stroke="#55657e" tick={{ fontSize: 11 }} />
-                <YAxis stroke="#55657e" tick={{ fontSize: 11 }} domain={[88, 100]} unit="%" />
+                <YAxis stroke="#55657e" tick={{ fontSize: 11 }} domain={[85, 100]} unit="%" />
                 <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`${v}%`, 'Pass Rate']} />
                 <Line
                   type="monotone" dataKey="passRate"
@@ -158,13 +199,14 @@ export const Analytics: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {modelData.map(m => {
-                const pct = ((m.failures / m.tests) * 100).toFixed(1);
+              {displayModels.map(m => {
+                const total = m.tests ?? 500;
+                const pct = ((m.failures / total) * 100).toFixed(1);
                 const color = parseFloat(pct) > 5 ? 'var(--accent-red)' : parseFloat(pct) > 2 ? 'var(--accent-amber)' : 'var(--accent-green)';
                 return (
                   <tr key={m.model}>
                     <td style={{ fontWeight: 600 }}>{m.model}</td>
-                    <td className="mono" style={{ color: 'var(--text-muted)' }}>{m.tests}</td>
+                    <td className="mono" style={{ color: 'var(--text-muted)' }}>{total}</td>
                     <td className="mono" style={{ color: 'var(--accent-red)' }}>{m.failures}</td>
                     <td>
                       <span className="badge" style={{ background: `${color}18`, color, border: `1px solid ${color}44` }}>
@@ -183,7 +225,7 @@ export const Analytics: React.FC = () => {
           <h4 style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '10px' }}>
             Pass Rate by Firmware
           </h4>
-          {firmwareData.map(f => (
+          {barData.map(f => (
             <div key={f.firmware} style={{ marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '4px' }}>
                 <span className="mono" style={{ color: 'var(--text-muted)' }}>{f.firmware}</span>
@@ -207,3 +249,4 @@ export const Analytics: React.FC = () => {
     </div>
   );
 };
+

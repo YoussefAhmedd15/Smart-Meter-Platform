@@ -155,13 +155,17 @@ def get_meter_readings(meter_id: int, db: Session = Depends(get_db)):
 @app.post("/api/meters/{meter_id}/connect", dependencies=[Depends(get_current_user)])
 def connect_meter(meter_id: int, db: Session = Depends(get_db)):
     service = MeterService(db)
-    return service.connect_meter()
+    return service.connect_meter(meter_id)
 
 
 @app.post("/api/meters/{meter_id}/disconnect", dependencies=[Depends(get_current_user)])
 def disconnect_meter(meter_id: int, db: Session = Depends(get_db)):
     service = MeterService(db)
     service.reader.disconnect()
+    meter = db.query(Meter).filter(Meter.meter_id == meter_id).first()
+    if meter:
+        meter.status = "OFFLINE"
+        db.commit()
     return {"status": "DISCONNECTED", "meter_id": meter_id}
 
 
