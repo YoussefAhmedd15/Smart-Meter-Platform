@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Zap, Activity, Clock, Wifi, WifiOff, Bell } from 'lucide-react';
+import { Zap, Activity, Clock, Wifi, WifiOff, Bell, LogOut } from 'lucide-react';
 import { apiService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   appMode?: string;
@@ -11,6 +13,10 @@ export const Header: React.FC<HeaderProps> = ({ appMode: initialAppMode = 'hardw
   const [currentTime, setCurrentTime]  = useState<string>('');
   const [currentDate, setCurrentDate]  = useState<string>('');
   const [connected, setConnected]      = useState<boolean>(true);
+  const [loggingOut, setLoggingOut]    = useState<boolean>(false);
+
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   /* Fetch real app-mode from health endpoint */
   useEffect(() => {
@@ -36,6 +42,16 @@ export const Header: React.FC<HeaderProps> = ({ appMode: initialAppMode = 'hardw
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   const isHardware = currentMode === 'hardware';
 
@@ -170,6 +186,73 @@ export const Header: React.FC<HeaderProps> = ({ appMode: initialAppMode = 'hardw
             border: '2px solid var(--bg-primary)',
           }} />
         </button>
+
+        {/* User + Logout */}
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* User avatar / email pill */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '5px 12px', borderRadius: 'var(--radius-xl)',
+              background: user.role === 'admin' ? 'rgba(168,85,247,0.1)' : 'rgba(0,242,254,0.08)',
+              border: `1px solid ${user.role === 'admin' ? 'rgba(168,85,247,0.3)' : 'rgba(0,242,254,0.2)'}`,
+            }}>
+              {/* Avatar circle */}
+              <div style={{
+                width: '24px', height: '24px', borderRadius: '50%',
+                background: user.role === 'admin'
+                  ? 'linear-gradient(135deg, #c084fc 0%, #818cf8 100%)'
+                  : 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.65rem', fontWeight: 800, color: '#070b14', flexShrink: 0,
+              }}>
+                {user.email.charAt(0).toUpperCase()}
+              </div>
+              <div style={{ lineHeight: 1.2 }}>
+                <div style={{
+                  fontSize: '0.72rem', fontWeight: 700,
+                  color: user.role === 'admin' ? '#c084fc' : 'var(--accent-cyan)',
+                  maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {user.email}
+                </div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {user.role}
+                </div>
+              </div>
+            </div>
+
+            {/* Logout button */}
+            <button
+              id="header-logout-btn"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              title="Sign out"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '7px 13px', borderRadius: 'var(--radius-xl)',
+                background: 'rgba(255,23,68,0.08)', border: '1px solid rgba(255,23,68,0.25)',
+                color: 'var(--accent-red)', fontWeight: 600, fontSize: '0.78rem',
+                cursor: loggingOut ? 'default' : 'pointer',
+                opacity: loggingOut ? 0.6 : 1,
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                if (!loggingOut) {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,23,68,0.18)';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,23,68,0.5)';
+                }
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255,23,68,0.08)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,23,68,0.25)';
+              }}
+            >
+              <LogOut size={14} />
+              {loggingOut ? 'Signing out…' : 'Sign Out'}
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

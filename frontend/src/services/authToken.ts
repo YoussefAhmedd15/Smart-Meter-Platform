@@ -1,18 +1,17 @@
-// In-memory access-token store. Deliberately not localStorage/sessionStorage —
-// a page refresh losing the session is an accepted tradeoff for not
-// persisting a bearer token somewhere readable by any injected script (XSS).
-//
-// api.ts (a plain module, can't use React hooks) reads the current token from
-// here on every outgoing request. AuthContext is the only writer — it calls
-// setAuthToken() whenever its own React state changes (login, logout), so
-// this stays a thin mirror of the context's state, not a second source of
-// truth.
-let currentToken: string | null = null;
+// Token store — reads/writes localStorage so the session survives page refreshes.
+// Still a thin module (not a React hook) so api.ts can import it without issue.
+// AuthContext is the only writer.
+
+const TOKEN_KEY = 'smp_auth_token';
 
 export function setAuthToken(token: string | null): void {
-  currentToken = token;
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+  }
 }
 
 export function getAuthToken(): string | null {
-  return currentToken;
+  return localStorage.getItem(TOKEN_KEY);
 }

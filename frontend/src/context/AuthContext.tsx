@@ -1,38 +1,54 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { apiService, AuthUser } from '../services/api';
-import { setAuthToken } from '../services/authToken';
+import { getAuthToken, setAuthToken } from '../services/authToken';
 
 interface AuthContextValue {
   token: string | null;
   user: AuthUser | null;
   isAuthenticated: boolean;
-  /** True once we know whether there's a session or not. Always true here —
-   * the token lives in memory only (see authToken.ts), so there's no
-   * persisted session to rehydrate on load and nothing async to wait on.
-   * Kept as a real flag (not hardcoded true at every call site) so
-   * ProtectedRoute has a stable thing to check rather than an implicit
-   * assumption, and so this doesn't need to change shape if persistence
-   * is ever added later. */
+  /** False while we're rehydrating a stored token on first load.
+   * ProtectedRoute waits for this before deciding to redirect. */
   initialized: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  /** Returns the signed-in AuthUser so callers can redirect based on role. */
+  login: (email: string, password: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [initialized] = useState<boolean>(true);
+  const [token, setToken]           = useState<string | null>(null);
+  const [user, setUser]             = useState<AuthUser | null>(null);
+  const [initialized, setInit]      = useState<boolean>(false);
 
-  const login = useCallback(async (email: string, password: string) => {
-    // The JWT itself only carries `sub`/`role` (see backend/app/core/security.py)
-    // — not email — so /auth/me is the real source for "the decoded user".
+  // ── Rehydrate from localStorage on first render ──────────────────────────
+  useEffect(() => {
+    const stored = getAuthToken();
+    if (!stored) {
+      setInit(true);
+      return;
+    }
+    // Validate the stored token with the backend (/auth/me).
+    // If it's expired or revoked the call will 401 and we clear the token.
+    apiService.getMe(stored)
+      .then(me => {
+        setToken(stored);
+        setUser(me);
+      })
+      .catch(() => {
+        // Token is invalid/expired — clear it so the user lands on /login.
+        setAuthToken(null);
+      })
+      .finally(() => setInit(true));
+  }, []);
+
+  const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
     const { access_token } = await apiService.login(email, password);
     const me = await apiService.getMe(access_token);
     setAuthToken(access_token);
     setToken(access_token);
     setUser(me);
+    return me;
   }, []);
 
   const logout = useCallback(async () => {

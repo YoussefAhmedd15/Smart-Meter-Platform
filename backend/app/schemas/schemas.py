@@ -235,3 +235,22 @@ class FirmwareComparisonResponse(BaseModel):
     regressions_detected: int
     regressed_tests: List[RegressionDetail]
     handoff_payload: Any
+
+
+# ---------------------------------------------------------------------------
+# Admin — user management
+# ---------------------------------------------------------------------------
+
+class UserCreateAdmin(BaseModel):
+    """Admin-only: create a user with any role."""
+    email: str
+    password: str
+    role: str = "tester"  # tester | admin
+
+
+class UserUpdateAdmin(BaseModel):
+    """Admin-only: update any fields on a user."""
+    email: Optional[str] = None
+    password: Optional[str] = None  # if provided, will be hashed
+    role: Optional[str] = None
+    is_active: Optional[bool] = None

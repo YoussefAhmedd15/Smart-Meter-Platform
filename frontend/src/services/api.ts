@@ -18,11 +18,21 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
       ...options,
     });
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      // Try to parse error detail from body, fall back to status text.
+      const errBody = await res.text();
+      let message = `HTTP ${res.status}: ${res.statusText}`;
+      try {
+        const parsed = JSON.parse(errBody);
+        if (parsed?.detail) message = typeof parsed.detail === 'string' ? parsed.detail : message;
+      } catch { /* ignore */ }
+      throw new Error(message);
     }
-    return await res.json();
+    // 204 No Content (e.g. DELETE) — body is empty, nothing to parse.
+    if (res.status === 204) return undefined as T;
+    const text = await res.text();
+    return text ? JSON.parse(text) as T : undefined as T;
   } catch (err) {
-    console.warn(`API call to ${url} failed, using local mock state:`, err);
+    console.warn(`API call to ${url} failed:`, err);
     throw err;
   }
 }
@@ -298,4 +308,24 @@ export const apiService = {
     authFetch<AuthUser>('/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  // --- Admin: user management (admin role required) ---
+
+  adminListUsers: (): Promise<AuthUser[]> =>
+    fetchJson<AuthUser[]>('/admin/users'),
+
+  adminCreateUser: (email: string, password: string, role: string): Promise<AuthUser> =>
+    fetchJson<AuthUser>('/admin/users', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, role }),
+    }),
+
+  adminUpdateUser: (userId: number, data: Partial<{ email: string; password: string; role: string; is_active: boolean }>): Promise<AuthUser> =>
+    fetchJson<AuthUser>(`/admin/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  adminDeleteUser: (userId: number): Promise<void> =>
+    fetchJson<void>(`/admin/users/${userId}`, { method: 'DELETE' }),
 };

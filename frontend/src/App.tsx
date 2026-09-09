@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { Header } from './components/Header';
@@ -17,6 +18,7 @@ import { AIAgent } from './pages/AIAgent';
 import { KnowledgeBase } from './pages/KnowledgeBase';
 import { TestReports } from './pages/TestReports';
 import { SettingsPage } from './pages/SettingsPage';
+import { AdminPage } from './pages/AdminPage';
 
 // The old tab-state ids <-> the new URL paths. Sidebar.tsx is untouched and
 // still speaks entirely in these ids (activeTab / setActiveTab(tab: string))
@@ -35,10 +37,19 @@ const TAB_PATHS: Record<string, string> = {
   knowledge:           '/knowledge',
   reports:             '/reports',
   settings:            '/settings',
+  admin:               '/admin',
 };
 const PATH_TABS: Record<string, string> = Object.fromEntries(
   Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab]),
 );
+
+/** Admin-only route guard — redirects non-admins to / */
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'admin') return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
 
 const AppShell: React.FC = () => {
   const location = useLocation();
@@ -75,6 +86,14 @@ const AppShell: React.FC = () => {
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/reports" element={<TestReports />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

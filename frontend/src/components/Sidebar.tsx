@@ -2,8 +2,9 @@ import React from 'react';
 import {
   LayoutDashboard, PlaySquare, Activity, UserCheck,
   ShieldAlert, BarChart3, GitCompare, Bot, BookOpen,
-  FileText, Settings, ChevronRight, ClipboardList,
+  FileText, Settings, ChevronRight, ClipboardList, ShieldCheck,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -16,6 +17,7 @@ interface NavItem {
   icon: React.ElementType;
   badge?: string;
   badgeColor?: string;
+  adminOnly?: boolean;
 }
 
 interface NavSection {
@@ -61,9 +63,18 @@ const navSections: NavSection[] = [
       { id: 'settings', label: 'Settings',     icon: Settings },
     ],
   },
+  {
+    title: 'Administration',
+    items: [
+      { id: 'admin', label: 'Manage Users', icon: ShieldCheck, badge: 'ADMIN', badgeColor: '#c084fc', adminOnly: true },
+    ],
+  },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   return (
     <aside
       style={{
@@ -80,96 +91,109 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         flexShrink: 0,
       }}
     >
-      {navSections.map((section, si) => (
-        <div key={si} style={{ marginBottom: '4px' }}>
-          {/* Section label */}
-          <div style={{
-            padding: '10px 14px 6px',
-            fontSize: '0.65rem',
-            fontWeight: 700,
-            color: 'var(--text-dim)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.09em',
-            marginTop: si === 0 ? 0 : '6px',
-          }}>
-            {section.title}
+      {navSections.map((section, si) => {
+        // Filter out admin-only items for non-admin users
+        const visibleItems = section.items.filter(item => !item.adminOnly || isAdmin);
+        // Don't render the section at all if all items are hidden
+        if (visibleItems.length === 0) return null;
+
+        return (
+          <div key={si} style={{ marginBottom: '4px' }}>
+            {/* Section label */}
+            <div style={{
+              padding: '10px 14px 6px',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              color: 'var(--text-dim)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.09em',
+              marginTop: si === 0 ? 0 : '6px',
+            }}>
+              {section.title}
+            </div>
+
+            {/* Items */}
+            {visibleItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '9px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: isActive
+                      ? (item.adminOnly
+                          ? 'linear-gradient(90deg, rgba(168,85,247,0.18) 0%, rgba(79,172,254,0.04) 100%)'
+                          : 'linear-gradient(90deg, rgba(0,242,254,0.14) 0%, rgba(79,172,254,0.04) 100%)')
+                      : 'transparent',
+                    color: isActive
+                      ? (item.adminOnly ? '#c084fc' : 'var(--accent-cyan)')
+                      : 'var(--text-muted)',
+                    borderLeft: isActive
+                      ? `2px solid ${item.adminOnly ? '#c084fc' : 'var(--accent-cyan)'}`
+                      : '2px solid transparent',
+                    fontWeight: isActive ? 600 : 400,
+                    fontSize: '0.86rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
+                    marginBottom: '2px',
+                    position: 'relative',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
+                      (e.currentTarget as HTMLElement).style.color = 'var(--text-main)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.background = 'transparent';
+                      (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+                    }
+                  }}
+                >
+                  <Icon
+                    size={17}
+                    color={isActive ? (item.adminOnly ? '#c084fc' : 'var(--accent-cyan)') : 'currentColor'}
+                    strokeWidth={isActive ? 2.2 : 1.8}
+                  />
+                  <span style={{ flex: 1 }}>{item.label}</span>
+
+                  {/* Badge */}
+                  {item.badge && (
+                    <span style={{
+                      fontSize: '0.58rem',
+                      fontWeight: 800,
+                      padding: '1px 6px',
+                      borderRadius: '99px',
+                      background: `${item.badgeColor}22`,
+                      color: item.badgeColor,
+                      border: `1px solid ${item.badgeColor}44`,
+                      letterSpacing: '0.05em',
+                    }}>
+                      {item.badge}
+                    </span>
+                  )}
+
+                  {/* Active arrow */}
+                  {isActive && (
+                    <ChevronRight size={14} color={item.adminOnly ? '#c084fc' : 'var(--accent-cyan)'} style={{ flexShrink: 0 }} />
+                  )}
+                </button>
+              );
+            })}
           </div>
-
-          {/* Items */}
-          {section.items.map(item => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '9px 12px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  background: isActive
-                    ? 'linear-gradient(90deg, rgba(0,242,254,0.14) 0%, rgba(79,172,254,0.04) 100%)'
-                    : 'transparent',
-                  color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                  borderLeft: isActive ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-                  fontWeight: isActive ? 600 : 400,
-                  fontSize: '0.86rem',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.15s ease',
-                  marginBottom: '2px',
-                  position: 'relative',
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
-                    (e.currentTarget as HTMLElement).style.color = 'var(--text-main)';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.background = 'transparent';
-                    (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
-                  }
-                }}
-              >
-                <Icon
-                  size={17}
-                  color={isActive ? 'var(--accent-cyan)' : 'currentColor'}
-                  strokeWidth={isActive ? 2.2 : 1.8}
-                />
-                <span style={{ flex: 1 }}>{item.label}</span>
-
-                {/* Badge */}
-                {item.badge && (
-                  <span style={{
-                    fontSize: '0.58rem',
-                    fontWeight: 800,
-                    padding: '1px 6px',
-                    borderRadius: '99px',
-                    background: `${item.badgeColor}22`,
-                    color: item.badgeColor,
-                    border: `1px solid ${item.badgeColor}44`,
-                    letterSpacing: '0.05em',
-                  }}>
-                    {item.badge}
-                  </span>
-                )}
-
-                {/* Active arrow */}
-                {isActive && (
-                  <ChevronRight size={14} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      ))}
+        );
+      })}
 
       {/* Bottom version */}
       <div style={{

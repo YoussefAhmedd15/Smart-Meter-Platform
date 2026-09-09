@@ -20,8 +20,14 @@ export const LoginPage: React.FC = () => {
     setError(null);
     setSubmitting(true);
     try {
-      await login(email, password);
-      navigate(from, { replace: true });
+      const me = await login(email, password);
+      // Redirect: admins go to /admin, everyone else goes to their original
+      // destination (or the dashboard if they came from the login page directly).
+      if (me.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(from === '/admin' ? '/' : from, { replace: true });
+      }
     } catch (err) {
       // Show the backend's actual error text (e.g. "Invalid email or
       // password.") — never a different, frontend-invented message.
