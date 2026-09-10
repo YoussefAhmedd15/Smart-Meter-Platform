@@ -206,6 +206,20 @@ class AzureDevOpsService:
         data = self._request("POST", url, json=body, headers=self._auth_header())
         return data["id"]
 
+    def check_connection(self) -> bool:
+        """Real connectivity check: can the configured credential actually
+        reach the configured plan? Formalizes the existing internal
+        _get_plan_root_suite_id() call (already used by create_test_suite)
+        into a proper status check. Never raises and never returns or
+        logs the PAT — only a bool."""
+        if not self.is_configured:
+            return False
+        try:
+            self._get_plan_root_suite_id()
+            return True
+        except AzureDevOpsError:
+            return False
+
     def get_or_create_test_suite(self, name: str) -> int:
         """Returns the Azure suite id for `name` under the configured plan, creating it if absent."""
         self._require_configured()

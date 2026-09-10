@@ -37,6 +37,7 @@ from backend.app.services.ai_service import AIService
 from backend.app.services.azure_devops_service import AzureDevOpsService, AzureDevOpsError
 from backend.app.api.auth import router as auth_router
 from backend.app.api.admin import router as admin_router
+from backend.app.api.settings import router as settings_router
 from backend.app.core.dependencies import get_current_user
 from meter.config import MeterConfig
 
@@ -61,6 +62,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(settings_router)
 
 
 @app.exception_handler(Exception)

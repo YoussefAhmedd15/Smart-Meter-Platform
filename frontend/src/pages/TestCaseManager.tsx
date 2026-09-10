@@ -30,10 +30,10 @@ const SyncBadge: React.FC<{ status: AzureSyncStatus; error?: string | null }> = 
 // ─────────────────────────────────────────────
 // Azure DevOps deep link helper
 // ─────────────────────────────────────────────
-const buildAzureUrl = (azureId: number | null | undefined) => {
-  // We read org/project from localStorage (saved by Settings page)
-  const org = localStorage.getItem('azure_org') ?? '';
-  const project = localStorage.getItem('azure_project') ?? '';
+const buildAzureUrl = (azureId: number | null | undefined, org: string | null, project: string | null) => {
+  // org/project come from GET /api/settings/azure-connection-status (the
+  // server's own configured values) — not secret, but no longer read from
+  // localStorage since SettingsPage.tsx no longer writes them there.
   if (!azureId || !org || !project) return null;
   return `https://dev.azure.com/${org}/${project}/_testManagement/testcases/edit/${azureId}`;
 };
@@ -56,11 +56,13 @@ interface RowProps {
   onRetry: (id: number) => void;
   retrying: boolean;
   onEdit: (tc: TestCaseDefinition) => void;
+  azureOrg: string | null;
+  azureProject: string | null;
 }
 
-const TestCaseRow: React.FC<RowProps> = ({ tc, onRetry, retrying, onEdit }) => {
+const TestCaseRow: React.FC<RowProps> = ({ tc, onRetry, retrying, onEdit, azureOrg, azureProject }) => {
   const [expanded, setExpanded] = useState(false);
-  const azureUrl = buildAzureUrl(tc.azure_test_case_id);
+  const azureUrl = buildAzureUrl(tc.azure_test_case_id, azureOrg, azureProject);
 
   return (
     <>
@@ -393,6 +395,11 @@ export const TestCaseManager: React.FC = () => {
   const [editing,      setEditing]      = useState<TestCaseDefinition | null>(null);
   const [retrying,     setRetrying]     = useState<number | null>(null);
   const [toast,        setToast]        = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  // Sourced from the backend's own configured Azure DevOps org/project
+  // (GET /api/settings/azure-connection-status) — fetched once, used only
+  // to build deep-link URLs. Not secret; never includes the PAT.
+  const [azureOrg,     setAzureOrg]     = useState<string | null>(null);
+  const [azureProject, setAzureProject] = useState<string | null>(null);
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type });
@@ -420,6 +427,15 @@ export const TestCaseManager: React.FC = () => {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    apiService.getAzureConnectionStatus()
+      .then(status => {
+        setAzureOrg(status.org);
+        setAzureProject(status.project);
+      })
+      .catch(() => { /* deep links simply won't render without org/project */ });
+  }, []);
 
   const handleRetry = async (id: number) => {
     setRetrying(id);
@@ -557,6 +573,8 @@ export const TestCaseManager: React.FC = () => {
                   onRetry={handleRetry}
                   retrying={retrying === (tc.test_case_id ?? tc.id)}
                   onEdit={openEdit}
+                  azureOrg={azureOrg}
+                  azureProject={azureProject}
                 />
               ))}
             </tbody>

@@ -95,6 +95,12 @@ python scripts/seed_demo.py --confirm
 ```
 *(Note: Automatic demo seeding is disabled on normal startup to protect shared database records.)*
 
+To provision a real admin account against whatever `DATABASE_URL` is configured, run:
+```bash
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=your-password python scripts/create_admin_user.py
+```
+*(Both env vars are required — no defaults; the script fails loudly if either is unset, or if that email already exists rather than overwriting it.)*
+
 ### 4. Run CLI Meter Verification
 Inspect connection settings and available ports:
 ```bash

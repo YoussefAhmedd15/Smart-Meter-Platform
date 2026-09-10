@@ -294,11 +294,20 @@ def seed():
     # Users
     # -----------------------------------------------------------------------
     print("Seeding default Users...")
-    admin_user = db.query(User).filter(User.email == "admin@iskraemeco.com").first()
+    # Falls back to a known demo credential (unlike create_admin_user.py,
+    # which has no fallback) because this script is already confined to
+    # disposable/demo databases by the --force-neon guard above — the
+    # blast radius of a hardcoded default here is already bounded, and a
+    # required env var would break the documented one-command bootstrap
+    # (README.md). Override with DEMO_ADMIN_EMAIL/DEMO_ADMIN_PASSWORD if
+    # a non-default demo credential is wanted.
+    demo_admin_email = os.getenv("DEMO_ADMIN_EMAIL", "admin@iskraemeco.com")
+    demo_admin_password = os.getenv("DEMO_ADMIN_PASSWORD", "admin123")
+    admin_user = db.query(User).filter(User.email == demo_admin_email).first()
     if not admin_user:
         db.add(User(
-            email="admin@iskraemeco.com",
-            password_hash=hash_password("admin123"),
+            email=demo_admin_email,
+            password_hash=hash_password(demo_admin_password),
             role="admin",
             is_active=True,
         ))

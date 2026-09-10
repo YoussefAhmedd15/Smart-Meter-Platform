@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Save, CheckCircle2, Info,
-  Monitor, Server, Eye, EyeOff, TestTube, ExternalLink,
+  Save, CheckCircle2, XCircle, Info,
+  Monitor, Server, RefreshCw,
 } from 'lucide-react';
+import { apiService, AzureConnectionStatus } from '../services/api';
 
 export const SettingsPage: React.FC = () => {
   const [comPort,         setComPort]         = useState(() => localStorage.getItem('smp_pref_com_port') ?? 'COM6');
@@ -13,13 +14,26 @@ export const SettingsPage: React.FC = () => {
   const [appMode,         setAppMode]         = useState(() => localStorage.getItem('smp_pref_app_mode') ?? 'demo');
   const [hwSaveStatus,    setHwSaveStatus]    = useState<'idle' | 'saved'>('idle');
 
-  // Azure DevOps credentials
-  const [azureOrg,     setAzureOrg]     = useState(() => localStorage.getItem('azure_org')     ?? '');
-  const [azureProject, setAzureProject] = useState(() => localStorage.getItem('azure_project') ?? '');
-  const [azurePat,     setAzurePat]     = useState(() => localStorage.getItem('azure_pat')     ?? '');
-  const [azurePlanId,  setAzurePlanId]  = useState(() => localStorage.getItem('azure_plan_id') ?? '');
-  const [showPat,      setShowPat]      = useState(false);
-  const [azureSaved,   setAzureSaved]   = useState<'idle' | 'saved' | 'testing' | 'ok' | 'fail'>('idle');
+  // Azure DevOps: real, read-only, server-side status — no credential of
+  // any kind is ever entered into or stored by this page.
+  const [azureStatus,  setAzureStatus]  = useState<AzureConnectionStatus | null>(null);
+  const [azureLoading, setAzureLoading] = useState(true);
+  const [azureError,   setAzureError]   = useState<string | null>(null);
+
+  const loadAzureStatus = useCallback(async () => {
+    setAzureLoading(true);
+    setAzureError(null);
+    try {
+      const status = await apiService.getAzureConnectionStatus();
+      setAzureStatus(status);
+    } catch (err: any) {
+      setAzureError(err?.message ?? 'Failed to load Azure DevOps connection status.');
+    } finally {
+      setAzureLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadAzureStatus(); }, [loadAzureStatus]);
 
   const handleHwSave = () => {
     localStorage.setItem('smp_pref_com_port', comPort);
@@ -31,37 +45,6 @@ export const SettingsPage: React.FC = () => {
     setHwSaveStatus('saved');
     setTimeout(() => setHwSaveStatus('idle'), 4000);
   };
-
-  const handleAzureSave = () => {
-    localStorage.setItem('azure_org',      azureOrg.trim());
-    localStorage.setItem('azure_project',  azureProject.trim());
-    localStorage.setItem('azure_pat',      azurePat.trim());
-    localStorage.setItem('azure_plan_id',  azurePlanId.trim());
-    setAzureSaved('saved');
-    setTimeout(() => setAzureSaved('idle'), 3000);
-  };
-
-  const handleAzureTest = async () => {
-    if (!azureOrg || !azureProject || !azurePat || !azurePlanId) {
-      setAzureSaved('fail');
-      setTimeout(() => setAzureSaved('idle'), 3000);
-      return;
-    }
-    setAzureSaved('testing');
-    try {
-      const token = btoa(`:${azurePat}`);
-      const url = `https://dev.azure.com/${azureOrg}/${azureProject}/_apis/testplan/plans/${azurePlanId}?api-version=7.1`;
-      const res = await fetch(url, {
-        headers: { Authorization: `Basic ${token}` },
-      });
-      setAzureSaved(res.ok ? 'ok' : 'fail');
-    } catch {
-      setAzureSaved('fail');
-    }
-    setTimeout(() => setAzureSaved('idle'), 4000);
-  };
-
-  const azureConfigured = Boolean(azureOrg && azureProject && azurePat && azurePlanId);
 
   return (
     <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
@@ -138,7 +121,9 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Azure DevOps Integration */}
+      {/* Azure DevOps Integration — read-only server-side status. No
+          credential of any kind is entered, stored, or transmitted by
+          this page; the PAT lives only in the backend's own .env. */}
       <div className="glass-card" style={{ padding: '24px', borderLeft: '4px solid var(--accent-purple)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <Server size={18} color="var(--accent-purple)" />
@@ -147,105 +132,68 @@ export const SettingsPage: React.FC = () => {
           </h3>
           <span
             style={{ marginLeft: 'auto', fontSize: '0.72rem', fontWeight: 700, padding: '2px 10px', borderRadius: '99px',
-              background: azureConfigured ? 'rgba(0,230,118,0.14)' : 'rgba(255,171,0,0.12)',
-              color: azureConfigured ? 'var(--accent-green)' : 'var(--accent-amber)',
-              border: `1px solid ${azureConfigured ? 'var(--border-green)' : 'var(--border-amber)'}`,
+              background: azureStatus?.configured ? 'rgba(0,230,118,0.14)' : 'rgba(255,171,0,0.12)',
+              color: azureStatus?.configured ? 'var(--accent-green)' : 'var(--accent-amber)',
+              border: `1px solid ${azureStatus?.configured ? 'var(--border-green)' : 'var(--border-amber)'}`,
             }}
           >
-            {azureConfigured ? '● CONFIGURED' : '○ NOT CONFIGURED'}
+            {azureStatus?.configured ? '● CONFIGURED' : '○ NOT CONFIGURED'}
           </span>
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
-          These credentials are stored in your browser and used to build Azure DevOps links in the Test Case Manager.
-          The backend reads them from <span className="mono" style={{ color: 'var(--accent-cyan)', fontSize: '0.75rem' }}>.env</span> at startup.
+          Azure DevOps integration is configured server-side via the backend's <span className="mono" style={{ color: 'var(--accent-cyan)', fontSize: '0.75rem' }}>.env</span> file. This page shows its real, live connection status — there is nothing to enter here, and no credential ever reaches your browser.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div>
-            <label className="form-label">Azure Organization</label>
-            <input
-              id="azure-org"
-              className="form-input"
-              value={azureOrg}
-              onChange={e => setAzureOrg(e.target.value)}
-              placeholder="e.g. iskraemeco"
-            />
+        {azureLoading ? (
+          <div style={{ padding: '16px 0', color: 'var(--text-dim)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <RefreshCw size={14} className="spin" /> Checking connection status…
           </div>
-          <div>
-            <label className="form-label">Azure Project Name</label>
-            <input
-              id="azure-project"
-              className="form-input"
-              value={azureProject}
-              onChange={e => setAzureProject(e.target.value)}
-              placeholder="e.g. SmartMeterPlatform"
-            />
+        ) : azureError ? (
+          <div className="alert-banner danger">
+            <XCircle size={18} style={{ flexShrink: 0 }} />
+            <div>{azureError}</div>
           </div>
-          <div>
-            <label className="form-label">Test Plan ID</label>
-            <input
-              id="azure-plan-id"
-              className="form-input mono"
-              value={azurePlanId}
-              onChange={e => setAzurePlanId(e.target.value)}
-              placeholder="e.g. 123"
-            />
-          </div>
-          <div>
-            <label className="form-label">Personal Access Token (PAT)</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                id="azure-pat"
-                className="form-input mono"
-                type={showPat ? 'text' : 'password'}
-                value={azurePat}
-                onChange={e => setAzurePat(e.target.value)}
-                placeholder="••••••••••••••••••••••••••"
-                style={{ paddingRight: '40px' }}
-              />
-              <button
-                onClick={() => setShowPat(x => !x)}
-                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-dim)', padding: '4px' }}
-              >
-                {showPat ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div>
+              <label className="form-label">Azure Organization</label>
+              <div className="mono" style={{ fontSize: '0.92rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                {azureStatus?.org ?? '—'}
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Azure portal link */}
-        {azureConfigured && (
-          <div style={{ marginTop: '12px' }}>
-            <a
-              href={`https://dev.azure.com/${azureOrg}/${azureProject}/_testPlans/execute?planId=${azurePlanId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
-            >
-              <ExternalLink size={13} /> Open Test Plan in Azure DevOps
-            </a>
+            <div>
+              <label className="form-label">Azure Project</label>
+              <div className="mono" style={{ fontSize: '0.92rem', color: 'var(--text-main)', marginTop: '4px' }}>
+                {azureStatus?.project ?? '—'}
+              </div>
+            </div>
+            <div>
+              <label className="form-label">Connection</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                {azureStatus?.connected ? (
+                  <CheckCircle2 size={16} color="var(--accent-green)" />
+                ) : (
+                  <XCircle size={16} color={azureStatus?.configured ? 'var(--accent-red)' : 'var(--text-dim)'} />
+                )}
+                <span style={{ fontSize: '0.88rem' }}>
+                  {azureStatus?.connected
+                    ? 'Connected'
+                    : azureStatus?.configured
+                      ? 'Configured, but unreachable'
+                      : 'Not configured'}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
         <hr className="divider" />
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button id="save-azure-btn" className="btn-cyan" onClick={handleAzureSave}>
-            {azureSaved === 'saved'
-              ? <><CheckCircle2 size={16} /> Saved!</>
-              : <><Save size={16} /> Save Azure Settings</>}
-          </button>
-          <button id="test-azure-btn" className="btn-ghost" onClick={handleAzureTest} disabled={azureSaved === 'testing'}>
-            <TestTube size={15} />
-            {azureSaved === 'testing' ? 'Testing…' : 'Test Connection'}
-          </button>
-
-          {azureSaved === 'ok'   && <span style={{ fontSize: '0.82rem', color: 'var(--accent-green)' }}>✓ Connection successful!</span>}
-          {azureSaved === 'fail' && <span style={{ fontSize: '0.82rem', color: 'var(--accent-red)' }}>✗ Connection failed — check org, project, PAT, and plan ID.</span>}
-          {azureSaved === 'saved' && <span style={{ fontSize: '0.82rem', color: 'var(--accent-green)' }}>✓ Credentials saved to browser storage.</span>}
-        </div>
+        <button className="btn-ghost" onClick={loadAzureStatus} disabled={azureLoading}>
+          <RefreshCw size={15} className={azureLoading ? 'spin' : ''} />
+          {azureLoading ? 'Checking…' : 'Refresh Status'}
+        </button>
         <p style={{ fontSize: '0.73rem', color: 'var(--text-dim)', marginTop: '10px' }}>
-          Also add these values to your <span className="mono">.env</span> file so the FastAPI backend can sync test cases automatically on create/update.
+          To change these values, update <span className="mono">AZURE_DEVOPS_ORG</span> / <span className="mono">AZURE_DEVOPS_PROJECT</span> / <span className="mono">AZURE_DEVOPS_PAT</span> / <span className="mono">AZURE_DEVOPS_TEST_PLAN_ID</span> in the backend's <span className="mono">.env</span> file and restart the FastAPI server.
         </p>
       </div>
     </div>

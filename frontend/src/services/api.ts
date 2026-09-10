@@ -72,6 +72,15 @@ export interface TokenResponse {
   token_type: string;
 }
 
+// The PAT is deliberately absent — it never leaves the backend. org/project
+// are not secret, safe to display read-only.
+export interface AzureConnectionStatus {
+  configured: boolean;
+  connected: boolean;
+  org: string | null;
+  project: string | null;
+}
+
 export const apiService = {
   getHealth: () => fetchJson<{ status: string; app_mode: string }>('/health'),
 
@@ -225,6 +234,11 @@ export const apiService = {
 
   adminDeleteUser: (userId: number): Promise<void> =>
     fetchJson<void>(`/admin/users/${userId}`, { method: 'DELETE' }),
+
+  // --- Settings: read-only status, server-side-configured values only ---
+
+  getAzureConnectionStatus: (): Promise<AzureConnectionStatus> =>
+    fetchJson<AzureConnectionStatus>('/settings/azure-connection-status'),
 
   // --- Reports: real calls only, no mock fallback ---
 
